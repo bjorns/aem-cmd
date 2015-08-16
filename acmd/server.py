@@ -9,15 +9,21 @@ DEFAULT_USER = 'admin'
 DEFAULT_PASS = 'admin'
 
 class Server(object):
-    def __init__(self, name):
+    def __init__(self, name, host='localhost', port=4502, username='admin', password='admin'):
         self.name = name
-        self.host = 'localhost'
-        self.port = 4502
-        self.username = 'admin'
-        self.password = 'admin'
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
 
     def __str__(self):
         return "http://{host}:{port}".format(host=self.host,port=self.port)
+
+    def url(self, path):
+        return "http://{host}:{port}{path}".format(
+            host=self.host,
+            port=self.port,
+            path=path)
 
 
 def get_server(server_name):
