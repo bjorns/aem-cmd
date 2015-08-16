@@ -14,7 +14,6 @@ def split_argv(argv):
     ['foo', 'bar', 'inspect', 'bink', 'bonk']
         => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
     for i, arg in enumerate(argv):
-        print("testing '" + arg + "'")
         if acmd.get_command(arg) is not None:
             return argv[0:i+1], argv[i:]
     raise Exception("No command located in command line.")
@@ -30,7 +29,6 @@ if __name__ == '__main__':
         cmd_name, args = args[1], []
 
     server = acmd.get_server(options.server)
-    print("Using server {s}".format(s=server))
 
     cmd = acmd.get_command(cmd_name)
     status = cmd.execute(server, cmdargs)
