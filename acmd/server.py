@@ -1,5 +1,5 @@
 # conding: utf-8
-import configparser
+import ConfigParser as configparser
 
 DEFAULT_SERVER_SETTING = 'default_server'
 
@@ -36,7 +36,7 @@ def get_server(server_name):
 def read_config(filename):
     parser = configparser.ConfigParser()
     with open(filename) as f:
-        parser.read_file(f, "utf-8")
+        parser.readfp(f, "utf-8")
 
     ret = dict()
     for section in parser.sections():
