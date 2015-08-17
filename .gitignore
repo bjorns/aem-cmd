@@ -1,1 +1,7 @@
 *.pyc
+
+
+# Dist residuals
+dist
+build
+aem_cmd.egg-info
