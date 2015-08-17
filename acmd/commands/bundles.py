@@ -13,6 +13,26 @@ parser.add_option("-v", "--verbose",
                 help="report verbose data when supported")
 
 
+class BundlesCommand(object):
+    def __init__(self):
+        self.name = 'bundles'
+
+    def execute(self, server, argv):
+        (options, args) = parser.parse_args(argv)
+
+        action = get_action(args)
+        actionarg = get_argument(args)
+        if action == 'list':
+            list_bundles(server, options)
+        elif action == 'start':
+            start_bundle(server, actionarg, options)
+        elif action == 'stop':
+            stop_bundle(server, actionarg, options)
+        else:
+            sys.stderr.write('error: Unknown bundle action {a}\n'.format(a=action))
+            sys.exit(-1)
+
+
 def get_bundle_list(server):
     response = get_json(server, '/system/console/bundles.json')
     bundles = response['data']
@@ -62,25 +82,5 @@ def get_argument(argv):
         return argv[2]
 
 
-class BundleCommand(object):
-    def __init__(self):
-        self.name = 'bundle'
-
-    def execute(self, server, argv):
-        (options, args) = parser.parse_args(argv)
-
-        action = get_action(args)
-        actionarg = get_argument(args)
-        if action == 'list':
-            list_bundles(server, options)
-        elif action == 'start':
-            start_bundle(server, actionarg, options)
-        elif action == 'stop':
-            stop_bundle(server, actionarg, options)
-        else:
-            sys.stderr.write('error: Unknown bundle action {a}\n'.format(a=action))
-            sys.exit(-1)
-
-
-cmd = BundleCommand()
+cmd = BundlesCommand()
 register_command(cmd)

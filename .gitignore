@@ -1,5 +1,7 @@
 *.pyc
 
+# IDE
+aem-cmd.iml
 
 # Dist residuals
 dist
