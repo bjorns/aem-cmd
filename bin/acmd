@@ -30,5 +30,9 @@ if __name__ == '__main__':
     server = acmd.get_server(options.server)
 
     cmd = acmd.get_command(cmd_name)
-    status = cmd.execute(server, cmdargs)
+    if cmd is None:
+        sys.stderr.write("error: command '{cmd}' not found.\n".format(cmd=cmd_name))
+        status = 1
+    else:
+        status = cmd.execute(server, cmdargs)
     sys.exit(status)
