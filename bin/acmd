@@ -10,6 +10,7 @@ parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
                   help="server name", metavar="str")
 
+
 def split_argv(argv):
     """ Split argument list into system arguments before the command
     and command arguments afterwards.
@@ -17,7 +18,7 @@ def split_argv(argv):
         => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
     for i, arg in enumerate(argv):
         if acmd.get_command(arg) is not None:
-            return argv[0:i+1], argv[i:]
+            return argv[0:i + 1], argv[i:]
     return argv, []
 
 

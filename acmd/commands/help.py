@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+
 from acmd.commands.registry import register_command, list_commands
 
 
@@ -13,5 +14,5 @@ class HelpCommand(object):
             sys.stdout.write("  {cmd}\n".format(cmd=cmd))
 
 
-cmd = HelpCommand()
-register_command(cmd)
+helpcmd = HelpCommand()
+register_command(helpcmd)

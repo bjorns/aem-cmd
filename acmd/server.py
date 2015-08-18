@@ -1,6 +1,6 @@
 # conding: utf-8
 from os.path import expanduser
-import ConfigParser as configparser
+import ConfigParser
 
 DEFAULT_SERVER_SETTING = 'default_server'
 
@@ -8,6 +8,7 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 4502
 DEFAULT_USER = 'admin'
 DEFAULT_PASS = 'admin'
+
 
 class Server(object):
     def __init__(self, name, host='localhost', port=4502, username='admin', password='admin'):
@@ -18,7 +19,7 @@ class Server(object):
         self.password = password
 
     def __str__(self):
-        return "http://{host}:{port}".format(host=self.host,port=self.port)
+        return "http://{host}:{port}".format(host=self.host, port=self.port)
 
     def url(self, path):
         return "http://{host}:{port}{path}".format(
@@ -30,14 +31,14 @@ class Server(object):
 def get_server(server_name):
     if server_name is None:
         server_name = DEFAULT_SERVER_SETTING
-    
+
     home = expanduser("~")
     cfg = read_config("{home}/.acmd.rc".format(home=home))
     return cfg[server_name]
 
 
 def read_config(filename):
-    parser = configparser.ConfigParser()
+    parser = ConfigParser.ConfigParser()
     with open(filename) as f:
         parser.readfp(f, "utf-8")
 
@@ -56,7 +57,8 @@ def read_config(filename):
     ret[DEFAULT_SERVER_SETTING] = ret[default_name]
     return ret
 
-def default(value, default):
+
+def default(value, defval):
     if value is None:
-        return default
+        return defval
     return value
