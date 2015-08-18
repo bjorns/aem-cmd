@@ -3,8 +3,8 @@ import sys
 import optparse
 import acmd
 
-USAGE = """acmd [options] <command> <args>
-    Run 'acmd help' for list of available commands"""
+USAGE = """acmd [options] <tool> <args>
+    Run 'acmd help' for list of available tools"""
 
 parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
@@ -12,12 +12,12 @@ parser.add_option("-s", "--server", dest="server",
 
 
 def split_argv(argv):
-    """ Split argument list into system arguments before the command
-    and command arguments afterwards.
+    """ Split argument list into system arguments before the tool
+    and tool arguments afterwards.
     ['foo', 'bar', 'inspect', 'bink', 'bonk']
         => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
     for i, arg in enumerate(argv):
-        if acmd.get_command(arg) is not None:
+        if acmd.get_tool(arg) is not None:
             return argv[0:i + 1], argv[i:]
     return argv, []
 
@@ -29,13 +29,13 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
     else:
-        cmd_name, args = args[1], []
+        tool_name, args = args[1], []
 
     server = acmd.get_server(options.server)
 
-    cmd = acmd.get_command(cmd_name)
+    cmd = acmd.get_tool(tool_name)
     if cmd is None:
-        sys.stderr.write("error: command '{cmd}' not found.\n".format(cmd=cmd_name))
+        sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         status = 1
     else:
         status = cmd.execute(server, cmdargs)

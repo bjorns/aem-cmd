@@ -27,7 +27,7 @@ config = {
     'name': 'aem-cmd',
     'version': '0.1a4',
     'description': 'AEM Command line tools',
-    'long_description': 'A set of commands to administer an Adobe AEM content management installation from the command line.',
+    'long_description': 'A set of tools to administer an Adobe AEM content management installation from the command line.',
     'license': 'MIT',
     'author': 'Björn Skoglund',
     'author_email': 'bjorn.skoglund@icloud.com',
@@ -37,7 +37,7 @@ config = {
 
     # Build specs
     'install_requires': ['requests', 'nose'],
-    'packages': ['acmd', 'acmd.commands'],
+    'packages': ['acmd', 'acmd.tools'],
     'scripts': ['bin/acmd']
 }
 

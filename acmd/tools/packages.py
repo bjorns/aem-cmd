@@ -5,7 +5,7 @@ import json
 from xml.etree import ElementTree
 import requests
 
-from acmd.commands.registry import register_command
+from acmd.tools.registry import register_tool
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
 parser.add_option("-v", "--verbose",
@@ -13,7 +13,7 @@ parser.add_option("-v", "--verbose",
                   help="report verbose data when supported")
 
 
-class PackagesCommand(object):
+class PackagesTool(object):
     def __init__(self):
         self.name = 'packages'
 
@@ -87,5 +87,5 @@ def upload_package(server, options):
     pass
 
 
-cmd = PackagesCommand()
-register_command(cmd)
+cmd = PackagesTool()
+register_tool(cmd)

@@ -12,10 +12,10 @@ system resources is available
 
 ### Help
 
-The help command lists all installed tools
+The help tool lists all installed tools
 
     $ acmd help
-    Available commands:
+    Available tools:
       inspect
       bundles
       help
@@ -66,11 +66,11 @@ All bundles commands support the --verbose flag which prints raw json output.
 
 ### Packages
 
-The packages command support up- and downloading, installing and uninstalling packages.
+The packages tool support up- and downloading, installing and uninstalling packages.
 
 #### List packages
 
-By default the packages command lists all installed packages.
+By default the packages tool lists all installed packages.
 
     $ acmd packages list
     ...

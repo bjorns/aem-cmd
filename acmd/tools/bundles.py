@@ -3,7 +3,7 @@ import sys
 import optparse
 import json
 
-from acmd.commands.registry import register_command
+from acmd.tools.registry import register_tool
 from acmd.http_util import get_json, post_form
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
@@ -12,7 +12,7 @@ parser.add_option("-v", "--verbose",
                   help="report verbose data when supported")
 
 
-class BundlesCommand(object):
+class BundlesTool(object):
     def __init__(self):
         self.name = 'bundles'
 
@@ -84,5 +84,5 @@ def get_argument(argv):
         return argv[2]
 
 
-cmd = BundlesCommand()
-register_command(cmd)
+cmd = BundlesTool()
+register_tool(cmd)
