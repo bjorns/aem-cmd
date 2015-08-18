@@ -1,4 +1,5 @@
 # conding: utf-8
+from os.path import expanduser
 import ConfigParser as configparser
 
 DEFAULT_SERVER_SETTING = 'default_server'
@@ -29,7 +30,9 @@ class Server(object):
 def get_server(server_name):
     if server_name is None:
         server_name = DEFAULT_SERVER_SETTING
-    cfg = read_config("/Users/bjorn/.aem-cmd")
+    
+    home = expanduser("~")
+    cfg = read_config("{home}/.acmd.rc".format(home=home))
     return cfg[server_name]
 
 

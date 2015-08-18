@@ -1,0 +1,16 @@
+# This is a template configuration file for the AEM Command line tools.
+# acmd expects this file to exist as ~/.acmd.rc
+
+# Each server is defined by a section named [server <name>]. 
+# This server can then be accessed via the --server option.
+[server localhost]
+host=localhost
+port=4502
+username=admin
+password=admin
+
+# The default server option specifies which server to use if
+# the --server option is not specified.
+[settings]
+default_server=localhost
+
