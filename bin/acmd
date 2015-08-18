@@ -3,7 +3,10 @@ import sys
 import optparse
 import acmd
 
-parser = optparse.OptionParser("acmd [options] <command> <args>")
+USAGE = """acmd [options] <command> <args>
+    Run 'acmd help' for list of available commands"""
+
+parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
                   help="server name", metavar="str")
 

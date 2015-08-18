@@ -8,7 +8,7 @@ from xml.etree import ElementTree
 from acmd.commands.registry import register_command
 from acmd.http_util import get_json, post_form
 
-parser = optparse.OptionParser("acmd packages [options] [upload] [<zip>|<package>]")
+parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
 parser.add_option("-v", "--verbose",
                 action="store_const", const=True, dest="verbose",
                 help="report verbose data when supported")
