@@ -4,8 +4,7 @@ import optparse
 import json
 from xml.etree import ElementTree
 import requests
-
-from acmd.tools.registry import register_tool
+from acmd.tool import tool
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
 parser.add_option("-v", "--verbose",
@@ -13,9 +12,8 @@ parser.add_option("-v", "--verbose",
                   help="report verbose data when supported")
 
 
+@tool('packages')
 class PackagesTool(object):
-    def __init__(self):
-        self.name = 'packages'
 
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
@@ -29,13 +27,6 @@ class PackagesTool(object):
         else:
             sys.stderr.write('error: Unknown bundle action {a}\n'.format(a=action))
             sys.exit(-1)
-
-
-class PackagesResponse(object):
-    """ Iterable for xml packages list. """
-
-    def __init__(self, tree):
-        pass
 
 
 def get_action(argv):
@@ -85,7 +76,3 @@ def upload_package(server, options):
     """curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
             -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp"""
     pass
-
-
-cmd = PackagesTool()
-register_tool(cmd)

@@ -5,5 +5,6 @@ import acmd.tools.registry
 get_server = server.get_server
 
 get_tool = acmd.tools.registry.get_tool
+register_tool = acmd.tools.registry.register_tool
 
 Server = server.Server
