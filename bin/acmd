@@ -24,7 +24,11 @@ def split_argv(argv):
 
 
 if __name__ == '__main__':
+    home = expanduser("~")
+    cfg = acmd.read_config("{home}/.acmd.rc".format(home=home))
+
     sysargs, cmdargs = split_argv(sys.argv)
+    print "Parsing {}".format(sysargs)
     (options, args) = parser.parse_args(sysargs)
     if len(args) == 1:
         parser.print_help()
@@ -32,8 +36,6 @@ if __name__ == '__main__':
     else:
         tool_name, args = args[1], []
 
-    home = expanduser("~")
-    cfg = acmd.read_config("{home}/.acmd.rc".format(home=home))
     server = cfg.get_server(options.server)
 
     cmd = acmd.get_tool(tool_name)
