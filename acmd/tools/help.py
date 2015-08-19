@@ -1,8 +1,7 @@
 # coding: utf-8
 import sys
 
-from acmd.tools.registry import register_tool, list_tools
-from acmd.tool import tool
+from acmd.tool import tool, list_tools
 
 @tool('help')
 class HelpTool(object):

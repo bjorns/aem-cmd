@@ -1,5 +1,8 @@
 # coding: utf-8
-from acmd.tools.registry import register_tool
+import os
+
+_tools = dict()
+
 
 def tool(tool_name):
     """ Tool decorator.
@@ -11,6 +14,7 @@ def tool(tool_name):
 
         @tool('packages')
         """
+
     def class_rebuilder(cls):
         instance = cls()
         instance.name = tool_name
@@ -19,3 +23,38 @@ def tool(tool_name):
 
     return class_rebuilder
 
+
+def import_tools(path, package=None):
+    module = None
+    for module in os.listdir(os.path.dirname(path)):
+        if module == '__init__.py' or module[-3:] != '.py':
+            continue
+        if package is not None:
+            __import__(package, locals(), globals(), [module[:-3]], 0)
+        else:
+            __import__(module[:-3], locals(), globals())
+    del module
+
+_init_project = None
+def set_current_project(name):
+    """ Set a project name context when initializing project tools. """
+    global _init_project
+    _init_project = name
+
+def register_tool(_tool):
+    assert get_tool(_tool.name) is None
+    if _init_project is None:
+        name = _tool.name
+    else:
+        name = _init_project + ':' + _tool.name
+    _tools[name] = _tool
+
+
+
+def get_tool(tool_name):
+    return _tools.get(tool_name)
+
+
+def list_tools():
+    """ Returns list of all tool names."""
+    return _tools.keys()

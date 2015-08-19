@@ -1,6 +1,9 @@
 # coding: utf-8
 import ConfigParser
+from os.path import expanduser
+
 import acmd.server
+import acmd.tool
 
 _DEFAULT_SERVER_SETTING = 'default_server'
 
@@ -8,7 +11,7 @@ _DEFAULT_SERVER_SETTING = 'default_server'
 class Config(object):
     def __init__(self):
         self.servers = dict()
-        self.projects = list()
+        self.projects = dict()
 
     def get_server(self, server_name):
         if server_name is None:
@@ -40,6 +43,31 @@ def parse_servers(parser):
     return ret
 
 
+def get_init(path):
+    if path.endswith('__init__.py'):
+        return path
+    elif path.endswith('/'):
+        return path + "__init__.py"
+    else:
+        return path + "/__init__.py"
+
+
+import sys
+
+
+def load_projects(parser):
+    ret = {}
+    if parser.has_section('projects'):
+        for name, path in parser.items('projects'):
+            path = expanduser(path)
+            sys.path.insert(1, path)
+            init_file = get_init(path)
+            acmd.tool.set_current_project(name)
+            acmd.tool.import_tools(init_file)
+            ret[name] = path
+    return ret
+
+
 def read_config(filename):
     parser = ConfigParser.ConfigParser()
     with open(filename) as f:
@@ -47,5 +75,5 @@ def read_config(filename):
 
     config = Config()
     config.servers = parse_servers(parser)
+    config.projects = load_projects(parser)
     return config
-

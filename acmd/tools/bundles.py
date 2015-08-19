@@ -3,7 +3,6 @@ import sys
 import optparse
 import json
 
-from acmd.tools.registry import register_tool
 from acmd.http_util import get_json, post_form
 from acmd.tool import tool
 

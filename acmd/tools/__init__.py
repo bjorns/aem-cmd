@@ -1,9 +1,3 @@
 # encoding: utf-8
-import os
-
-module = None
-for module in os.listdir(os.path.dirname(__file__)):
-    if module == '__init__.py' or module[-3:] != '.py':
-        continue
-    __import__(module[:-3], locals(), globals())
-del module
+import acmd.tool
+acmd.tool.import_tools(__file__, 'acmd.tools')
