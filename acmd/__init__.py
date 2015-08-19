@@ -1,10 +1,11 @@
 # coding: utf-8
 import acmd.server
+import acmd.config
 import acmd.tools.registry
 
-get_server = server.get_server
+read_config = acmd.config.read_config
 
 get_tool = acmd.tools.registry.get_tool
 register_tool = acmd.tools.registry.register_tool
 
-Server = server.Server
+Server = acmd.server.Server

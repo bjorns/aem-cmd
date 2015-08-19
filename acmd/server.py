@@ -1,22 +1,18 @@
 # conding: utf-8
-from os.path import expanduser
-import ConfigParser
-
-DEFAULT_SERVER_SETTING = 'default_server'
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 4502
 DEFAULT_USER = 'admin'
 DEFAULT_PASS = 'admin'
 
-
 class Server(object):
-    def __init__(self, name, host='localhost', port=4502, username='admin', password='admin'):
+    def __init__(self, name, host=None, port=None, username=None, password=None):
+        assert name is not None
         self.name = name
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
+        self.host = default(host, DEFAULT_HOST)
+        self.port = default(port, DEFAULT_PORT)
+        self.username = default(username, DEFAULT_USER)
+        self.password = default(password, DEFAULT_PASS)
 
     def __str__(self):
         return "http://{host}:{port}".format(host=self.host, port=self.port)
@@ -28,34 +24,7 @@ class Server(object):
             path=path)
 
 
-def get_server(server_name):
-    if server_name is None:
-        server_name = DEFAULT_SERVER_SETTING
 
-    home = expanduser("~")
-    cfg = read_config("{home}/.acmd.rc".format(home=home))
-    return cfg[server_name]
-
-
-def read_config(filename):
-    parser = ConfigParser.ConfigParser()
-    with open(filename) as f:
-        parser.readfp(f, "utf-8")
-
-    ret = dict()
-    for section in parser.sections():
-        if section.startswith('server '):
-            name = section.split(' ')[1]
-            s = Server(name)
-            s.host = default(parser.get(section, 'host'), DEFAULT_HOST)
-            s.port = default(parser.get(section, 'port'), DEFAULT_PORT)
-            s.username = default(parser.get(section, 'username'), DEFAULT_USER)
-            s.password = default(parser.get(section, 'password'), DEFAULT_PASS)
-            ret[name] = s
-
-    default_name = parser.get('settings', DEFAULT_SERVER_SETTING)
-    ret[DEFAULT_SERVER_SETTING] = ret[default_name]
-    return ret
 
 
 def default(value, defval):
