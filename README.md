@@ -5,6 +5,22 @@ CRX repositories via command line tools. It tries to utilize
 the unix philosophy by reading and writing plaintext in order
 to interoperate with common tools such as grep, cut, sed and awk.
 
+
+## Installation
+
+acmd is available in PyPI.
+
+    $ pip instal aem-cmd
+    ...
+    $ acmd
+    Usage: acmd [options] <tool> <args>
+    Run 'acmd help' for list of available tools
+
+    Options:
+      -h, --help            show this help message and exit
+      -s str, --server=str  server name
+
+
 ## Tools
 
 To begin with the commons rest webservices for interacting with
@@ -80,3 +96,56 @@ By default the packages tool lists all installed packages.
     day/cq560/collab/calendar   cq-collab-calendar-pkg  5.6.12
     day/cq560/social/calendar   cq-social-calendar-pkg  1.0.28
     ....
+
+
+## Configuration
+
+Acmd config is specified in ```~/.acmd.rc.``` If this file does not exist at first
+execution it will be created from a template. Here is what the template file
+looks like:
+
+    # This is a template configuration file for the AEM Command line tools.
+    # acmd expects this file to exist as ~/.acmd.rc
+
+    # Each server is defined by a section named [server <name>].
+    # This server can then be accessed via the --server option.
+    [server localhost]
+    host=localhost
+    port=4502
+    username=admin
+    password=admin
+
+    # The default server option specifies which server to use if
+    # the --server option is not specified.
+    [settings]
+    default_server=localhost
+
+### Servers
+
+The most common use of the config file is to add additional servers. You will
+want to add a server entry for each instance in your setup. So one for your
+local, one for integration testing, one staging server and one each for
+author and publish instances in production.
+
+Once this is done you can easily run any command on any server via the ```-s```
+flag. Like for example
+
+    $ acmd -s prod-author bundles
+    ....
+
+### Projects
+
+The projects section enables you to add project specific tools you your
+arsenal. Let's say you have created a custom tool for handling a product
+catalog under _~/my_project/acmd-tools/catalog.py_. Now what you do is
+add the following to your ```.acmd.rc```
+
+    [pojects]
+    custom=~/my_project/acmd-tools
+
+All python files in _aem-tools_ will be imported and your tool should show up
+in with the help command as custom:catalog
+
+    $ acmd help
+     ...
+    custom:catalog
