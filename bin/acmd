@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import os
 import sys
 from os.path import expanduser
 import optparse
+
 import acmd
 
 USAGE = """acmd [options] <tool> <args>
@@ -24,8 +26,12 @@ def split_argv(argv):
 
 
 if __name__ == '__main__':
+
     home = expanduser("~")
-    cfg = acmd.read_config("{home}/.acmd.rc".format(home=home))
+    rcfilename = "{home}/.acmd.rc".format(home=home)
+    if not os.path.isfile(rcfilename):
+        acmd.setup_rcfile(rcfilename)
+    cfg = acmd.read_config(rcfilename)
 
     sysargs, cmdargs = split_argv(sys.argv)
     (options, args) = parser.parse_args(sysargs)

@@ -38,6 +38,7 @@ config = {
     # Build specs
     'install_requires': ['requests', 'nose'],
     'packages': ['acmd', 'acmd.tools'],
+    'package_data': {'acmd': ['data/acmd.rc.template']},
     'scripts': ['bin/acmd']
 }
 

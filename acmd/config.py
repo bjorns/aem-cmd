@@ -1,11 +1,24 @@
 # coding: utf-8
+import sys
 import ConfigParser
 from os.path import expanduser
+import pkg_resources
 
 import acmd.server
 import acmd.tool
 
 _DEFAULT_SERVER_SETTING = 'default_server'
+
+
+def read_config_template():
+    return pkg_resources.resource_string('acmd', "data/acmd.rc.template")
+
+
+def setup_rcfile(rcfilename):
+    """ Create a new ~/.acmd.rc from template."""
+    template = read_config_template()
+    target = open(rcfilename, 'wb')
+    target.write(template)
 
 
 class Config(object):
@@ -50,9 +63,6 @@ def get_init(path):
         return path + "__init__.py"
     else:
         return path + "/__init__.py"
-
-
-import sys
 
 
 def load_projects(parser):
