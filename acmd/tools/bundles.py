@@ -14,9 +14,6 @@ parser.add_option("-v", "--verbose",
 
 @tool('bundles')
 class BundlesTool(object):
-    def __init__(self):
-        pass
-
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
