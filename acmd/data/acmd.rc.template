@@ -1,7 +1,7 @@
 # This is a template configuration file for the AEM Command line tools.
 # acmd expects this file to exist as ~/.acmd.rc
 
-# Each server is defined by a section named [server <name>]. 
+# Each server is defined by a section named [server <name>].
 # This server can then be accessed via the --server option.
 [server localhost]
 host=localhost
@@ -14,3 +14,6 @@ password=admin
 [settings]
 default_server=localhost
 
+# Add custom tools directories here as
+# prefix=<custom_tool_dir>
+[projects]

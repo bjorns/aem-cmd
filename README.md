@@ -120,6 +120,11 @@ looks like:
     [settings]
     default_server=localhost
 
+    # Add custom tools directories here as
+    # prefix=<custom_tool_dir>
+    [projects]
+
+
 ### Servers
 
 The most common use of the config file is to add additional servers. You will
@@ -149,3 +154,36 @@ in with the help command as custom:catalog
     $ acmd help
      ...
     custom:catalog
+
+## Custom Tools
+
+Writing a custom tool is relatively easy. All of acmd is written in Python and
+relies on the [requests](http://www.python-requests.org) http client library
+for communication with AEM. The best way to learn how to extend is to read the
+tools code under acmd/tools.
+
+Nevertheless here is boilerplate for creating a new tool.
+
+```python
+# coding: utf-8
+from acmd.tool import tool
+
+@tool('template')
+class TemplateTool(object):
+    def execute(self, server, argv):
+        sys.stdout.write("Hello, world.\n")
+```
+
+There are two essential parts here. The ```@tool``` decorator takes care of declaring
+the tool so it can be found but acmd. The argument is the label used for the
+tool on the command line. Note that for custom tools declared under
+```[projects]``` a prefix will be added to the tool name.
+
+The ```execute()``` method takes a server argument
+containing all info on the currently selected server and argv is a list of
+tool arguments starting with the tool name. See for example the bundles tool
+for info on how to use the optparse package to add tool specific options.
+
+And that is pretty much it. The tool does not have to have any specific name
+(though a -Tool suffix is idiomatic), and it does not have to inherit any
+specific class.
