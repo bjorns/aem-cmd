@@ -28,7 +28,6 @@ if __name__ == '__main__':
     cfg = acmd.read_config("{home}/.acmd.rc".format(home=home))
 
     sysargs, cmdargs = split_argv(sys.argv)
-    print "Parsing {}".format(sysargs)
     (options, args) = parser.parse_args(sysargs)
     if len(args) == 1:
         parser.print_help()

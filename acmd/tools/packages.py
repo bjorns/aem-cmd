@@ -3,10 +3,16 @@ import sys
 import optparse
 import json
 from xml.etree import ElementTree
+
 import requests
+
 from acmd.tool import tool
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
+parser.add_option("-V", "--version",
+                  dest="version", help="specify explicit version")
+parser.add_option("-g", "--group",
+                  dest="group", help="specify explicit group")
 parser.add_option("-v", "--verbose",
                   action="store_const", const=True, dest="verbose",
                   help="report verbose data when supported")
@@ -14,7 +20,6 @@ parser.add_option("-v", "--verbose",
 
 @tool('packages')
 class PackagesTool(object):
-
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
@@ -22,6 +27,8 @@ class PackagesTool(object):
         actionarg = get_argument(args)
         if action == 'list':
             list_packages(server, options)
+        elif action == 'download':
+            download_package(server, actionarg, options)
         elif action == 'upload':
             upload_package(server, options)
         else:
@@ -43,15 +50,18 @@ def get_argument(argv):
         return argv[2]
 
 
-def list_packages(server, options):
+def get_packages_list(server):
     url = server.url('/crx/packmgr/service.jsp')
     form_data = {'cmd': (None, 'ls')}
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
-
     tree = ElementTree.fromstring(resp.content)
-    packages = parse_packages(tree)
+    return parse_packages(tree)
+
+
+def list_packages(server, options):
+    packages = get_packages_list(server)
     for pkg in packages:
         if options.verbose:
             sys.stdout.write("{s}\n".format(s=json.dumps(pkg, indent=4)))
@@ -70,6 +80,47 @@ def parse_package(elem):
     for sub in elem.getchildren():
         ret[sub.tag] = sub.text
     return ret
+
+
+def expand_package(server, package_name):
+    packages = get_packages_list(server)
+    for pkg in packages:
+        if package_name == pkg['name']:
+            return pkg
+
+
+def get_version(options, pkg):
+    if options.version is not None:
+        return options.version
+    else:
+        return pkg['version']
+
+
+def get_group(options, pkg):
+    if options.group is not None:
+        return options.group
+    else:
+        return pkg['group']
+
+
+def download_package(server, package_name, options):
+    pkg = expand_package(server, package_name)
+    version = get_version(options, pkg)
+    zipfile = pkg['name'] + '-' + version + '.zip'
+
+    group = get_group(options, pkg)
+    path = '/etc/packages/' + group + '/' + zipfile
+    url = server.url(path)
+
+    response = requests.get(url, auth=(server.username, server.password))
+    f = open(zipfile, 'wb')
+    if response.status_code == 200:
+        f.write(response.content)
+    else:
+        sys.stderr.write("error: Failed to download " + url + " because " + str(response.status_code) + "\n")
+        if options.verbose:
+            sys.stderr.write(response.content)
+            sys.stderr.write("\n")
 
 
 def upload_package(server, options):
