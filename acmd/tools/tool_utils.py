@@ -1,6 +1,6 @@
 # coding: utf-8
 
-def get_action(argv, default):
+def get_command(argv, default):
     if len(argv) < 2:
         return default
     else:

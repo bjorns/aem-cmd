@@ -5,7 +5,7 @@ import optparse
 import requests
 
 from acmd.tool import tool
-from tool_utils import get_action
+from tool_utils import get_command
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
 parser.add_option("-v", "--verbose",
@@ -17,7 +17,7 @@ parser.add_option("-v", "--verbose",
 class DispatcherTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
-        action = get_action(args, 'clear')
+        action = get_command(args, 'clear')
         if action == 'clear':
             clear_cache(server, options)
         else:

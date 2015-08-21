@@ -7,7 +7,7 @@ from acmd.tool import tool
 from acmd.tools.tool_utils import *
 from acmd.http_util import get_json
 
-parser = optparse.OptionParser("acmd jcr [options] [find|ls] <jcr path>")
+parser = optparse.OptionParser("acmd jcr [options] [ls|cat] <jcr path>")
 parser.add_option("-v", "--verbose",
                   action="store_const", const=True, dest="verbose",
                   help="report verbose data when supported")
@@ -18,15 +18,19 @@ class JcrTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_action(args, 'ls')
+        command = get_command(args, 'ls')
         path = get_argument(args)
 
-        if action == 'ls':
+        if command == 'ls':
             list_path(server, options, path)
+        elif command == 'cat':
+            cat_node(server, options, path)
+        else:
+            sys.stderr.write("error: Unknown command {}\n".format(command))
 
 
 def is_property(path_segment, data):
-    return isinstance(data, basestring)
+    return not isinstance(data, dict)
 
 
 def list_path(server, options, path):
@@ -40,3 +44,16 @@ def list_path(server, options, path):
         for path_segment, data in obj.items():
             if not is_property(path_segment, data):
                 sys.stdout.write("{local}\n".format(path=path, local=path_segment))
+
+def cat_node(server, options, path):
+    status, obj = get_json(server, "{path}.1.json".format(path=path))
+    if status != 200:
+        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, status))
+        sys.exit(-1)
+    if options.verbose:
+        sys.stdout.write(json.dumps(obj, indent=4))
+    else:
+        for prop, data in obj.items():
+            if is_property(prop, data):
+                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
+
