@@ -4,7 +4,6 @@ import optparse
 import json
 
 from acmd.tool import tool
-from acmd.tools.tool_utils import *
 from acmd.http_util import get_json
 
 parser = optparse.OptionParser("acmd jcr [options] [ls|cat] <jcr path>")
@@ -13,20 +12,23 @@ parser.add_option("-v", "--verbose",
                   help="report verbose data when supported")
 
 
-@tool('jcr')
-class JcrTool(object):
+@tool('ls')
+class ListTool(object):
+    """ Since jcr operations are considered so common we extract what would otherwise be
+        a jcr tool into separate smaller tools for ease of use.
+    """
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
+        path = args[1] if len(args) >= 2 else '/'
+        list_path(server, options, path)
 
-        command = get_command(args, 'ls')
-        path = get_argument(args)
 
-        if command == 'ls':
-            list_path(server, options, path)
-        elif command == 'cat':
-            cat_node(server, options, path)
-        else:
-            sys.stderr.write("error: Unknown command {}\n".format(command))
+@tool('cat')
+class InspectTool(object):
+    def execute(self, server, argv):
+        options, args = parser.parse_args(argv)
+        path = args[1] if len(args) >= 2 else '/'
+        cat_node(server, options, path)
 
 
 def is_property(path_segment, data):
@@ -45,6 +47,7 @@ def list_path(server, options, path):
             if not is_property(path_segment, data):
                 sys.stdout.write("{local}\n".format(path=path, local=path_segment))
 
+
 def cat_node(server, options, path):
     status, obj = get_json(server, "{path}.1.json".format(path=path))
     if status != 200:
@@ -56,4 +59,3 @@ def cat_node(server, options, path):
         for prop, data in obj.items():
             if is_property(prop, data):
                 sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
-
