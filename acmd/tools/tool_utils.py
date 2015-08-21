@@ -5,3 +5,10 @@ def get_action(argv, default):
         return default
     else:
         return argv[1]
+
+
+def get_argument(argv):
+    if len(argv) < 3:
+        return None
+    else:
+        return argv[2]

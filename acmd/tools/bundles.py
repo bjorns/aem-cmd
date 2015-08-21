@@ -5,6 +5,7 @@ import json
 
 from acmd.http_util import get_json, post_form
 from acmd.tool import tool
+from acmd.tools.tool_utils import get_action
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
 parser.add_option("-v", "--verbose",
@@ -66,17 +67,3 @@ def start_bundle(server, bundlename, options):
     resp = post_form(server, path, form_data)
     if options.verbose:
         sys.stdout.write(json.dumps(resp, indent=4) + "\n")
-
-
-def get_action(argv):
-    if len(argv) < 2:
-        return 'list'
-    else:
-        return argv[1]
-
-
-def get_argument(argv):
-    if len(argv) < 3:
-        return None
-    else:
-        return argv[2]
