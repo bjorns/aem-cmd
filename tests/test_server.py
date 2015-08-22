@@ -19,6 +19,7 @@ def test_constructor():
     assert s.port == 4711
     assert s.username == 'bjorn'
     assert s.password == 'foobar'
+    eq_(('bjorn', 'foobar'), s.auth)
 
 def test_url():
     s = acmd.Server('foobar')

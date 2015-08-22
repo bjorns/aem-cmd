@@ -3,7 +3,9 @@ import sys
 import optparse
 import json
 
-from acmd import tool, log, get_json, post_form
+import requests
+
+from acmd import tool, log, error
 from acmd.tools import get_command, get_argument
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
@@ -31,11 +33,15 @@ class BundlesTool(object):
 
 
 def get_bundle_list(server):
-    status, response = get_json(server, '/system/console/bundles.json')
-    if status != 200:
-        sys.stderr.write("error: Failed to list bundles: {}".format(status))
+    url = server.url('/system/console/bundles.json')
+
+    log("GETting service {}".format(url))
+    response = requests.get(url, auth=server.auth)
+
+    if response.status_code != 200:
+        sys.stderr.write("error: Failed to list bundles: {}".format(response.status_code))
         sys.exit(-1)
-    bundles = response['data']
+    bundles = response.json()['data']
     return bundles
 
 
@@ -55,8 +61,11 @@ def stop_bundle(server, bundlename, options):
     """ curl -u admin:admin http://localhost:4505/system/console/bundles/org.apache.sling.scripting.jsp
         -F action=stop."""
     form_data = {'action': 'stop'}
-    path = '/system/console/bundles/{bundle}'.format(bundle=bundlename)
-    resp = post_form(server, path, form_data)
+    url = server.url('/system/console/bundles/{bundle}'.format(bundle=bundlename))
+    log("POSTing to service {}".format(url))
+    resp = requests.post(url, auth=(server.username, server.password), data=form_data)
+    if resp.status_code != 200:
+        error("Failed to stop bundle {bundle}: {status}".format(bundle=bundlename, status=resp.status_code))
     if options.raw:
         sys.stdout.write(json.dumps(resp, indent=4) + "\n")
 
@@ -65,7 +74,8 @@ def start_bundle(server, bundlename, options):
     """ curl -u admin:admin http://localhost:4505/system/console/bundles/org.apache.sling.scripting.jsp
         -F action=start."""
     form_data = {'action': 'start'}
-    path = '/system/console/bundles/{bundle}'.format(bundle=bundlename)
-    resp = post_form(server, path, form_data)
+    url = server.url('/system/console/bundles/{bundle}'.format(bundle=bundlename))
+    log("POSTing to service {}".format(url))
+    resp = requests.post(url, auth=(server.username, server.password), data=form_data)
     if options.raw:
         sys.stdout.write(json.dumps(resp, indent=4) + "\n")

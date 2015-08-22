@@ -14,10 +14,16 @@ class Server(object):
         self.username = default(username, DEFAULT_USER)
         self.password = default(password, DEFAULT_PASS)
 
+    @property
+    def auth(self):
+        """ Default auth format for requests. """
+        return self.username, self.password
+
     def __str__(self):
         return "http://{host}:{port}".format(host=self.host, port=self.port)
 
     def url(self, path):
+        """ Returns a full url server from the path. """
         return "http://{host}:{port}{path}".format(
             host=self.host,
             port=self.port,

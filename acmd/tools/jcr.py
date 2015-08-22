@@ -3,8 +3,9 @@ import sys
 import optparse
 import json
 
-from acmd import tool, get_json
+import requests
 
+from acmd import tool, log
 
 parser = optparse.OptionParser("acmd <ls|cat> [options] <jcr path>")
 parser.add_option("-r", "--raw",
@@ -17,7 +18,9 @@ class ListTool(object):
     """ Since jcr operations are considered so common we extract what would otherwise be
         a jcr tool into separate smaller tools for ease of use.
     """
+
     def execute(self, server, argv):
+        log("Executing {}".format(self.name))
         options, args = parser.parse_args(argv)
         path = args[1] if len(args) >= 2 else '/'
         list_path(server, options, path)
@@ -36,26 +39,34 @@ def is_property(path_segment, data):
 
 
 def list_path(server, options, path):
-    status, obj = get_json(server, "{path}.1.json".format(path=path))
-    if status != 200:
-        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, status))
+    url = server.url("{path}.1.json".format(path=path))
+
+    log("GETting service {}".format(url))
+    resp = requests.get(url, auth=server.auth)
+
+    if resp.status_code != 200:
+        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
         sys.exit(-1)
+
+    data = resp.json()
     if options.raw:
-        sys.stdout.write("{}\n".format(json.dumps(obj, indent=4)))
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     else:
-        for path_segment, data in obj.items():
+        for path_segment, data in data.items():
             if not is_property(path_segment, data):
                 sys.stdout.write("{local}\n".format(path=path, local=path_segment))
 
 
 def cat_node(server, options, path):
-    status, obj = get_json(server, "{path}.1.json".format(path=path))
-    if status != 200:
-        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, status))
+    url = server.url("{path}.1.json".format(path=path))
+    resp = requests.get(url, auth=server.auth)
+    if resp.status_code != 200:
+        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
         sys.exit(-1)
+    data = resp.json()
     if options.raw:
-        sys.stdout.write("{}\n".format(json.dumps(obj, indent=4)))
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     else:
-        for prop, data in obj.items():
+        for prop, data in data.items():
             if is_property(prop, data):
                 sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))

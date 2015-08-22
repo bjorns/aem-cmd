@@ -2,11 +2,10 @@
 import sys
 import json
 import optparse
+
 import requests
 
-from acmd import tool, get_json
-
-
+from acmd import tool
 
 parser = optparse.OptionParser("acmd search [options] <property>=<value>")
 parser.add_option("-l", "--limit", type="int",
@@ -17,8 +16,7 @@ parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
 
-
-PATH ='/bin/querybuilder.json'
+PATH = '/bin/querybuilder.json'
 
 
 @tool('search')
@@ -35,25 +33,28 @@ class SearchTool(object):
 
 
 def parse_params(args):
-    i = 1
     params = dict()
-    for arg in args:
+    for i, arg in enumerate(args):
         key, val = arg.split('=')
-        params[str(i) + '_property'] = key
-        params[str(i) + '_property.value'] = val
-        i = i + 1
+        params[str(i + 1) + '_property'] = key
+        params[str(i + 1) + '_property.value'] = val
     return params
 
-def search(server, options, props):
-    status, resp = get_json(server, PATH, props)
-    if status != 200:
+
+def search(server, options, params):
+    url = server.url(PATH)
+    resp = requests.get(url, auth=(server.username, server.password), params=params)
+
+    if resp.status_code != 200:
         sys.stderr.write("error: Failed to perform search: " + str(resp))
     elif options.raw:
         sys.stdout.write(json.dumps(resp, indent=4))
     else:
-        assert resp.get('success') == True
-        assert options.limit == -1 or options.limit >= resp.get('results')
-        hits = resp.get('hits', [])
+        data = resp.json()
+        assert data.get('success') is True
+
+        assert options.limit == -1 or options.limit >= data.get('results')
+        hits = data.get('hits', [])
         for hit in hits:
             path = hit.get('path', '').strip()
             if len(path) > 0:
