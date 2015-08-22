@@ -3,8 +3,8 @@ import sys
 import optparse
 import json
 
+from acmd.tool_repo import tool
 from acmd.http_util import get_json, post_form
-from acmd.tool import tool
 from acmd.tools.tool_utils import get_command, get_argument
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")

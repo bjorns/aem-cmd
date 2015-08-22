@@ -6,49 +6,6 @@ from nose.tools import eq_
 from acmd.tools import packages
 from acmd import get_tool, Server
 
-BUNDLE_LIST = """{
-    "data": [
-        {
-            "category": "",
-            "fragment": false,
-            "id": 0,
-            "name": "System Bundle",
-            "state": "Active",
-            "stateRaw": 32,
-            "symbolicName": "org.apache.felix.framework",
-            "version": "4.2.0"
-        },
-        {
-            "category": "",
-            "fragment": false,
-            "id": 176,
-            "name": "Abdera Client",
-            "state": "Active",
-            "stateRaw": 32,
-            "symbolicName": "org.apache.abdera.client",
-            "version": "1.0.0.R783018"
-        },
-        {
-            "category": "",
-            "fragment": false,
-            "id": 177,
-            "name": "Abdera Core",
-            "state": "Active",
-            "stateRaw": 32,
-            "symbolicName": "org.apache.abdera.core",
-            "version": "1.0.0.R783018"
-        }
-    ],
-    "s": [
-        329,
-        320,
-        9,
-        0,
-        0
-    ],
-    "status": "Bundle information: 329 bundles in total - all 329 bundles active."
-}"""
-
 
 def test_tool_registration():
     tool = get_tool('packages')

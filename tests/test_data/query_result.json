@@ -1,0 +1,32 @@
+{
+    "hits": [
+        {
+            "name": "Name 0",
+            "created": "2014-03-09 09:30:22",
+            "lastModified": "2014-04-08 04:44:37",
+            "title": "Title 0",
+            "excerpt": "",
+            "path": "/content/paths/hit0"
+        },
+        {
+            "name": "Name 1",
+            "created": "2014-07-25 12:19:58",
+            "lastModified": "2014-04-03 05:31:20",
+            "title": "Title 1",
+            "excerpt": "",
+            "path": "/content/paths/hit1"
+        },
+        {
+            "name": "Name 2",
+            "created": "2014-07-25 12:23:01",
+            "lastModified": "2014-04-28 04:47:22",
+            "title": "Title 2",
+            "excerpt": "",
+            "path": "/content/paths/hit2"
+        }
+    ],
+    "total": 3,
+    "results": 3,
+    "success": true,
+    "offset": 0
+}

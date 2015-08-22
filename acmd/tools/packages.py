@@ -6,7 +6,7 @@ from xml.etree import ElementTree
 
 import requests
 
-from acmd.tool import tool
+from acmd import tool
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
 parser.add_option("-V", "--version",

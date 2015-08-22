@@ -35,6 +35,9 @@ def import_tools(path, package=None):
             __import__(module[:-3], locals(), globals())
     del module
 
+
+# This is a hack, couldn't come up with a nice way of setting the
+# tool prefix automatically.
 _init_project = None
 def set_current_project(name):
     """ Set a project name context when initializing project tools. """

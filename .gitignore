@@ -7,6 +7,7 @@ aem-cmd.iml
 dist
 build
 aem_cmd.egg-info
+__pycache__
 
 # Test artefacts
 .coverage

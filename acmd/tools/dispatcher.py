@@ -1,11 +1,10 @@
 # coding: utf-8
 import sys
 import optparse
-
 import requests
 
-from acmd.tool import tool
-from tool_utils import get_command
+from acmd import tool
+from acmd.tools.tool_utils import get_command
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
 parser.add_option("-v", "--verbose",

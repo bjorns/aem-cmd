@@ -39,6 +39,9 @@ The help tool lists all installed tools
 
 ### JCR tools
 
+The JCR tools are considered so common they are not grouped together but come
+as separate commands.
+
 List subpaths:
 
     $ amcd ls /
@@ -58,6 +61,11 @@ Show node properties:
     sling:target:	/geohome
     sling:resourceType:	sling:redirect
     jcr:created:	Fri Jun 13 2014 14:17:56 GMT-0400
+
+Search for properties
+
+    $ acmd search serial_nbr=1234
+    /content/catalog/product4711
 
 
 ### Bundles

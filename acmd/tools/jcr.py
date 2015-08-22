@@ -3,8 +3,8 @@ import sys
 import optparse
 import json
 
-from acmd.tool import tool
-from acmd.http_util import get_json
+from acmd import tool, get_json
+
 
 parser = optparse.OptionParser("acmd <ls|cat> [options] <jcr path>")
 parser.add_option("-v", "--verbose",

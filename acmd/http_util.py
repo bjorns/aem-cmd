@@ -2,11 +2,11 @@
 import requests
 
 
-def get_json(server, path):
+def get_json(server, path, params=dict()):
     url = server.url(path)
-    r = requests.get(url, auth=(server.username, server.password))
+    r = requests.get(url, auth=(server.username, server.password), params=params)
     if r.status_code != 200:
-        return r.status_code, None
+        return r.status_code, "Failed to get url"
     return 200, r.json()
 
 def post_form(server, path, form_data):

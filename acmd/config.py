@@ -4,7 +4,6 @@ from os.path import expanduser
 import pkg_resources
 
 import acmd.server
-import acmd.tool
 
 _DEFAULT_SERVER_SETTING = 'default_server'
 
