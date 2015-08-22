@@ -3,9 +3,8 @@ import sys
 import optparse
 import json
 
-from acmd.tool_repo import tool
-from acmd.http_util import get_json, post_form
-from acmd.tools.tool_utils import get_command, get_argument
+from acmd import tool, log, get_json, post_form
+from acmd.tools import get_command, get_argument
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
 parser.add_option("-r", "--raw",

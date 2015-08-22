@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+from acmd import log
 
 _tools = dict()
 
@@ -50,8 +51,8 @@ def register_tool(_tool):
         name = _tool.name
     else:
         name = _init_project + ':' + _tool.name
+    log("Registering tool {}".format(name))
     _tools[name] = _tool
-
 
 
 def get_tool(tool_name):

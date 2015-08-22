@@ -12,6 +12,9 @@ USAGE = """acmd [options] <tool> <args>
 parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
                   help="server name", metavar="str")
+parser.add_option("-v", "--verbose",
+                  action="store_const", const=True, dest="verbose",
+                  help="verbose logging useful for debugging")
 
 
 def split_argv(argv):
@@ -62,9 +65,9 @@ if __name__ == '__main__':
         sys.exit(0)
     else:
         tool_name, args = args[1], []
-
+    acmd.init_log(options.verbose)
     server = cfg.get_server(options.server)
-
+    acmd.log("Using server {}".format(server))
     cmd = acmd.get_tool(tool_name)
     if cmd is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
