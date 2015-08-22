@@ -37,6 +37,28 @@ The help tool lists all installed tools
       help
       packages
 
+### JCR tools
+
+List subpaths:
+
+    $ amcd ls /
+    index.servlet
+    bundles
+    rep:policy
+    services
+    home
+    ....
+
+Show node properties:
+
+    $ acmd cat /content
+    jcr:primaryType:	sling:OrderedFolder
+    jcr:createdBy:	admin
+    jcr:mixinTypes:	[u'sling:Redirect', u'mix:lockable', u'rep:AccessControllable']
+    sling:target:	/geohome
+    sling:resourceType:	sling:redirect
+    jcr:created:	Fri Jun 13 2014 14:17:56 GMT-0400
+
 
 ### Bundles
 
