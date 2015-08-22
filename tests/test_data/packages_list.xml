@@ -1,0 +1,51 @@
+<crx version="2.4.30" user="admin" workspace="crx.default">
+    <request>
+        <param name="cmd" value="ls"/>
+    </request>
+    <response>
+        <data>
+            <packages>
+                <package>
+                    <group>adobe/granite</group>
+                    <name>com.adobe.coralui.content</name>
+                    <version>1.6.5</version>
+                    <downloadName>com.adobe.coralui.content-1.6.5.zip</downloadName>
+                    <size>2801362</size>
+                    <created>Wed, 29 May 2013 10:49:12 -0400</created>
+                    <createdBy>Adobe Systems Incorporated</createdBy>
+                    <lastModified></lastModified>
+                    <lastModifiedBy>null</lastModifiedBy>
+                    <lastUnpacked>Fri, 13 Jun 2014 14:16:31 -0400</lastUnpacked>
+                    <lastUnpackedBy>admin</lastUnpackedBy>
+                </package>
+                <package>
+                    <group>adobe/granite</group>
+                    <name>com.adobe.coralui.rte-cq5</name>
+                    <version>5.6.18</version>
+                    <downloadName>com.adobe.coralui.rte-cq5-5.6.18.zip</downloadName>
+                    <size>303472</size>
+                    <created>Thu, 16 May 2013 11:59:04 -0400</created>
+                    <createdBy>Adobe Systems Incorporated</createdBy>
+                    <lastModified></lastModified>
+                    <lastModifiedBy>null</lastModifiedBy>
+                    <lastUnpacked>Fri, 13 Jun 2014 14:18:11 -0400</lastUnpacked>
+                    <lastUnpackedBy>admin</lastUnpackedBy>
+                </package>
+                <package>
+                    <group>adobe/granite</group>
+                    <name>com.adobe.granite.activitystreams.content</name>
+                    <version>0.0.12</version>
+                    <downloadName>com.adobe.granite.activitystreams.content-0.0.12.zip</downloadName>
+                    <size>38472</size>
+                    <created>Mon, 15 Oct 2012 03:42:10 -0400</created>
+                    <createdBy>Adobe Systems Incorporated</createdBy>
+                    <lastModified></lastModified>
+                    <lastModifiedBy>null</lastModifiedBy>
+                    <lastUnpacked>Fri, 13 Jun 2014 14:16:32 -0400</lastUnpacked>
+                    <lastUnpackedBy>admin</lastUnpackedBy>
+                </package>
+            </packages>
+        </data>
+        <status code="200">ok</status>
+    </response>
+</crx>

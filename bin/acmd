@@ -25,6 +25,28 @@ def split_argv(argv):
     return argv, []
 
 
+def get_init(path):
+    if path.endswith('__init__.py'):
+        return path
+    elif path.endswith('/'):
+        return path + "__init__.py"
+    else:
+        return path + "/__init__.py"
+
+
+def load_projects(projects):
+    """ Expecting dict of {<prefix>: <path>}
+    """
+    ret = {}
+    for name, path in projects.items():
+        path = expanduser(path)
+        sys.path.insert(1, path)
+        init_file = get_init(path)
+        acmd.tool.set_current_project(name)
+        acmd.tool.import_tools(init_file)
+        ret[name] = path
+
+
 if __name__ == '__main__':
 
     home = expanduser("~")

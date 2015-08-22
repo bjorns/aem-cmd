@@ -9,12 +9,18 @@ port=4502
 username=admin
 password=admin
 
+[server extraserver]
+host=hostname.com
+port=4503
+username=my_user
+password=open sesame
+
 # The default server option specifies which server to use if
 # the --server option is not specified.
 [settings]
-default_server=localhost
+default_server=extraserver
 
 # Add custom tools directories here as
 # prefix=<custom_tool_dir>
 [projects]
-myproj=test
+myproj=tests/test_data/fake_project

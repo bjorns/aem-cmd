@@ -50,22 +50,22 @@ def get_argument(argv):
         return argv[2]
 
 
-def get_packages_list(server):
+def get_packages_list(server, options):
     url = server.url('/crx/packmgr/service.jsp')
     form_data = {'cmd': (None, 'ls')}
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
+    if options.verbose:
+        sys.stdout.write(resp.content + '\n')
     tree = ElementTree.fromstring(resp.content)
     return parse_packages(tree)
 
 
 def list_packages(server, options):
-    packages = get_packages_list(server)
+    packages = get_packages_list(server, options)
     for pkg in packages:
-        if options.verbose:
-            sys.stdout.write("{s}\n".format(s=json.dumps(pkg, indent=4)))
-        else:
+        if not options.verbose:
             sys.stdout.write("{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version']))
 
 
