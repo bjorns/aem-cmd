@@ -7,9 +7,9 @@ from acmd import tool
 from acmd.tools.tool_utils import get_command
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="report verbose data when supported")
+parser.add_option("-r", "--raw",
+                  action="store_const", const=True, dest="raw",
+                  help="output raw response data")
 
 
 @tool('dispatcher')
@@ -44,5 +44,5 @@ def clear_cache(server, options):
             sys.stderr.write("error: Failed to validate response {}".format(response.content))
     else:
         sys.stderr.write("error: " + str(response.status_code) + "\n")
-    if options.verbose:
+    if options.raw:
         sys.stderr.write(response.content + "\n")

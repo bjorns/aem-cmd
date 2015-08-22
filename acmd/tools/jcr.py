@@ -7,9 +7,9 @@ from acmd import tool, get_json
 
 
 parser = optparse.OptionParser("acmd <ls|cat> [options] <jcr path>")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="report verbose data when supported")
+parser.add_option("-r", "--raw",
+                  action="store_const", const=True, dest="raw",
+                  help="output raw response data")
 
 
 @tool('ls')
@@ -40,8 +40,8 @@ def list_path(server, options, path):
     if status != 200:
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, status))
         sys.exit(-1)
-    if options.verbose:
-        sys.stdout.write(json.dumps(obj, indent=4))
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(obj, indent=4)))
     else:
         for path_segment, data in obj.items():
             if not is_property(path_segment, data):
@@ -53,8 +53,8 @@ def cat_node(server, options, path):
     if status != 200:
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, status))
         sys.exit(-1)
-    if options.verbose:
-        sys.stdout.write(json.dumps(obj, indent=4))
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(obj, indent=4)))
     else:
         for prop, data in obj.items():
             if is_property(prop, data):

@@ -8,9 +8,9 @@ from acmd.http_util import get_json, post_form
 from acmd.tools.tool_utils import get_command, get_argument
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="report verbose data when supported")
+parser.add_option("-r", "--raw",
+                  action="store_const", const=True, dest="raw",
+                  help="output raw response data")
 
 
 @tool('bundles')
@@ -43,7 +43,7 @@ def get_bundle_list(server):
 def list_bundles(server, options):
     bundles = get_bundle_list(server)
     for bundle in bundles:
-        if options.verbose:
+        if options.raw:
             sys.stdout.write(json.dumps(bundle, indent=4) + "\n")
         else:
             sys.stdout.write("{bundle}\t{version}\t{status}\n".format(
@@ -58,7 +58,7 @@ def stop_bundle(server, bundlename, options):
     form_data = {'action': 'stop'}
     path = '/system/console/bundles/{bundle}'.format(bundle=bundlename)
     resp = post_form(server, path, form_data)
-    if options.verbose:
+    if options.raw:
         sys.stdout.write(json.dumps(resp, indent=4) + "\n")
 
 
@@ -68,5 +68,5 @@ def start_bundle(server, bundlename, options):
     form_data = {'action': 'start'}
     path = '/system/console/bundles/{bundle}'.format(bundle=bundlename)
     resp = post_form(server, path, form_data)
-    if options.verbose:
+    if options.raw:
         sys.stdout.write(json.dumps(resp, indent=4) + "\n")

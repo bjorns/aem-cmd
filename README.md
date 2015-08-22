@@ -100,9 +100,9 @@ E.g. to get the version of the bndlib bundle:
 
 #### Start bundle
 
-All bundles commands support the --verbose flag which prints raw json output.
+All bundles commands support the --raw flag which prints raw json output.
 
-    $ acmd bundles start biz.aQute.bndlib
+    $ acmd bundles start biz.aQute.bndlib --raw
     {
         "fragment": false,
         "stateRaw": 32

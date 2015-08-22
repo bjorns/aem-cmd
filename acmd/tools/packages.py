@@ -9,13 +9,13 @@ import requests
 from acmd import tool
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
-parser.add_option("-V", "--version",
+parser.add_option("-v", "--version",
                   dest="version", help="specify explicit version")
 parser.add_option("-g", "--group",
                   dest="group", help="specify explicit group")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="report verbose data when supported")
+parser.add_option("-r", "--raw",
+                  action="store_const", const=True, dest="raw",
+                  help="output raw response data")
 
 
 @tool('packages')
@@ -56,7 +56,7 @@ def get_packages_list(server, options):
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
-    if options.verbose:
+    if options.raw:
         sys.stdout.write(resp.content + '\n')
     tree = ElementTree.fromstring(resp.content)
     return parse_packages(tree)
@@ -65,7 +65,7 @@ def get_packages_list(server, options):
 def list_packages(server, options):
     packages = get_packages_list(server, options)
     for pkg in packages:
-        if not options.verbose:
+        if not options.raw:
             sys.stdout.write("{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version']))
 
 
@@ -118,7 +118,7 @@ def download_package(server, package_name, options):
         f.write(response.content)
     else:
         sys.stderr.write("error: Failed to download " + url + " because " + str(response.status_code) + "\n")
-        if options.verbose:
+        if options.raw:
             sys.stderr.write(response.content)
             sys.stderr.write("\n")
 

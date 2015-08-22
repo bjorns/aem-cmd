@@ -13,9 +13,9 @@ parser.add_option("-l", "--limit", type="int",
                   dest="limit", help="limit number of hits", default=-1)
 parser.add_option("-p", "--path",
                   dest="path", help="root JCR path to search", default="/")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="report verbose data when supported")
+parser.add_option("-r", "--raw",
+                  action="store_const", const=True, dest="raw",
+                  help="output raw response data")
 
 
 PATH ='/bin/querybuilder.json'
@@ -48,7 +48,7 @@ def search(server, options, props):
     status, resp = get_json(server, PATH, props)
     if status != 200:
         sys.stderr.write("error: Failed to perform search: " + str(resp))
-    elif options.verbose:
+    elif options.raw:
         sys.stdout.write(json.dumps(resp, indent=4))
     else:
         assert resp.get('success') == True
