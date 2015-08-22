@@ -17,6 +17,5 @@ def warn(msg):
     sys.stderr.write("warning: {}\n".format(msg))
 
 
-def error(msg, exit_code=-1):
+def error(msg):
     sys.stderr.write("error: {}\n".format(msg))
-    sys.exit(exit_code)

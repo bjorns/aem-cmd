@@ -22,14 +22,14 @@ class BundlesTool(object):
         action = get_command(args, 'list')
         actionarg = get_argument(args)
         if action == 'list':
-            list_bundles(server, options)
+            return list_bundles(server, options)
         elif action == 'start':
-            start_bundle(server, actionarg, options)
+            return start_bundle(server, actionarg, options)
         elif action == 'stop':
-            stop_bundle(server, actionarg, options)
+            return stop_bundle(server, actionarg, options)
         else:
             sys.stderr.write('error: Unknown {t} action {a}\n'.format(t=self.name, a=action))
-            sys.exit(-1)
+            return -2
 
 
 def get_bundle_list(server):
@@ -39,8 +39,8 @@ def get_bundle_list(server):
     response = requests.get(url, auth=server.auth)
 
     if response.status_code != 200:
-        sys.stderr.write("error: Failed to list bundles: {}".format(response.status_code))
-        sys.exit(-1)
+        error("Failed to list bundles: {}".format(response.status_code))
+        return []
     bundles = response.json()['data']
     return bundles
 
@@ -66,8 +66,9 @@ def stop_bundle(server, bundlename, options):
     resp = requests.post(url, auth=(server.username, server.password), data=form_data)
     if resp.status_code != 200:
         error("Failed to stop bundle {bundle}: {status}".format(bundle=bundlename, status=resp.status_code))
-    if options.raw:
-        sys.stdout.write(json.dumps(resp, indent=4) + "\n")
+        return -1
+    elif options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
 
 
 def start_bundle(server, bundlename, options):
@@ -78,4 +79,4 @@ def start_bundle(server, bundlename, options):
     log("POSTing to service {}".format(url))
     resp = requests.post(url, auth=(server.username, server.password), data=form_data)
     if options.raw:
-        sys.stdout.write(json.dumps(resp, indent=4) + "\n")
+        sys.stdout.write("{}\n".format(resp.content))
