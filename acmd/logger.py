@@ -13,7 +13,7 @@ def log(msg):
         sys.stderr.write("{}\n".format(msg))
 
 
-def warn(msg):
+def warning(msg):
     sys.stderr.write("warning: {}\n".format(msg))
 
 

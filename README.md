@@ -127,6 +127,23 @@ By default the packages tool lists all installed packages.
     day/cq560/social/calendar   cq-social-calendar-pkg  1.0.28
     ....
 
+### Storage
+
+The backend storage tool can trigger optimization jobs.
+
+#### Tar Optimize
+
+    $ acmd storage optimize
+
+Asynchronously triggers a tar optimization job for the filesystem backend.
+
+#### Garbage collection
+
+    $ acmd storage gc
+
+Asynchronously triggers a garbage collection job.
+
+
 
 ## Configuration
 

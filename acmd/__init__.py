@@ -2,6 +2,7 @@
 import acmd.logger
 init_log = acmd.logger.init_log
 log = acmd.logger.log
+warning = acmd.logger.warning
 error = acmd.logger.error
 
 
