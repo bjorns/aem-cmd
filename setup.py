@@ -1,4 +1,6 @@
 # coding: utf-8
+from acmd import __version__
+
 try:
     from setuptools import setup
 except ImportError:
@@ -25,7 +27,7 @@ classifiers=[
 
 config = {
     'name': 'aem-cmd',
-    'version': '0.1a6',
+    'version': __version__,
     'description': 'AEM Command line tools',
     'long_description': 'A set of tools to administer an Adobe AEM content management installation from the command line.',
     'license': 'MIT',

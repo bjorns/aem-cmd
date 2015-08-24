@@ -11,10 +11,13 @@ USAGE = """acmd [options] <tool> <args>
 
 parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
-                  help="server name", metavar="str")
-parser.add_option("-v", "--verbose",
+                  help="server name", metavar="<name>")
+parser.add_option("-X", "--verbose",
                   action="store_const", const=True, dest="verbose",
                   help="verbose logging useful for debugging")
+parser.add_option("-v", "--version",
+                  action="store_const", const=True, dest="show_version",
+                  help="Show package version")
 
 
 def split_argv(argv):
@@ -60,11 +63,14 @@ if __name__ == '__main__':
 
     sysargs, cmdargs = split_argv(sys.argv)
     (options, args) = parser.parse_args(sysargs)
+    if options.show_version:
+        sys.stdout.write("{}\n".format(acmd.__version__))
+        sys.exit(0)
     if len(args) == 1:
         parser.print_help()
         sys.exit(0)
-    else:
-        tool_name, args = args[1], []
+
+    tool_name, args = args[1], []
     acmd.init_log(options.verbose)
     server = cfg.get_server(options.server)
     acmd.log("Using server {}".format(server))

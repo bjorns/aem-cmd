@@ -1,4 +1,6 @@
 # coding: utf-8
+__version__ = '0.1a7'
+
 import acmd.logger
 init_log = acmd.logger.init_log
 log = acmd.logger.log

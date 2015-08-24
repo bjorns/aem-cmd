@@ -22,7 +22,7 @@ class DatastoreTool(object):
 
         cmd = get_command(args, None)
         if cmd == 'optimize':
-            optimize(server, options)
+            toptimize(server, options)
         elif cmd == 'gc':
             garbage_collect(server, options)
         else:
