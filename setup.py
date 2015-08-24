@@ -25,7 +25,7 @@ classifiers=[
 
 config = {
     'name': 'aem-cmd',
-    'version': '0.1a5',
+    'version': '0.1a6',
     'description': 'AEM Command line tools',
     'long_description': 'A set of tools to administer an Adobe AEM content management installation from the command line.',
     'license': 'MIT',
