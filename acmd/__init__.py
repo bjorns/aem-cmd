@@ -21,6 +21,8 @@ tool = acmd.tool_repo.tool
 list_tools = acmd.tool_repo.list_tools
 get_tool = acmd.tool_repo.get_tool
 register_tool = acmd.tool_repo.register_tool
+set_current_project = acmd.tool_repo.set_current_project
+
 
 # Has to be last if tools init depend on this file.
 import acmd.tools

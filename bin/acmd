@@ -43,13 +43,15 @@ def get_init(path):
 def load_projects(projects):
     """ Expecting dict of {<prefix>: <path>}
     """
+
     ret = {}
     for name, path in projects.items():
+        acmd.log("Loading project {}".format(name))
         path = expanduser(path)
         sys.path.insert(1, path)
         init_file = get_init(path)
-        acmd.tool.set_current_project(name)
-        acmd.tool.import_tools(init_file)
+        acmd.set_current_project(name)
+        acmd.import_tools(init_file)
         ret[name] = path
 
 
@@ -61,6 +63,7 @@ if __name__ == '__main__':
         acmd.setup_rcfile(rcfilename)
     cfg = acmd.read_config(rcfilename)
 
+    load_projects(cfg.projects)
     sysargs, cmdargs = split_argv(sys.argv)
     (options, args) = parser.parse_args(sysargs)
     if options.show_version:
