@@ -38,7 +38,9 @@ config = {
     'classifiers': classifiers,
 
     # Build specs
-    'install_requires': ['requests', 'nose', 'mock', 'httmock'],
+    'install_requires': ['requests', 'lxml', 
+                # test requirements
+                'nose', 'mock', 'httmock'],
     'packages': ['acmd', 'acmd.tools'],
     'package_data': {'acmd': ['data/acmd.rc.template']},
     'scripts': ['bin/acmd']
