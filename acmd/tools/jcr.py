@@ -69,4 +69,4 @@ def cat_node(server, options, path):
     else:
         for prop, data in data.items():
             if is_property(prop, data):
-                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
+                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data.encode('utf-8')))
