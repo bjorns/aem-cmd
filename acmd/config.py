@@ -6,7 +6,7 @@ import pkg_resources
 import acmd.server
 
 _DEFAULT_SERVER_SETTING = 'default_server'
-
+DEFAULT_PORT = 80
 
 def read_config_template():
     return pkg_resources.resource_string('acmd', "data/acmd.rc.template")
@@ -34,7 +34,8 @@ def parse_server(parser, section):
     name = section.split(' ')[1]
 
     host = parser.get(section, 'host')
-    port = parser.get(section, 'port')
+
+    port = parser.getint(section, 'port') if parser.has_option(section, 'port') else DEFAULT_PORT
     username = parser.get(section, 'username')
     password = parser.get(section, 'password')
 

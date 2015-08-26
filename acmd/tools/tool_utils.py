@@ -12,3 +12,4 @@ def get_argument(argv):
         return None
     else:
         return argv[2]
+

@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+import os.path
 import optparse
 import json
 
@@ -7,7 +8,7 @@ import requests
 
 from acmd import tool, log
 
-parser = optparse.OptionParser("acmd <ls|cat> [options] <jcr path>")
+parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
@@ -34,11 +35,40 @@ class InspectTool(object):
         cat_node(server, options, path)
 
 
-def is_property(path_segment, data):
-    return not isinstance(data, dict)
+@tool('find')
+class FindTool(object):
+    def execute(self, server, argv):
+        options, args = parser.parse_args(argv)
+        path = args[1] if len(args) >= 2 else '/'
+        list_tree(server, options, path)
+
+
+def list_tree(server, options, path):
+    nodes = _get_subnodes(server, path)
+    _list_nodes(path, nodes, abs=True)
+    for path_segment, data in nodes.items():
+        if not is_property(path_segment, data):
+            list_tree(server, options, os.path.join(path, path_segment))
 
 
 def list_path(server, options, path):
+    data = _get_subnodes(server, path)
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    else:
+        _list_nodes(path, data)
+
+
+def _list_nodes(path, nodes, abs=False):
+    for path_segment, data in nodes.items():
+        if not is_property(path_segment, data):
+            if abs:
+                sys.stdout.write("{path}\n".format(path=os.path.join(path, path_segment)))
+            else:
+                sys.stdout.write("{path}\n".format(path=path_segment))
+
+
+def _get_subnodes(server, path):
     url = server.url("{path}.1.json".format(path=path))
 
     log("GETting service {}".format(url))
@@ -48,13 +78,7 @@ def list_path(server, options, path):
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
         sys.exit(-1)
 
-    data = resp.json()
-    if options.raw:
-        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
-    else:
-        for path_segment, data in data.items():
-            if not is_property(path_segment, data):
-                sys.stdout.write("{local}\n".format(path=path, local=path_segment))
+    return resp.json()
 
 
 def cat_node(server, options, path):
@@ -70,3 +94,7 @@ def cat_node(server, options, path):
         for prop, data in data.items():
             if is_property(prop, data):
                 sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data.encode('utf-8')))
+
+
+def is_property(path_segment, data):
+    return not isinstance(data, dict)
