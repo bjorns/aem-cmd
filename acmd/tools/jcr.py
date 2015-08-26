@@ -11,6 +11,9 @@ parser = optparse.OptionParser("acmd <ls|cat> [options] <jcr path>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-p", "--fullpath",
+                  action="store_const", const=True, dest="full_path",
+                  help="output full paths instead of local")
 
 
 @tool('ls')
@@ -54,7 +57,18 @@ def list_path(server, options, path):
     else:
         for path_segment, data in data.items():
             if not is_property(path_segment, data):
-                sys.stdout.write("{local}\n".format(path=path, local=path_segment))
+                if options.full_path:
+
+                    sys.stdout.write("{path}\n".format(path=join_paths(path, path_segment)))
+                else:
+                    sys.stdout.write("{local}\n".format(local=path_segment))
+
+
+def join_paths(path, local):
+    if path.endswith('/'):
+        return path + local
+    else:
+        return path + '/' + local
 
 
 def cat_node(server, options, path):
