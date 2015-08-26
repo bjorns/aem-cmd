@@ -16,12 +16,11 @@ parser.add_option("-r", "--raw",
 class DispatcherTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
-        action = get_command(args, 'clear')
+        action = get_command(args, 'help')
         if action == 'clear':
             clear_cache(server, options)
         else:
-            sys.stderr.write('error: Unknown {t} action {a}\n'.format(t=self.name, a=action))
-            sys.exit(-1)
+            parser.print_help()
 
 
 def clear_cache(server, options):
