@@ -12,6 +12,9 @@ parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-p", "--fullpath",
+                  action="store_const", const=True, dest="full_path",
+                  help="output full paths instead of local")
 
 
 @tool('ls')
