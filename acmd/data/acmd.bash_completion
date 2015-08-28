@@ -1,28 +1,27 @@
 # bash completion for AEM command line tools
-
 have acmd &&
 _acmd()
 {
     local cur prev opts
+    local IFS=$'\n'
     COMPREPLY=()
+    COMP_WORDBREAKS=" "
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    # opts="ls cat replication bundles"
     opts=`acmd tools`
 
-
-    if [[ ${prev} == "acmd" && ${cur} =~ [a-z]+ ]] ; then
-        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    if [[ ${prev} == "acmd" && ${cur} =~ [a-z:]+ ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}" ) )
         return 0
     fi
     if [[ ${prev} == "cat" || ${prev} == "ls" ]]; then
         dir=`dirname ${cur}`
-
         dirs=`acmd ls --fullpath ${dir}`
-        
-        COMPREPLY=( $(compgen -W "${dirs}" -S '/' -- ${cur}) )
+        # For some stupid reason I can't get rid of the spaces!
+        compopt -o nospace &>/dev/null
+        COMPREPLY=( $(compgen -W "${dirs}" -S '/' ${cur}) )
         return 0
     fi
-
 }
-complete -o nospace -F _acmd acmd
+
+complete -F _acmd acmd

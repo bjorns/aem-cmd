@@ -59,13 +59,13 @@ def list_path(server, options, path):
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     else:
-        _list_nodes(path, data)
+        _list_nodes(path, data, full_path=options.full_path)
 
 
-def _list_nodes(path, nodes, abs=False):
+def _list_nodes(path, nodes, full_path=False):
     for path_segment, data in nodes.items():
         if not is_property(path_segment, data):
-            if abs:
+            if full_path:
                 sys.stdout.write("{path}\n".format(path=os.path.join(path, path_segment)))
             else:
                 sys.stdout.write("{path}\n".format(path=path_segment))
