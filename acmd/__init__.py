@@ -14,6 +14,8 @@ Server = acmd.server.Server
 import acmd.config
 read_config = acmd.config.read_config
 setup_rcfile = acmd.config.setup_rcfile
+get_current_config = acmd.config.get_current_config
+
 
 import acmd.tool_repo
 import_tools = acmd.tool_repo.import_tools

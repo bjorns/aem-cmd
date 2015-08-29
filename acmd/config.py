@@ -5,7 +5,7 @@ import pkg_resources
 
 import acmd.server
 
-_DEFAULT_SERVER_SETTING = 'default_server'
+DEFAULT_SERVER_SETTING = 'default_server'
 DEFAULT_PORT = 80
 
 def read_config_template():
@@ -26,7 +26,7 @@ class Config(object):
 
     def get_server(self, server_name):
         if server_name not in self.servers:
-            server_name = _DEFAULT_SERVER_SETTING
+            server_name = DEFAULT_SERVER_SETTING
         return self.servers.get(server_name)
 
 
@@ -49,8 +49,8 @@ def parse_servers(parser):
             s = parse_server(parser, section)
             ret[s.name] = s
 
-    default_name = parser.get('settings', _DEFAULT_SERVER_SETTING)
-    ret[_DEFAULT_SERVER_SETTING] = ret[default_name]
+    default_name = parser.get('settings', DEFAULT_SERVER_SETTING)
+    ret[DEFAULT_SERVER_SETTING] = ret[default_name]
     return ret
 
 
@@ -63,7 +63,14 @@ def parse_projects(parser):
     return ret
 
 
+_current_config = None
+def get_current_config():
+    global _current_config
+    return _current_config
+
+
 def read_config(filename):
+    global _current_config
     parser = ConfigParser.ConfigParser()
     with open(filename) as f:
         parser.readfp(f, "utf-8")
@@ -71,4 +78,5 @@ def read_config(filename):
     config = Config()
     config.servers = parse_servers(parser)
     config.projects = parse_projects(parser)
+    _current_config = config
     return config

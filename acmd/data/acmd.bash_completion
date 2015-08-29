@@ -5,13 +5,29 @@ _acmd()
     local cur prev opts
     local IFS=$'\n'
     COMPREPLY=()
-    COMP_WORDBREAKS=" "
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts=`acmd tools`
+    prevprev="${COMP_WORDS[COMP_CWORD-2]}"
+
 
     if [[ ${prev} == "acmd" && ${cur} =~ [a-z:]+ ]] ; then
-        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}" ) )
+        tools=`acmd help --raw tools`
+        COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
+        return 0
+    fi
+    if [[ ${prev} == "-s" ]] ; then
+        servers=`acmd help --raw servers`
+        COMPREPLY=( $(compgen -W "${servers}" -- "${cur}" ) )
+        return 0
+    fi
+    if [[ ${prevprev} == "--server" && ${prev} == "=" ]]; then
+        servers=`acmd help --raw servers`
+        COMPREPLY=( $(compgen -W "${servers}" -- "${cur}" ) )
+        return 0
+    fi
+    if [[ ${prev} == "--server" && ${cur} == "=" ]]; then
+        servers=`acmd help --raw servers`
+        COMPREPLY=( $(compgen -W "${servers}" "" ) )
         return 0
     fi
     if [[ ${prev} == "cat" || ${prev} == "ls" ]]; then
@@ -28,5 +44,4 @@ _acmd()
         return 0
     fi
 }
-
 complete -F _acmd acmd
