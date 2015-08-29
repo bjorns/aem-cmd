@@ -15,7 +15,12 @@ _acmd()
         return 0
     fi
     if [[ ${prev} == "cat" || ${prev} == "ls" ]]; then
-        dir=`dirname ${cur}`
+        if [[ $cur == *"/" ]]; then
+            dir=${cur}
+        else
+            dir=`dirname ${cur}`
+        fi
+
         dirs=`acmd ls --fullpath ${dir}`
         # For some stupid reason I can't get rid of the spaces!
         compopt -o nospace &>/dev/null
