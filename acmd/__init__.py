@@ -26,3 +26,7 @@ set_current_project = acmd.tool_repo.set_current_project
 
 # Has to be last if tools init depend on this file.
 import acmd.tools
+
+import acmd.main
+main = acmd.main.main
+

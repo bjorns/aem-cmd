@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-import os
 import sys
-from os.path import expanduser
 import optparse
 
 import acmd
@@ -31,40 +29,9 @@ def split_argv(argv):
     return argv, []
 
 
-def get_init(path):
-    if path.endswith('__init__.py'):
-        return path
-    elif path.endswith('/'):
-        return path + "__init__.py"
-    else:
-        return path + "/__init__.py"
-
-
-def load_projects(projects):
-    """ Expecting dict of {<prefix>: <path>}
-    """
-
-    ret = {}
-    for name, path in projects.items():
-        acmd.log("Loading project {}".format(name))
-        path = expanduser(path)
-        sys.path.insert(1, path)
-        init_file = get_init(path)
-        acmd.set_current_project(name)
-        acmd.import_tools(init_file)
-        ret[name] = path
-
-
 if __name__ == '__main__':
-
-    home = expanduser("~")
-    rcfilename = "{home}/.acmd.rc".format(home=home)
-    if not os.path.isfile(rcfilename):
-        acmd.setup_rcfile(rcfilename)
-    cfg = acmd.read_config(rcfilename)
-
-    load_projects(cfg.projects)
     sysargs, cmdargs = split_argv(sys.argv)
+
     (options, args) = parser.parse_args(sysargs)
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))
@@ -73,14 +40,5 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
-    tool_name, args = args[1], []
-    acmd.init_log(options.verbose)
-    server = cfg.get_server(options.server)
-    acmd.log("Using server {}".format(server))
-    cmd = acmd.get_tool(tool_name)
-    if cmd is None:
-        sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
-        status = 1
-    else:
-        status = cmd.execute(server, cmdargs)
+    status = acmd.main(options, args, cmdargs)
     sys.exit(status)
