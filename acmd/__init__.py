@@ -2,6 +2,7 @@
 __version__ = '0.1a8'
 
 # Standard error codes that can be returned from any tool.
+OK = 0
 USER_ERROR = 4711
 CONFIG_ERROR = 4712
 SERVER_ERROR = 4713

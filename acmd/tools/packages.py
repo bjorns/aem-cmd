@@ -1,12 +1,13 @@
 # coding: utf-8
 import sys
 import optparse
-import json
 from xml.etree import ElementTree
-
 import requests
 
-from acmd import tool
+from acmd import tool, error
+from acmd import SERVER_ERROR, OK
+
+SERVICE_PATH = '/crx/packmgr/service.jsp'
 
 parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
 parser.add_option("-v", "--version",
@@ -30,7 +31,7 @@ class PackagesTool(object):
         elif action == 'download':
             download_package(server, actionarg, options)
         elif action == 'upload':
-            upload_package(server, options)
+            return upload_package(server, options, actionarg)
         else:
             sys.stderr.write('error: Unknown bundle action {a}\n'.format(a=action))
             sys.exit(-1)
@@ -50,20 +51,20 @@ def get_argument(argv):
         return argv[2]
 
 
-def get_packages_list(server, options):
-    url = server.url('/crx/packmgr/service.jsp')
+def get_packages_list(server, raw=False):
+    url = server.url(SERVICE_PATH)
     form_data = {'cmd': (None, 'ls')}
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
-    if options.raw:
+    if raw:
         sys.stdout.write(resp.content + '\n')
     tree = ElementTree.fromstring(resp.content)
     return parse_packages(tree)
 
 
 def list_packages(server, options):
-    packages = get_packages_list(server, options)
+    packages = get_packages_list(server, options.raw)
     for pkg in packages:
         if not options.raw:
             sys.stdout.write("{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version']))
@@ -123,7 +124,21 @@ def download_package(server, package_name, options):
             sys.stderr.write("\n")
 
 
-def upload_package(server, options):
+def upload_package(server, options, filename):
     """curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
             -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp"""
-    pass
+    form_data = dict(
+        file=(filename, open(filename, 'rb'), 'application/zip', dict()),
+        name=filename.rstrip('.zip'),
+        force='false',
+        install='false'
+    )
+    url = server.url(SERVICE_PATH)
+    resp = requests.post(url, auth=server.auth, files=form_data)
+
+    if resp.status_code != 200:
+        error('Failed to upload paackage: {}: {}'.format(resp.status_code, resp.content))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    return OK

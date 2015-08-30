@@ -42,7 +42,7 @@ def run(options, args, cmdargs):
     cfg = acmd.read_config(rcfilename)
 
     load_projects(cfg.projects)
-    assert args[0] == 'acmd'
+
     tool_name, args = args[1], []
     acmd.init_log(options.verbose)
     server = cfg.get_server(options.server)

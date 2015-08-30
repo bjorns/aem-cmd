@@ -23,10 +23,29 @@ adobe/granite\tcom.adobe.granite.activitystreams.content\t0.0.12
 """
 
 @patch('sys.stdout', new_callable=StringIO)
-def test_list_bundles(stdout):
+def test_list_packages(stdout):
     with HTTMock(packages_mock):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        tool.execute(server, ['bundles', 'list'])
+        tool.execute(server, ['packages', 'list'])
         eq_(EXPECTED_LIST, stdout.getvalue())
+
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_upload_package(stderr, stdout):
+    with HTTMock(packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
+
+        status = tool.execute(server, ['packages', 'upload', 'tests/test_data/mock_package.zip'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+        status = tool.execute(server, ['packages', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
+        eq_(0, status)
+        eq_('', stderr.getvalue())
+        eq_(True, len(stdout.getvalue()) > 0)

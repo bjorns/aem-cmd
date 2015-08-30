@@ -21,8 +21,13 @@ class IntrospectTool(object):
 
         cmd = tool_utils.get_command(args, 'tools')
         if cmd == 'tools':
-            for cmd in list_tools():
-                sys.stdout.write("{cmd}\n".format(cmd=cmd))
+            if options.raw:
+                for cmd in list_tools():
+                    sys.stdout.write("{cmd}\n".format(cmd=cmd))
+            else:
+                sys.stdout.write("Available tools:\n")
+                for cmd in list_tools():
+                    sys.stdout.write("    {cmd}\n".format(cmd=cmd))
         elif cmd == 'servers':
             config = get_current_config()
             for name, _ in config.servers.items():
