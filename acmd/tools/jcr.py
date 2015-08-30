@@ -7,12 +7,13 @@ import json
 import requests
 
 from acmd import tool, log
+from acmd import OK, SERVER_ERROR
 
 parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
-parser.add_option("-p", "--fullpath",
+parser.add_option("-f", "--fullpath",
                   action="store_const", const=True, dest="full_path",
                   help="output full paths instead of local")
 
@@ -27,7 +28,30 @@ class ListTool(object):
         log("Executing {}".format(self.name))
         options, args = parser.parse_args(argv)
         path = args[1] if len(args) >= 2 else '/'
-        list_path(server, options, path)
+        data = _get_subnodes(server, path)
+        if options.raw:
+            sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+        else:
+            _list_nodes(path, data, full_path=options.full_path)
+        return OK
+
+
+def _list_nodes(path, nodes, full_path=False):
+    for path_segment, data in nodes.items():
+        if not is_property(path_segment, data):
+            _list_node(path, path_segment, full_path)
+
+
+def _list_node(path, path_segment, full_path=False):
+    if full_path:
+        full_path = os.path.join(path, path_segment)
+        _list_path(full_path)
+    else:
+        _list_path(path_segment)
+
+
+def _list_path(path):
+    sys.stdout.write("{path}\n".format(path=path))
 
 
 @tool('cat')
@@ -35,7 +59,7 @@ class InspectTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         path = args[1] if len(args) >= 2 else '/'
-        cat_node(server, options, path)
+        return cat_node(server, options, path)
 
 
 @tool('find')
@@ -43,32 +67,16 @@ class FindTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         path = args[1] if len(args) >= 2 else '/'
-        list_tree(server, options, path)
+        return list_tree(server, options, path)
 
 
 def list_tree(server, options, path):
+    _list_path(path)
     nodes = _get_subnodes(server, path)
-    _list_nodes(path, nodes, abs=True)
     for path_segment, data in nodes.items():
         if not is_property(path_segment, data):
             list_tree(server, options, os.path.join(path, path_segment))
-
-
-def list_path(server, options, path):
-    data = _get_subnodes(server, path)
-    if options.raw:
-        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
-    else:
-        _list_nodes(path, data, full_path=options.full_path)
-
-
-def _list_nodes(path, nodes, full_path=False):
-    for path_segment, data in nodes.items():
-        if not is_property(path_segment, data):
-            if full_path:
-                sys.stdout.write("{path}\n".format(path=os.path.join(path, path_segment)))
-            else:
-                sys.stdout.write("{path}\n".format(path=path_segment))
+    return OK
 
 
 def _get_subnodes(server, path):
@@ -89,7 +97,7 @@ def cat_node(server, options, path):
     resp = requests.get(url, auth=server.auth)
     if resp.status_code != 200:
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
-        sys.exit(-1)
+        return SERVER_ERROR
     data = resp.json()
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
@@ -99,7 +107,8 @@ def cat_node(server, options, path):
                 if type(data) == str:
                     data = data.encode('utf-8')
                 sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
+    return OK
 
 
-def is_property(path_segment, data):
+def is_property(_, data):
     return not isinstance(data, dict)
