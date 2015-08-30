@@ -6,14 +6,14 @@
         <data>
             <packages>
                 <package>
-                    <group>adobe/granite</group>
-                    <name>com.adobe.coralui.content</name>
+                    <group>test_packages</group>
+                    <name>mock_package</name>
                     <version>1.6.5</version>
-                    <downloadName>com.adobe.coralui.content-1.6.5.zip</downloadName>
+                    <downloadName>mock_package-1.6.5.zip</downloadName>
                     <size>2801362</size>
                     <created>Wed, 29 May 2013 10:49:12 -0400</created>
-                    <createdBy>Adobe Systems Incorporated</createdBy>
-                    <lastModified></lastModified>
+                    <createdBy>bjorns</createdBy>
+                    <lastModified>null</lastModified>
                     <lastModifiedBy>null</lastModifiedBy>
                     <lastUnpacked>Fri, 13 Jun 2014 14:16:31 -0400</lastUnpacked>
                     <lastUnpackedBy>admin</lastUnpackedBy>

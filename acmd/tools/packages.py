@@ -2,6 +2,7 @@
 import sys
 import optparse
 from xml.etree import ElementTree
+
 import requests
 
 from acmd import tool, error
@@ -28,6 +29,8 @@ class PackagesTool(object):
         actionarg = get_argument(args)
         if action == 'list':
             list_packages(server, options)
+        elif action == 'install':
+            return install_package(server, options, actionarg)
         elif action == 'download':
             download_package(server, actionarg, options)
         elif action == 'upload':
@@ -88,6 +91,7 @@ def expand_package(server, package_name):
     for pkg in packages:
         if package_name == pkg['name']:
             return pkg
+    raise Exception('No package named {} found'.format(package_name))
 
 
 def get_version(options, pkg):
@@ -104,13 +108,18 @@ def get_group(options, pkg):
         return pkg['group']
 
 
-def download_package(server, package_name, options):
+def _get_package(package_name, server, options):
     pkg = expand_package(server, package_name)
     version = get_version(options, pkg)
     zipfile = pkg['name'] + '-' + version + '.zip'
-
     group = get_group(options, pkg)
-    path = '/etc/packages/' + group + '/' + zipfile
+    return group, zipfile
+
+
+def download_package(server, package_name, options):
+    group, zipfile = _get_package(package_name, server, options)
+
+    path = '/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
     url = server.url(path)
 
     response = requests.get(url, auth=(server.username, server.password))
@@ -138,6 +147,23 @@ def upload_package(server, options, filename):
 
     if resp.status_code != 200:
         error('Failed to upload paackage: {}: {}'.format(resp.status_code, resp.content))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    return OK
+
+
+def install_package(server, options, package_name):
+    """ curl -u admin:admin -X POST \
+        http://localhost:4505/crx/packmgr/service/.json/etc/packages/export/name of package?cmd=install """
+    group, zipfile = _get_package(package_name, server, options)
+    path = '/crx/packmgr/service/.json/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
+    url = server.url(path)
+    form_data = dict(cmd='install')
+
+    resp = requests.post(url, auth=server.auth, data=form_data)
+    if resp.status_code != 200:
+        error("Failed to install package: {}".format(resp.content))
         return SERVER_ERROR
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
