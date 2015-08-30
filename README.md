@@ -5,6 +5,7 @@ CRX repositories via command line tools. It tries to utilize
 the unix philosophy by reading and writing plaintext in order
 to interoperate with common tools such as grep, cut, sed and awk.
 
+[![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
 
 ## Installation
 
