@@ -1,9 +1,16 @@
+general:
+    artifacts:
+        - "dist"
+
+
 dependencies:
     pre:
         - pip install -r requirements.txt
 
 test:
     override:
-        - nosetests --with-coverage --cover-package=acmd --cover-min-percentage=75 --cover-xml --cover-xml-file=build/coverage-data.xml
+        - mkdir -p dist
+        - nosetests --with-coverage --cover-package=acmd --cover-min-percentage=75 --cover-html --cover-html-dir=dist/test_reports
+
     post:
         - python setup.py bdist_wheel
