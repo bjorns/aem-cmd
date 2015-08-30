@@ -3,9 +3,9 @@
 import sys
 import optparse
 
-from acmd import tool, list_tools, get_current_config
+from acmd import tool, list_tools, get_current_config, USER_ERROR
 from acmd.config import DEFAULT_SERVER_SETTING
-from acmd.tools import tool_utils, USER_ERROR
+from acmd.tools import tool_utils
 
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")

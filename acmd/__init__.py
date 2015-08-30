@@ -1,6 +1,13 @@
 # coding: utf-8
 __version__ = '0.1a8'
 
+# Standard error codes that can be returned from any tool.
+USER_ERROR = 4711
+CONFIG_ERROR = 4712
+SERVER_ERROR = 4713
+INTERNAL_ERROR = 4714
+
+
 import acmd.logger
 init_log = acmd.logger.init_log
 log = acmd.logger.log
