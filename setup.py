@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
 import os.path
+import pkg_resources
 
 from setuptools import setup
 from setuptools.command.develop import develop
@@ -9,13 +10,14 @@ from setuptools.command.install import install
 from acmd import __version__
 
 
-class InstallBashCompletionDevelop(develop):
+class DeployBashCompletionDevelop(develop):
     def run(self):
         develop.run(self)
         deploy_bash_completion()
+        raise Exception("dev")
 
 
-class InstallBashCompletion(install):
+class DeployBashCompletionInstall(install):
     def run(self):
         install.run(self)
         deploy_bash_completion()
@@ -41,10 +43,11 @@ def locate_bash_completion_dir():
     return None
 
 
-import shutil
 def install_script(path):
     sys.stderr.write("Installing bash completion to {}\n".format(path))
-    shutil.copyfile('acmd/data/acmd.bash_completion', os.path.join(path, 'acmd'))
+    template = pkg_resources.resource_string('acmd', "data/acmd.bash_completion")
+    target = open(os.path.join(path, 'acmd'), 'wb')
+    target.write(template)
 
 
 classifiers = [
@@ -85,8 +88,8 @@ config = {
     'scripts': ['bin/acmd'],
 
     # Installation
-    'cmdclass': {'develop': InstallBashCompletionDevelop,
-                 'install': InstallBashCompletion}
+    'cmdclass': {'develop': DeployBashCompletionDevelop,
+                 'install': DeployBashCompletionInstall}
 }
 
 setup(**config)
