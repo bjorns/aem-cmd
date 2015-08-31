@@ -3,7 +3,6 @@ from StringIO import StringIO
 
 from mock import patch
 from httmock import urlmatch, HTTMock
-
 from nose.tools import eq_
 
 from acmd.tools import packages
@@ -15,8 +14,14 @@ def test_tool_registration():
     assert tool is not None
 
 
+_command_stack = []
+def get_command_stack():
+    global _command_stack
+    return _command_stack
+
 @urlmatch(netloc='localhost:4502')
 def packages_mock(url, request):
+    get_command_stack().append((url, request))
     if url.path == '/crx/packmgr/service.jsp':
         with open('tests/test_data/packages_list.xml', 'rb') as f:
             return f.read()
@@ -76,3 +81,18 @@ def test_install_package(stderr, stdout):
         eq_(0, status)
         eq_('{"status": "OK"}\n', stdout.getvalue())
         eq_('', stderr.getvalue())
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_build_package(stderr, stdout):
+    with HTTMock(packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['packages', 'build', 'mock_package'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
+        eq_('', stderr.getvalue())
+        url, request = get_command_stack()[-1]
+        eq_('/crx/packmgr/service/.json/etc/packages/test_packages/mock_package-1.6.5.zip', url.path)
+        eq_('cmd=build', request.body)

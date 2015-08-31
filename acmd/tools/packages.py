@@ -29,6 +29,8 @@ class PackagesTool(object):
         actionarg = get_argument(args)
         if action == 'list':
             list_packages(server, options)
+        elif action == 'build':
+            return build_package(server, options, actionarg)
         elif action == 'install':
             return install_package(server, options, actionarg)
         elif action == 'download':
@@ -36,7 +38,7 @@ class PackagesTool(object):
         elif action == 'upload':
             return upload_package(server, options, actionarg)
         else:
-            sys.stderr.write('error: Unknown bundle action {a}\n'.format(a=action))
+            sys.stderr.write('error: Unknown packages action {a}\n'.format(a=action))
             sys.exit(-1)
 
 
@@ -153,12 +155,16 @@ def upload_package(server, options, filename):
     return OK
 
 
+def get_package_url(package_name, server, options):
+    group, zipfile = _get_package(package_name, server, options)
+    path = '/crx/packmgr/service/.json/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
+    return server.url(path)
+
+
 def install_package(server, options, package_name):
     """ curl -u admin:admin -X POST \
         http://localhost:4505/crx/packmgr/service/.json/etc/packages/export/name of package?cmd=install """
-    group, zipfile = _get_package(package_name, server, options)
-    path = '/crx/packmgr/service/.json/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
-    url = server.url(path)
+    url = get_package_url(package_name, server, options)
     form_data = dict(cmd='install')
 
     resp = requests.post(url, auth=server.auth, data=form_data)
@@ -168,3 +174,20 @@ def install_package(server, options, package_name):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     return OK
+
+
+def build_package(server, options, package_name):
+    """ curl -u admin:admin -X POST
+            http://localhost:4505:/crx/packmgr/service/.json/etc/packages/name_of_package.zip?cmd=build """
+    url = get_package_url(package_name, server, options)
+    form_data = dict(cmd='build')
+
+    resp = requests.post(url, auth=server.auth, data=form_data)
+    if resp.status_code != 200:
+        error("Failed to rebuild package: {}".format(resp.content))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    return OK
+
+
