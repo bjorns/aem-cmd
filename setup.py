@@ -14,7 +14,6 @@ class DeployBashCompletionDevelop(develop):
     def run(self):
         develop.run(self)
         deploy_bash_completion()
-        raise Exception("dev")
 
 
 class DeployBashCompletionInstall(install):

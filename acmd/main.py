@@ -34,18 +34,11 @@ def load_projects(projects):
     return ret
 
 
-def run(options, args, cmdargs):
-    home = expanduser("~")
-    rcfilename = "{home}/.acmd.rc".format(home=home)
-    if not os.path.isfile(rcfilename):
-        acmd.setup_rcfile(rcfilename)
-    cfg = acmd.read_config(rcfilename)
-
-    load_projects(cfg.projects)
+def run(options, config, args, cmdargs):
 
     tool_name, args = args[1], []
     acmd.init_log(options.verbose)
-    server = cfg.get_server(options.server)
+    server = config.get_server(options.server)
     acmd.log("Using server {}".format(server))
     cmd = acmd.get_tool(tool_name)
     if cmd is None:
@@ -67,6 +60,14 @@ def split_argv(argv):
 
 
 def main(argv):
+    home = expanduser("~")
+    rcfilename = "{home}/.acmd.rc".format(home=home)
+    if not os.path.isfile(rcfilename):
+        acmd.setup_rcfile(rcfilename)
+    config = acmd.read_config(rcfilename)
+
+    load_projects(config.projects)
+
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)
     if options.show_version:
@@ -76,5 +77,5 @@ def main(argv):
         parser.print_help(file=sys.stderr)
         sys.exit(acmd.USER_ERROR)
 
-    status = run(options, args, cmdargs)
+    status = run(options, config, args, cmdargs)
     sys.exit(status)

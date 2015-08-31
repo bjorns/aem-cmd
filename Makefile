@@ -6,6 +6,9 @@ clean:
 dist: clean
 	python setup.py bdist_wheel
 
+test_release: dist
+	twine upload -r pypitest dist/*
+
 release: dist
 	twine upload -r pypi dist/*
 
