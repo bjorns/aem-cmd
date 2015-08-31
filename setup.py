@@ -1,4 +1,5 @@
 # coding: utf-8
+import sys
 import os.path
 
 from setuptools import setup
@@ -21,10 +22,11 @@ class InstallBashCompletion(install):
 
 
 def deploy_bash_completion():
-    print "Running custom code!"
     path = locate_bash_completion_dir()
     if path is not None:
         install_script(path)
+    else:
+        sys.stderr.write("Could not find bash completion install dir.")
 
 
 DEFAULT_COMPLETION_DIR = '/etc/bash_completion.d'
@@ -39,8 +41,10 @@ def locate_bash_completion_dir():
     return None
 
 
+import shutil
 def install_script(path):
-    pass
+    sys.stderr.write("Installing bash completion to {}\n".format(path))
+    shutil.copyfile('acmd/data/acmd.bash_completion', os.path.join(path, 'acmd'))
 
 
 classifiers = [

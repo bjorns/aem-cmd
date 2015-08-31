@@ -7,7 +7,7 @@ import json
 import requests
 
 from acmd import tool, log
-from acmd import OK, SERVER_ERROR
+from acmd import OK, SERVER_ERROR, USER_ERROR
 
 parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
 parser.add_option("-r", "--raw",
@@ -67,7 +67,10 @@ class FindTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         path = args[1] if len(args) >= 2 else '/'
-        return list_tree(server, options, path)
+        try:
+            return list_tree(server, options, path)
+        except KeyboardInterrupt:
+            return USER_ERROR
 
 
 def list_tree(server, options, path):

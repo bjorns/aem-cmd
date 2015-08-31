@@ -30,7 +30,7 @@ _acmd()
         COMPREPLY=( $(compgen -W "${servers}" "" ) )
         return 0
     fi
-    if [[ ${prev} == "cat" || ${prev} == "ls" ]]; then
+    if [[ ${prev} == "cat" || ${prev} == "ls" || ${prev} == "find" ]]; then
         if [[ $cur == *"/" ]]; then
             dir=${cur}
         else
