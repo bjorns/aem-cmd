@@ -5,7 +5,7 @@ import pkg_resources
 
 from setuptools import setup
 from setuptools.command.develop import develop
-from setuptools.command.install import install
+from setuptools.command.install_scripts import install_scripts
 
 from acmd import __version__
 
@@ -16,9 +16,9 @@ class DeployBashCompletionDevelop(develop):
         deploy_bash_completion()
 
 
-class DeployBashCompletionInstall(install):
+class DeployBashCompletionInstall(install_scripts):
     def run(self):
-        install.run(self)
+        install_scripts.run(self)
         deploy_bash_completion()
 
 
@@ -88,7 +88,7 @@ config = {
 
     # Installation
     'cmdclass': {'develop': DeployBashCompletionDevelop,
-                 'install': DeployBashCompletionInstall}
+                 'install_scripts': DeployBashCompletionInstall}
 }
 
 setup(**config)
