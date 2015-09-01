@@ -32,7 +32,8 @@ def test_show_version(stdout):
 
 
 @patch('acmd.main.load_projects')
-def test_run_tool(load_proj):
+@patch('acmd.deploy.deploy_bash_completion')
+def test_run_tool(deploy_bash, load_proj):
     _tool = get_tool('mock_tool')
     eq_(False, _tool.did_run)
 
@@ -45,5 +46,6 @@ def test_run_tool(load_proj):
     eq_(1147, exit_code)
 
     eq_(True, load_proj.called)
+    
     _tool = get_tool('mock_tool')
     eq_(True, _tool.did_run)

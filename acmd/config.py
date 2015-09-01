@@ -1,22 +1,17 @@
 # coding: utf-8
 import ConfigParser
 from os.path import expanduser
-import pkg_resources
+import os.path
 
 import acmd.server
 
 DEFAULT_SERVER_SETTING = 'default_server'
 DEFAULT_PORT = 80
 
-def read_config_template():
-    return pkg_resources.resource_string('acmd', "data/acmd.rc.template")
-
-
-def setup_rcfile(rcfilename):
-    """ Create a new ~/.acmd.rc from template."""
-    template = read_config_template()
-    target = open(rcfilename, 'wb')
-    target.write(template)
+def get_rcfilename():
+    home = os.path.expanduser("~")
+    rcfilename = "{home}/.acmd.rc".format(home=home)
+    return rcfilename
 
 
 class Config(object):

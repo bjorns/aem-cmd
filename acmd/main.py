@@ -1,8 +1,8 @@
 # coding: utf-8
 import os
+import os.path
 import sys
 import optparse
-from os.path import expanduser
 
 import acmd
 
@@ -25,7 +25,7 @@ def load_projects(projects):
     ret = {}
     for name, path in projects.items():
         acmd.log("Loading project {}".format(name))
-        path = expanduser(path)
+        path = os.path.expanduser(path)
         sys.path.insert(1, path)
         init_file = os.path.join(path, '__init__.py')
         acmd.set_current_project(name)
@@ -35,7 +35,6 @@ def load_projects(projects):
 
 
 def run(options, config, args, cmdargs):
-
     tool_name, args = args[1], []
     acmd.init_log(options.verbose)
     server = config.get_server(options.server)
@@ -60,10 +59,9 @@ def split_argv(argv):
 
 
 def main(argv):
-    home = expanduser("~")
-    rcfilename = "{home}/.acmd.rc".format(home=home)
+    rcfilename = acmd.get_rcfilename()
     if not os.path.isfile(rcfilename):
-        acmd.setup_rcfile(rcfilename)
+        acmd.deploy_system_files()
     config = acmd.read_config(rcfilename)
 
     load_projects(config.projects)

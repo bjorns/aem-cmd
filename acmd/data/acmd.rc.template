@@ -17,4 +17,3 @@ default_server=localhost
 # Add custom tools directories here as
 # prefix=<custom_tool_dir>
 [projects]
-myproj=test
