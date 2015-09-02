@@ -144,6 +144,14 @@ Asynchronously triggers a tar optimization job for the filesystem backend.
 
 Asynchronously triggers a garbage collection job.
 
+### Bash Completion
+
+Acmd comes with a bash completion script but for technical reason it cannot
+be installed by pip so to install it use the install_bash_completion tool.
+
+    $ sudo acmd install_bash_completion
+    Password:
+    Installed bash completion script in /etc/bash_completion.d
 
 
 ## Configuration

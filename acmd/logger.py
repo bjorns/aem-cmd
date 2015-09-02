@@ -9,6 +9,7 @@ def init_log(_display_log):
 
 
 def log(msg):
+    global display_log
     if display_log:
         sys.stderr.write("{}\n".format(msg))
 

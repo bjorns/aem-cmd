@@ -1,5 +1,5 @@
 # coding: utf-8
-__version__ = '0.2b5'
+__version__ = '0.2b6'
 
 # Standard error codes that can be returned from any tool.
 OK = 0
@@ -25,7 +25,10 @@ get_current_config = acmd.config.get_current_config
 get_rcfilename = acmd.config.get_rcfilename
 
 import acmd.deploy
-deploy_system_files = acmd.deploy.deploy_system_files
+setup_rcfile = acmd.deploy.setup_rcfile
+deploy_bash_completion = acmd.deploy.deploy_bash_completion
+
+get_current_version = acmd.deploy.get_current_version
 
 import acmd.tool_repo
 import_tools = acmd.tool_repo.import_tools

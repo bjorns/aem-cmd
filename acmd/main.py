@@ -21,7 +21,8 @@ parser.add_option("-v", "--version",
 
 
 def load_projects(projects):
-    """ Expecting dict of {<prefix>: <path>} """
+    """ Load any user specified tools directories.
+        Expecting dict of {<prefix>: <path>} """
     ret = {}
     for name, path in projects.items():
         acmd.log("Loading project {}".format(name))
@@ -36,7 +37,6 @@ def load_projects(projects):
 
 def run(options, config, args, cmdargs):
     tool_name, args = args[1], []
-    acmd.init_log(options.verbose)
     server = config.get_server(options.server)
     acmd.log("Using server {}".format(server))
     cmd = acmd.get_tool(tool_name)
@@ -61,13 +61,14 @@ def split_argv(argv):
 def main(argv):
     rcfilename = acmd.get_rcfilename()
     if not os.path.isfile(rcfilename):
-        acmd.deploy_system_files()
+        acmd.setup_rcfile(rcfilename)
     config = acmd.read_config(rcfilename)
-
     load_projects(config.projects)
 
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)
+    acmd.init_log(options.verbose)
+
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))
         sys.exit(0)
