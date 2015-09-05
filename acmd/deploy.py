@@ -34,9 +34,10 @@ def _read_config_template():
     return pkg_resources.resource_string('acmd', "data/acmd.rc.template")
 
 
-def deploy_bash_completion():
-    """ Find the bash_completion.d directory and install the packaged script. """
-    path = _locate_bash_completion_dir()
+def deploy_bash_completion(paths=None):
+    """ Find the bash_completion.d directory and install the packaged script.
+    """
+    path = _locate_bash_completion_dir(paths)
     if path is not None:
         acmd.log("Found bash completion script dir {}".format(path))
         install_script(path)
@@ -45,13 +46,14 @@ def deploy_bash_completion():
         sys.stderr.write("Could not find bash completion install dir.")
 
 
-def _locate_bash_completion_dir():
+def _locate_bash_completion_dir(paths=None):
     """ Bash completion can have many different install directories.
         Find one of them. """
-    alternatives = [DEFAULT_COMPLETION_DIR, HOMEBREW_COMPLETION_DIR]
-    for d in alternatives:
-        if os.path.exists(d) and os.path.isdir(d):
-            return d
+    if paths is None:
+        paths = [DEFAULT_COMPLETION_DIR, HOMEBREW_COMPLETION_DIR]
+    for path in paths:
+        if os.path.exists(path) and os.path.isdir(path):
+            return path
     return None
 
 
