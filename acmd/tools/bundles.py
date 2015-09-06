@@ -21,7 +21,7 @@ class BundlesTool(object):
 
         action = get_command(args, 'list')
         actionarg = get_argument(args)
-        if action == 'list':
+        if action == 'list' or action == 'ls':
             return list_bundles(server, options)
         elif action == 'start':
             return start_bundle(server, actionarg, options)

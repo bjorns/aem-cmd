@@ -27,7 +27,7 @@ class PackagesTool(object):
 
         action = get_action(args)
         actionarg = get_argument(args)
-        if action == 'list':
+        if action == 'list' or action == 'ls':
             list_packages(server, options)
         elif action == 'build':
             return build_package(server, options, actionarg)

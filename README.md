@@ -53,6 +53,12 @@ List subpaths:
     home
     ....
 
+List entire subtree:
+
+    $ acmd find /content/catalog
+    ...
+
+
 Show node properties:
 
     $ acmd cat /content
@@ -167,7 +173,7 @@ be installed by pip so to install it use the install_bash_completion tool.
 
 ## Configuration
 
-Acmd config is specified in ```~/.acmd.rc.``` If this file does not exist at first
+Acmd config is specified in ```~/.acmd.rc``` If this file does not exist at first
 execution it will be created from a template. Here is what the template file
 looks like:
 
