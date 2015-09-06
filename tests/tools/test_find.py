@@ -70,7 +70,20 @@ def test_find(stderr, stdout):
     with HTTMock(service_mock):
         tool = get_tool('find')
         server = Server('localhost')
-        status = tool.execute(server, ['ls', '/content'])
+        status = tool.execute(server, ['find', '/content'])
+        eq_(0, status)
+        eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
+            stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+@patch('sys.stdin', new=StringIO('/content\n'))
+def test_find_stdin(stderr, stdout):
+    with HTTMock(service_mock):
+        tool = get_tool('find')
+        server = Server('localhost')
+        status = tool.execute(server, ['find'])
         eq_(0, status)
         eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
             stdout.getvalue())

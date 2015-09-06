@@ -101,9 +101,16 @@ def cat_node(server, options, path):
 class FindTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        path = args[1] if len(args) >= 2 else '/'
+
         try:
-            return list_tree(server, options, path)
+            if len(args) >= 2:
+                path = args[1]
+                return list_tree(server, options, path)
+            else:
+                ret = OK
+                for line in sys.stdin:
+                    ret = ret | list_tree(server, options, line.strip())
+                return ret
         except KeyboardInterrupt:
             return USER_ERROR
 
