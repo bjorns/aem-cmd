@@ -28,13 +28,23 @@ class ListTool(object):
     def execute(self, server, argv):
         log("Executing {}".format(self.name))
         options, args = parser.parse_args(argv)
-        path = args[1] if len(args) >= 2 else '/'
-        data = _get_subnodes(server, path)
-        if options.raw:
-            sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+        if len(args) >= 2:
+            path = args[1]
+            return list_node(server, options, path)
         else:
-            _list_nodes(path, data, full_path=options.full_path)
-        return OK
+            ret = OK
+            for path in sys.stdin:
+                ret = ret | list_node(server, options, path.strip())
+            return ret
+
+
+def list_node(server, options, path):
+    data = _get_subnodes(server, path)
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    else:
+        _list_nodes(path, data, full_path=options.full_path)
+    return OK
 
 
 def _list_nodes(path, nodes, full_path=False):
