@@ -6,6 +6,7 @@ from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
 from acmd import get_tool, Server
+from acmd.tools.jcr import parse_properties
 
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
@@ -131,4 +132,5 @@ def test_rm(stderr, stdout):
         status = tool.execute(server, ['rm', '/content/path/node'])
         eq_(0, status)
         eq_('/content/path/node\n', stdout.getvalue())
+
 

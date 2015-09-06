@@ -3,7 +3,7 @@ import sys
 import os.path
 import optparse
 import json
-import fileinput
+import re
 
 import requests
 
@@ -122,6 +122,7 @@ def is_property(_, data):
 class RmTool(object):
     """ curl -X DELETE http://localhost:4505/path/to/node/jcr:content/nodeName -u admin:admin
     """
+
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         if len(args) >= 2:
@@ -145,3 +146,61 @@ def rm_node(server, options, path):
     else:
         sys.stdout.write("{}\n".format(path))
     return OK
+
+
+@tool('setprop')
+class SetPropertyTool(object):
+    """ curl -u admin:admin -X POST --data test=sample  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+
+    def execute(self, server, argv):
+        options, args = parser.parse_args(argv)
+        props = parse_properties(args[1])
+        if len(args) >= 3:
+            path = args[2]
+            return set_node_properties(server, options, path, props)
+        else:
+            for line in sys.stdin:
+                path = line.strip()
+                set_node_properties(server, options, path, props)
+            return OK
+
+
+def set_node_properties(server, options, path, props):
+    """ curl -u admin:admin -X POST --data test=sample  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+    url = server.url(path)
+    resp = requests.post(url, auth=server.auth, data=props)
+    if resp.status_code != 200:
+        sys.stderr.write("error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    else:
+        sys.stdout.write("{}\n".format(path))
+    return OK
+
+
+def parse_properties(props_str):
+    ret = dict()
+    rest = props_str
+    while rest.strip() != "":
+        key, val, rest = parse_property(rest)
+        ret[key] = val
+    return ret
+
+
+def parse_property(prop_str):
+    key, _, rest = prop_str.partition('=')
+    if rest.startswith('"'):
+        value, rest = get_quoted_value(rest)
+    else:
+        value, _, rest = rest.partition(',')
+    return key, value, rest
+
+
+def get_quoted_value(rest):
+    rest = rest.lstrip('"')
+    parts = re.split(r'(?<!\\)"', rest, maxsplit=1)
+    value = parts[0]
+    rest = parts[1] if len(parts) > 1 else ""
+    rest = rest.lstrip(',')
+    return value, rest

@@ -43,7 +43,7 @@ The help tool lists all installed tools
 The JCR tools are considered so common they are not grouped together but come
 as separate commands.
 
-List subpaths:
+#### List subpaths:
 
     $ amcd ls /
     index.servlet
@@ -53,13 +53,13 @@ List subpaths:
     home
     ....
 
-List entire subtree:
+#### List entire subtree:
 
     $ acmd find /content/catalog
     ...
 
 
-Show node properties:
+#### Show node properties:
 
     $ acmd cat /content
     jcr:primaryType:	sling:OrderedFolder
@@ -69,12 +69,33 @@ Show node properties:
     sling:resourceType:	sling:redirect
     jcr:created:	Fri Jun 13 2014 14:17:56 GMT-0400
 
-Search for properties
+#### Set property
+
+    $ acmd setprop prop=cheese /content/catalog/product4711
+    /content/catalog/product4711
+    $ acmd cat /content/catalog/product4711
+    serial_nbr: 1234
+    ...
+    prop:   cheese
+
+
+Multiple properties can be set comma separated. Just quote the values if there
+are commas or spaces in the values.
+
+    $ acmd setprop prop1="I like cheese",prop2="I also like wine" /content/catalog/product4711
+
+The setprop tool also takes paths on stdin. The folling line sets the property
+on all nodes under /content/catalog
+
+    $ acmd find /content/catalog | acmd setprop prop="I like cheese"
+
+
+#### Search for properties
 
     $ acmd search serial_nbr=1234
     /content/catalog/product4711
 
-Delete node
+#### Delete node
 
     $ acmd rm /content/catalog/product4711
     /content/catalog/product4711
@@ -83,8 +104,6 @@ The rm tool if given no argument will read node paths from standard input.
 
     $ acmd find /content/catalog | grep product | acmd rm
     ....
-
-
 
 ### Bundles
 
