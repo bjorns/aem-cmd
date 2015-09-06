@@ -89,6 +89,13 @@ on all nodes under /content/catalog
 
     $ acmd find /content/catalog | acmd setprop prop="I like cheese"
 
+#### Delete property
+
+    $ acmd rmprop prop /content/catalog/product4711
+    /content/catalog/product4711
+
+Works very similar to setprop, takes multiple paths on stdin and can take
+multiple comma separated property names as prop0,prop1,prop2.
 
 #### Search for properties
 

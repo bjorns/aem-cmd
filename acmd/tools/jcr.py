@@ -204,3 +204,39 @@ def get_quoted_value(rest):
     rest = parts[1] if len(parts) > 1 else ""
     rest = rest.lstrip(',')
     return value, rest
+
+
+@tool('rmprop')
+class DeletePropertyTool(object):
+    """ curl -u admin:admin -X POST --data test@Delete=  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+
+    def execute(self, server, argv):
+        options, args = parser.parse_args(argv)
+        if len(args) <= 1:
+            parser.print_help()
+            return USER_ERROR
+        prop_names = args[1].split(',')
+        if len(args) >= 3:
+            path = args[2]
+            return rm_node_properties(server, options, prop_names, path)
+        else:
+            ret = OK
+            for line in sys.stdin:
+                path = line.strip()
+                ret = ret | rm_node_properties(server, options, prop_names, path)
+            return ret
+
+
+def rm_node_properties(server, options, prop_names, path):
+    props = {k + '@Delete': '' for k in prop_names}
+
+    url = server.url(path)
+    resp = requests.post(url, auth=server.auth, data=props)
+    if resp.status_code != 200:
+        sys.stderr.write("error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    else:
+        sys.stdout.write("{}\n".format(path))
+    return OK
