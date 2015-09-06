@@ -68,6 +68,17 @@ Search for properties
     $ acmd search serial_nbr=1234
     /content/catalog/product4711
 
+Delete node
+
+    $ acmd rm /content/catalog/product4711
+    /content/catalog/product4711
+
+The rm tool if given no argument will read node paths from standard input.
+
+    $ acmd find /content/catalog | grep product | acmd rm
+    ....
+
+
 
 ### Bundles
 

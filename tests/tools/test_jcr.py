@@ -50,7 +50,7 @@ NODE_RESPONSE = """{
 }"""
 
 
-@urlmatch(netloc='localhost:4502')
+@urlmatch(netloc='localhost:4502', method='GET')
 def service_mock(url, request):
     if url.path == '/content.1.json':
         return CONTENT_RESPONSE
@@ -112,3 +112,23 @@ def test_find(stderr, stdout):
         eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
             stdout.getvalue())
         eq_('', stderr.getvalue())
+
+
+@urlmatch(netloc='localhost:4502', method='DELETE')
+def service_rm(url, request):
+    return {
+        'content': '',
+        'status_code': 204
+    }
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rm(stderr, stdout):
+    with HTTMock(service_rm):
+        tool = get_tool('rm')
+        server = Server('localhost')
+        status = tool.execute(server, ['rm', '/content/path/node'])
+        eq_(0, status)
+        eq_('/content/path/node\n', stdout.getvalue())
+

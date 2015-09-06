@@ -3,6 +3,7 @@ import sys
 import os.path
 import optparse
 import json
+import fileinput
 
 import requests
 
@@ -62,6 +63,24 @@ class InspectTool(object):
         return cat_node(server, options, path)
 
 
+def cat_node(server, options, path):
+    url = server.url("{path}.1.json".format(path=path))
+    resp = requests.get(url, auth=server.auth)
+    if resp.status_code != 200:
+        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
+        return SERVER_ERROR
+    data = resp.json()
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    else:
+        for prop, data in data.items():
+            if is_property(prop, data):
+                if type(data) == str:
+                    data = data.encode('utf-8')
+                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
+    return OK
+
+
 @tool('find')
 class FindTool(object):
     def execute(self, server, argv):
@@ -95,23 +114,34 @@ def _get_subnodes(server, path):
     return resp.json()
 
 
-def cat_node(server, options, path):
-    url = server.url("{path}.1.json".format(path=path))
-    resp = requests.get(url, auth=server.auth)
-    if resp.status_code != 200:
-        sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
-        return SERVER_ERROR
-    data = resp.json()
-    if options.raw:
-        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
-    else:
-        for prop, data in data.items():
-            if is_property(prop, data):
-                if type(data) == str:
-                    data = data.encode('utf-8')
-                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
-    return OK
-
-
 def is_property(_, data):
     return not isinstance(data, dict)
+
+
+@tool('rm')
+class RmTool(object):
+    """ curl -X DELETE http://localhost:4505/path/to/node/jcr:content/nodeName -u admin:admin
+    """
+    def execute(self, server, argv):
+        options, args = parser.parse_args(argv)
+        if len(args) >= 2:
+            path = args[1]
+            return rm_node(server, options, path)
+        else:
+            for line in sys.stdin:
+                path = line.strip()
+                rm_node(server, options, path)
+        return OK
+
+
+def rm_node(server, options, path):
+    url = server.url(path)
+    resp = requests.delete(url, auth=server.auth)
+    if resp.status_code != 204:
+        sys.stderr.write("error: Failed to delete path {}, request returned {}\n".format(path, resp.status_code))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
+    else:
+        sys.stdout.write("{}\n".format(path))
+    return OK
