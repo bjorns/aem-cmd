@@ -66,13 +66,26 @@ def service_mock(url, request):
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_find(stderr, stdout):
+def test_cat(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('find')
+        tool = get_tool('cat')
         server = Server('localhost')
-        status = tool.execute(server, ['ls', '/content'])
+        status = tool.execute(server, ['cat', '/content/path/node'])
         eq_(0, status)
-        eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
+        eq_('text:\tSomething something\njcr:primaryType:\tnt:unstructured\ntitle:\tTest Title\n',
             stdout.getvalue())
         eq_('', stderr.getvalue())
 
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+@patch('sys.stdin', new=StringIO('/content/path/node\n'))
+def test_cat_stdin(stderr, stdout):
+    with HTTMock(service_mock):
+        tool = get_tool('cat')
+        server = Server('localhost')
+        status = tool.execute(server, ['cat'])
+        eq_(0, status)
+        eq_('text:\tSomething something\njcr:primaryType:\tnt:unstructured\ntitle:\tTest Title\n',
+            stdout.getvalue())
+        eq_('', stderr.getvalue())

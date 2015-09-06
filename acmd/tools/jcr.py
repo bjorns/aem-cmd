@@ -69,8 +69,14 @@ def _list_path(path):
 class InspectTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        path = args[1] if len(args) >= 2 else '/'
-        return cat_node(server, options, path)
+        if len(args) >= 2:
+            path = args[1]
+            return cat_node(server, options, path)
+        else:
+            ret = OK
+            for line in sys.stdin:
+                ret = ret | cat_node(server, options, line.strip())
+            return ret
 
 
 def cat_node(server, options, path):
