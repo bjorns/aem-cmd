@@ -8,6 +8,7 @@ from nose.tools import eq_
 from acmd import get_tool, Server
 from acmd.tools.jcr import parse_properties
 
+
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
     "path": {
@@ -53,60 +54,33 @@ NODE_RESPONSE = """{
 
 @urlmatch(netloc='localhost:4502', method='GET')
 def service_mock(url, request):
-    if url.path == '/content.1.json':
-        return CONTENT_RESPONSE
-    elif url.path == '/content/path.1.json':
+    if url.path == '/content/path.1.json':
         return PATH_RESPONSE
-    elif url.path == '/content/path/directory.1.json':
-        return DIR_RESPONSE
-    elif url.path == '/content/path/node.1.json':
-        return NODE_RESPONSE
     else:
         raise Exception(url.path)
 
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_cat(stderr, stdout):
+def test_ls(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('cat')
+        tool = get_tool('ls')
         server = Server('localhost')
-        status = tool.execute(server, ['ls', '/content/path/node'])
+        status = tool.execute(server, ['ls', '/content/path'])
         eq_(0, status)
-        eq_('text:\tSomething something\njcr:primaryType:\tnt:unstructured\ntitle:\tTest Title\n',
-            stdout.getvalue())
+        eq_('node\ndirectory\n', stdout.getvalue())
         eq_('', stderr.getvalue())
 
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_find(stderr, stdout):
+@patch('sys.stdin', new=StringIO("/content/path\n"))
+def test_ls_stdin(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('find')
+        tool = get_tool('ls')
         server = Server('localhost')
-        status = tool.execute(server, ['ls', '/content'])
+        status = tool.execute(server, ['ls'])
         eq_(0, status)
-        eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
-            stdout.getvalue())
+        eq_('node\ndirectory\n', stdout.getvalue())
         eq_('', stderr.getvalue())
-
-
-@urlmatch(netloc='localhost:4502', method='DELETE')
-def service_rm(url, request):
-    return {
-        'content': '',
-        'status_code': 204
-    }
-
-
-@patch('sys.stdout', new_callable=StringIO)
-@patch('sys.stderr', new_callable=StringIO)
-def test_rm(stderr, stdout):
-    with HTTMock(service_rm):
-        tool = get_tool('rm')
-        server = Server('localhost')
-        status = tool.execute(server, ['rm', '/content/path/node'])
-        eq_(0, status)
-        eq_('/content/path/node\n', stdout.getvalue())
-
 
