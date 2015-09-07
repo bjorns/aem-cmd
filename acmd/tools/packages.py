@@ -10,7 +10,7 @@ from acmd import OK, USER_ERROR, SERVER_ERROR
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
-parser = optparse.OptionParser("acmd packages [options] [list|upload|download] [<zip>|<package>]")
+parser = optparse.OptionParser("acmd packages [options] [list|build|install|upload|download] [<zip>|<package>]")
 parser.add_option("-v", "--version",
                   dest="version", help="specify explicit version")
 parser.add_option("-g", "--group",

@@ -171,6 +171,34 @@ By default the packages tool lists all installed packages.
     day/cq560/social/calendar   cq-social-calendar-pkg  1.0.28
     ....
 
+#### Rebuild package
+
+The packages commands require only that you provide the name of the package.
+The group and the latest version will be located automatically. If there are
+overlaying grops or you want a specific version you may specify them using the
+-g and -v flags.
+
+    $ acmd packages build --raw cq-upgrade-acl
+    {"success":true,"msg":"Package built"}
+
+#### Install package
+
+    $ acmd packages install --raw cq-upgrade-acl
+    {"success":true,"msg":"Package installed"}
+
+#### Upload package
+
+    $ acmd packages upload new-catalog-1.0.zip
+
+####
+
+### Replication
+
+Activate tree:
+
+    $ acmd replication activate /content/catalog
+    Activated 130 of 130 resources in 4 seconds.
+
 ### Storage
 
 The backend storage tool can trigger optimization jobs.
