@@ -232,7 +232,6 @@ def get_quoted_value(rest):
 @tool('rmprop')
 class DeletePropertyTool(object):
     """ curl -u admin:admin -X POST --data test@Delete=  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
-
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         if len(args) <= 1:

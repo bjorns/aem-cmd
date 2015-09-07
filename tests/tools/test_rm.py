@@ -7,6 +7,7 @@ from nose.tools import eq_
 
 from acmd import get_tool, Server
 
+
 @urlmatch(netloc='localhost:4502', method='DELETE')
 def service_rm(url, request):
     return {
@@ -24,6 +25,7 @@ def test_rm(stderr, stdout):
         status = tool.execute(server, ['rm', '/content/path/node'])
         eq_(0, status)
         eq_('/content/path/node\n', stdout.getvalue())
+
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)

@@ -6,7 +6,7 @@ from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
 from acmd.tools import packages
-from acmd import get_tool, Server
+from acmd import get_tool, Server, USER_ERROR
 
 
 def test_tool_registration():
@@ -27,6 +27,8 @@ def packages_mock(url, request):
             return f.read()
     elif url.path.startswith('/crx/packmgr/service/.json/etc/packages'):
         return '{"status": "OK"}'
+    elif url.path == '/etc/packages/test_packages/mock_package-1.6.5.zip':
+        return ""
     else:
         raise Exception(url.path)
 
@@ -87,7 +89,7 @@ def test_install_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_build_package(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = packages.PackagesTool()
+        tool = get_tool('packages')
         server = Server('localhost')
         status = tool.execute(server, ['packages', 'build', 'mock_package'])
         eq_(0, status)
@@ -96,3 +98,26 @@ def test_build_package(stderr, stdout):
         url, request = get_command_stack()[-1]
         eq_('/crx/packmgr/service/.json/etc/packages/test_packages/mock_package-1.6.5.zip', url.path)
         eq_('cmd=build', request.body)
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_download(stderr, stdout):
+    with HTTMock(packages_mock):
+        tool = get_tool('packages')
+        server = Server('localhost')
+        status = tool.execute(server, ['packages', 'download', 'mock_package'])
+    eq_(0, status)
+    eq_('', stdout.getvalue())
+    eq_('', stderr.getvalue())
+    url, request = get_command_stack()[-1]
+    eq_('/etc/packages/test_packages/mock_package-1.6.5.zip', url.path)
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_bad_command(stderr, stdout):
+    tool = get_tool('packages')
+    server = Server('localhost')
+    status = tool.execute(server, ['packages', 'nonexisting', 'mock_package'])
+    eq_(USER_ERROR, status)

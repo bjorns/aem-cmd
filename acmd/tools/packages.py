@@ -6,11 +6,11 @@ from xml.etree import ElementTree
 import requests
 
 from acmd import tool, error
-from acmd import SERVER_ERROR, OK
+from acmd import OK, USER_ERROR, SERVER_ERROR
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
-parser = optparse.OptionParser("acmd packages [options] [list|upload] [<zip>|<package>]")
+parser = optparse.OptionParser("acmd packages [options] [list|upload|download] [<zip>|<package>]")
 parser.add_option("-v", "--version",
                   dest="version", help="specify explicit version")
 parser.add_option("-g", "--group",
@@ -28,18 +28,22 @@ class PackagesTool(object):
         action = get_action(args)
         actionarg = get_argument(args)
         if action == 'list' or action == 'ls':
-            list_packages(server, options)
+            return list_packages(server, options)
+
+        if actionarg is None:
+            parser.print_help()
+            return USER_ERROR
         elif action == 'build':
             return build_package(server, options, actionarg)
         elif action == 'install':
             return install_package(server, options, actionarg)
         elif action == 'download':
-            download_package(server, actionarg, options)
+            return download_package(server, options, actionarg)
         elif action == 'upload':
             return upload_package(server, options, actionarg)
         else:
             sys.stderr.write('error: Unknown packages action {a}\n'.format(a=action))
-            sys.exit(-1)
+            return USER_ERROR
 
 
 def get_action(argv):
@@ -90,10 +94,12 @@ def parse_package(elem):
 
 def expand_package(server, package_name):
     packages = get_packages_list(server)
+
     for pkg in packages:
         if package_name == pkg['name']:
             return pkg
-    raise Exception('No package named {} found'.format(package_name))
+    pkg_names = [pkg['name'] for pkg in packages]
+    raise Exception('No package named {} found, alternatives: {}'.format(package_name, " ".join(pkg_names)))
 
 
 def get_version(options, pkg):
@@ -118,26 +124,26 @@ def _get_package(package_name, server, options):
     return group, zipfile
 
 
-def download_package(server, package_name, options):
+def download_package(server, options, package_name):
     group, zipfile = _get_package(package_name, server, options)
-
     path = '/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
     url = server.url(path)
-
     response = requests.get(url, auth=(server.username, server.password))
     f = open(zipfile, 'wb')
     if response.status_code == 200:
         f.write(response.content)
+        return OK
     else:
         sys.stderr.write("error: Failed to download " + url + " because " + str(response.status_code) + "\n")
         if options.raw:
             sys.stderr.write(response.content)
             sys.stderr.write("\n")
+        return SERVER_ERROR
 
 
 def upload_package(server, options, filename):
-    """curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
-            -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp"""
+    """ curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
+            -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp """
     form_data = dict(
         file=(filename, open(filename, 'rb'), 'application/zip', dict()),
         name=filename.rstrip('.zip'),
@@ -189,5 +195,3 @@ def build_package(server, options, package_name):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     return OK
-
-
