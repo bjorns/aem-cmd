@@ -112,6 +112,13 @@ The rm tool if given no argument will read node paths from standard input.
     $ acmd find /content/catalog | grep product | acmd rm
     ....
 
+### Users tool
+
+#### Create Users
+
+    $ acmd users create --password=foobar jdoe
+    /home/users/j/jdoe
+
 ### Bundles
 
 The bundles tool can list, start and stop jackrabbit OSGi bundles.

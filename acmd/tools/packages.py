@@ -23,7 +23,7 @@ parser.add_option("-r", "--raw",
 @tool('packages')
 class PackagesTool(object):
     def execute(self, server, argv):
-        (options, args) = parser.parse_args(argv)
+        options, args = parser.parse_args(argv)
 
         action = get_action(args)
         actionarg = get_argument(args)
