@@ -3,12 +3,12 @@ import sys
 import os.path
 import optparse
 import json
-import re
 
 import requests
 
 from acmd import tool, log
 from acmd import OK, SERVER_ERROR, USER_ERROR
+from acmd.props import parse_properties
 
 parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
 parser.add_option("-r", "--raw",
@@ -200,33 +200,6 @@ def set_node_properties(server, options, path, props):
     else:
         sys.stdout.write("{}\n".format(path))
     return OK
-
-
-def parse_properties(props_str):
-    ret = dict()
-    rest = props_str
-    while rest.strip() != "":
-        key, val, rest = parse_property(rest)
-        ret[key] = val
-    return ret
-
-
-def parse_property(prop_str):
-    key, _, rest = prop_str.partition('=')
-    if rest.startswith('"'):
-        value, rest = get_quoted_value(rest)
-    else:
-        value, _, rest = rest.partition(',')
-    return key, value, rest
-
-
-def get_quoted_value(rest):
-    rest = rest.lstrip('"')
-    parts = re.split(r'(?<!\\)"', rest, maxsplit=1)
-    value = parts[0]
-    rest = parts[1] if len(parts) > 1 else ""
-    rest = rest.lstrip(',')
-    return value, rest
 
 
 @tool('rmprop')

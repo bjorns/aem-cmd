@@ -119,6 +119,12 @@ The rm tool if given no argument will read node paths from standard input.
     $ acmd users create --password=foobar jdoe
     /home/users/j/jdoe
 
+#### Set profile properties
+
+    $ acmd users setprop age=29,name="John Doe" jdoe
+    /home/users/j/jdoe
+
+
 ### Groups tool
 
 #### Create group
