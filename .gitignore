@@ -12,3 +12,5 @@ __pycache__
 # Test artefacts
 .coverage
 test_reports
+
+mock_package-1.6.5.zip

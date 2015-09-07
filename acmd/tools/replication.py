@@ -6,7 +6,7 @@ from lxml import html
 
 from acmd import tool, log, error
 from acmd.tools import get_command, get_argument
-SERVICE_PATH = '/bin/replicate.json'
+SERVICE_PATH = '/etc/replication/treeactivation.html'
 
 parser = optparse.OptionParser("acmd replication [options] <activate> <path>")
 parser.add_option("-r", "--raw",
@@ -30,7 +30,10 @@ def activate(server, options, path):
     """ curl -u admin:admin -X POST -F path="/content/path/to/page" -F cmd="activate" http://localhost:4502/bin/replicate.json
     """
     url = server.url(SERVICE_PATH)
-    form_data = dict(cmd='activate', path=path)
+    form_data = dict(cmd='activate',
+                     path=path,
+                     ignoredeactivated='false',
+                     onlymodified='false')
 
     resp = requests.post(url, auth=server.auth, data=form_data)
     if not resp.status_code == 200:
@@ -40,7 +43,7 @@ def activate(server, options, path):
             sys.stdout.write("{}\n".format(resp.content))
         else:
             tree = html.fromstring(resp.text)
-            msg = tree.xpath('//div[@id="Message"]/text()')[0]
+            msg = tree.xpath('//body/div/strong/text()')[-1]
             log("{}".format(msg))
-            confirm = tree.xpath('//div[@id="Path"]/text()')[0]
-            sys.stdout.write("{}\n".format(confirm))
+
+            sys.stdout.write("{}\n".format(msg))

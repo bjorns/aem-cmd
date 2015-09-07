@@ -1,54 +1,68 @@
-<html>
-<head>
-    <title></title>
+<html><head>
+    <style type="text/css">
+        div {
+            font-family:arial,tahoma,helvetica,sans-serif;
+            font-size:11px;
+            white-space:nowrap;
+        }
+        .action {
+            display: inline;
+            width: 130px;
+            float: left;
+            overflow: hidden;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .title {
+            display: inline;
+            width: 150px;
+            float: left;
+            margin: 0 8px 0 0;
+            overflow: hidden;
+        }
+        .activate {
+
+        }
+        .ignore {
+            color: #888888;
+        }
+        .cf {
+            color: #888888;
+        }
+        .path {
+            display: inline;
+            width: 100%;
+        }
+
+    </style>
+    <script type="text/javascript">
+        var started = false;
+
+        function start() {
+            started = true;
+        }
+        function stop() {
+            started = false;
+        }
+        function isStarted() {
+            return started;
+        }
+        function jump() {
+            window.scrollTo(0, 100000);
+        }
+    </script>
 </head>
-<body>
-<h1></h1>
-<table>
-    <tbody>
-    <tr>
-        <td>Status</td>
-        <td>
-            <div id="Status">200</div>
-        </td>
-    </tr>
-    <tr>
-        <td>Message</td>
-        <td>
-            <div id="Message">Replication started for /content/catalogs
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td>Location</td>
-        <td><a href="" id="Location"></a></td>
-    </tr>
-    <tr>
-        <td>Parent Location</td>
-        <td><a href="" id="ParentLocation"></a></td>
-    </tr>
-    <tr>
-        <td>Path</td>
-        <td>
-            <div id="Path">/content/catalogs</div>
-        </td>
-    </tr>
-    <tr>
-        <td>Referer</td>
-        <td><a href="" id="Referer"></a></td>
-    </tr>
-    <tr>
-        <td>ChangeLog</td>
-        <td>
-            <div id="ChangeLog">&lt;pre&gt;&lt;/pre&gt;</div>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<p><a href="">Go Back</a></p>
+<body bgcolor="white">
+<div>
 
-<p><a href="">Modified Resource</a></p>
-
-<p><a href="">Parent of Modified Resource</a></p>
+    <script>start()</script>
+    <strong>Starting tree nice-activation below path &#x27;&#x2f;content&#x2f;catalogs&#x2f;hybris&#x27; of all pages</strong><br><hr size="1">
+    
+    <hr size="1">
+    <br><strong>Activated 130 of 130 resources in 4 seconds.</strong><br>
+    <script>jump();stop();</script>
+</div>
 </body>
 </html>
