@@ -119,6 +119,14 @@ The rm tool if given no argument will read node paths from standard input.
     $ acmd users create --password=foobar jdoe
     /home/users/j/jdoe
 
+### Groups tool
+
+#### Create group
+
+    $ acmd groups create editors
+    /home/groups/e/editors
+
+
 ### Bundles
 
 The bundles tool can list, start and stop jackrabbit OSGi bundles.
