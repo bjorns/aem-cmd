@@ -38,3 +38,28 @@ def test_create_group(stderr, stdout):
     eq_('/home/groups/m/mynewgroup1711\n', stdout.getvalue())
     eq_('', stderr.getvalue())
 
+
+
+@urlmatch(netloc='localhost:4502', path=r'/home/groups/.+')
+def adduser_mock(url, request):
+    eq_('addMembers=jdoe', request.body)
+    with open('tests/test_data/create_group_response.html', 'rb') as f:
+        data = f.read()
+    return {
+        'status_code': 200,
+        'content': data
+    }
+
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_add_user(stderr, stdout):
+    tool = get_tool('groups')
+    server = Server('localhost')
+    with HTTMock(adduser_mock):
+        status = tool.execute(server, ['groups', 'adduser', 'mynewgroup1711', 'jdoe'])
+    eq_(OK, status)
+    eq_('/home/groups/m/mynewgroup1711\n', stdout.getvalue())
+    eq_('', stderr.getvalue())
+
