@@ -119,9 +119,17 @@ def get_group(options, pkg):
 def _get_package(package_name, server, options):
     pkg = expand_package(server, package_name)
     version = get_version(options, pkg)
-    zipfile = pkg['name'] + '-' + version + '.zip'
+
+    zipfile = pkg['name'] + _zip_suffix(version)
     group = get_group(options, pkg)
     return group, zipfile
+
+
+def _zip_suffix(version):
+    if version is None:
+        return '.zip'
+    else:
+        return '-' + str(version) + '.zip'
 
 
 def download_package(server, options, package_name):

@@ -61,3 +61,24 @@ def test_set_property(stderr, stdout):
     eq_('/home/users/j/jdoe\n', stdout.getvalue())
     eq_('', stderr.getvalue())
 
+
+@urlmatch(netloc='localhost:4502')
+def list_users_mock(url, request):
+    with open('tests/test_data/list_users_response.json', 'rb') as f:
+        data = f.read()
+    return {
+        'status_code': 200,
+        'content': data
+    }
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_list_users(stderr, stdout):
+    tool = get_tool('users')
+    server = Server('localhost')
+    with HTTMock(list_users_mock):
+        status = tool.execute(server, ['users', 'list'])
+    eq_(OK, status)
+    eq_('admin\nanonymous\njdoe\nrep:policy\nreplication-receiver\npreviewer\n', stdout.getvalue())
+    eq_('', stderr.getvalue())

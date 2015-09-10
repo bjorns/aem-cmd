@@ -1,7 +1,7 @@
 # coding: utf-8
 import sys
 import optparse
-
+import json
 import requests
 
 from lxml import html
@@ -24,7 +24,9 @@ class UserTool(object):
         options, args = parser.parse_args(argv)
         action = get_action(args)
         actionarg = get_argument(args)
-        if action == 'create':
+        if action == 'list' or action == 'ls':
+            return list_users(server, options)
+        elif action == 'create':
             return create_user(server, options, actionarg)
         elif action == 'setprop':
             props = parse_properties(actionarg)
@@ -35,9 +37,30 @@ class UserTool(object):
             return USER_ERROR
 
 
+def _filter_system(items):
+    f = lambda (key, data): not key.startswith('jcr:')
+    return filter(f, items)
+
+
+def list_users(server, options):
+    url = server.url('/home/users.2.json')
+    resp = requests.get(url, auth=server.auth)
+    if resp.status_code != 200:
+        error("Failed to get users list:\n{}\n".format(resp.content))
+        return SERVER_ERROR
+    data = resp.json()
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    else:
+        for initial, group in _filter_system(data.items()):
+            for username, userdata in _filter_system(group.items()):
+                sys.stdout.write("{}\n".format(username))
+    return OK
+
+
 def get_action(argv):
     if len(argv) < 2:
-        return 'list'
+        return None
     else:
         return argv[1]
 

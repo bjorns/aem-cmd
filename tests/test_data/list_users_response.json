@@ -1,0 +1,95 @@
+{
+    "a": {
+        "jcr:mixinTypes": [
+            "mix:lockable"
+        ],
+        "jcr:primaryType": "rep:AuthorizableFolder",
+        "jcr:created": "Fri Jun 13 2014 14:16:12 GMT-0400",
+        "jcr:createdBy": "system",
+        "admin": {
+            "jcr:mixinTypes": [
+                "rep:AccessControllable"
+            ],
+            "jcr:primaryType": "rep:User",
+            "jcr:created": "Fri Jun 13 2014 14:16:12 GMT-0400",
+            "jcr:uuid": "21232f29-7a57-35a7-8389-4a0e4a801fc3",
+            "jcr:createdBy": "system",
+            "rep:password": "{SHA-256}08698defec6bf3b5-1000-199e31349ddf562a67b82754c2e5b6cc4bf230d7cf20c8d1175d111692aca506",
+            "rep:principalName": "admin"
+        },
+        "anonymous": {
+            "jcr:mixinTypes": [
+                "rep:AccessControllable"
+            ],
+            "jcr:primaryType": "rep:User",
+            "jcr:created": "Fri Jun 13 2014 14:16:12 GMT-0400",
+            "jcr:uuid": "294de355-7d9d-30b3-92d8-a1e6aab028cf",
+            "jcr:createdBy": "system",
+            "rep:password": "{SHA-256}29f7504103ce8955-1000-38519fdb8eb92231c0e1f8f35942e6dcc4cb617d9af241a7326900e499489367",
+            "rep:principalName": "anonymous"
+        }
+    },
+    "jcr:primaryType": "rep:AuthorizableFolder",
+    "jcr:created": "Fri Jun 13 2014 14:16:12 GMT-0400",
+    "j": {
+        "jcr:created": "Mon Sep 07 2015 00:25:24 GMT-0400",
+        "jcr:primaryType": "rep:AuthorizableFolder",
+        "jcr:createdBy": "admin",
+        "jdoe": {
+            "jcr:mixinTypes": [
+                "rep:AccessControllable"
+            ],
+            "jcr:primaryType": "rep:User",
+            "jcr:created": "Mon Sep 07 2015 00:25:24 GMT-0400",
+            "jcr:uuid": "a31405d2-72b9-3e5d-92e9-a52a665d3bfe",
+            "jcr:createdBy": "admin",
+            "rep:password": "{SHA-256}a6d32a22ed8e5244-1000-9964c8f31005af69a6311077c1cb42c701eb2cf79cc8b116deaeac032e82a6b9",
+            "rep:principalName": "jdoe"
+        }
+    },
+    "system": {
+        "jcr:mixinTypes": [
+            "mix:title",
+            "rep:AccessControllable"
+        ],
+        "jcr:primaryType": "rep:AuthorizableFolder",
+        "jcr:created": "Fri Jun 13 2014 14:16:27 GMT-0400",
+        "rep:policy": {
+            "jcr:primaryType": "rep:ACL"
+        },
+        "replication-receiver": {
+            "jcr:mixinTypes": [
+                "rep:AccessControllable"
+            ],
+            "jcr:primaryType": "rep:User",
+            "jcr:created": "Fri Jun 13 2014 14:16:27 GMT-0400",
+            "rep:disabled": "Please change the default password before enabling and using this user as replication transport agent.",
+            "jcr:uuid": "345bef9b-ffa1-3e09-85df-1e03cfa0fb37",
+            "jcr:createdBy": "admin",
+            "rep:password": "{sha1}4410791bef7ce178-523cfb291ffc106b9b5825cc21220dd9d7a9100f",
+            "rep:principalName": "replication-receiver"
+        },
+        "jcr:title": "System Users",
+        "jcr:createdBy": "admin"
+    },
+    "p": {
+        "jcr:created": "Fri Aug 29 2014 08:11:27 GMT-0400",
+        "jcr:mixinTypes": [
+            "mix:lockable"
+        ],
+        "jcr:primaryType": "rep:AuthorizableFolder",
+        "previewer": {
+            "jcr:mixinTypes": [
+                "rep:AccessControllable"
+            ],
+            "jcr:primaryType": "rep:User",
+            "jcr:created": "Fri Aug 29 2014 08:11:27 GMT-0400",
+            "jcr:uuid": "d9db139b-3892-30e7-b829-2496bda8dc44",
+            "jcr:createdBy": "admin",
+            "rep:password": "{SHA-256}5b10a8c91b8b8a4c-1000-c7cb0f7d98faa1ae3bc19cc2c8fd670d9276e8daf2ed9a190fb2a03af8bf4a3f",
+            "rep:principalName": "previewer"
+        },
+        "jcr:createdBy": "admin"
+    },
+    "jcr:createdBy": "system"
+}
