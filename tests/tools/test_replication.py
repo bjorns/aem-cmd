@@ -17,6 +17,12 @@ def mock_replication_service(_, request):
         raise Exception("Unknown command " + request.body)
 
 
+
+EXPECTED = """/content/catalog/products
+/content/catalog/products/product4711
+/content/catalog/products/product4712
+"""
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_activate(stderr, stdout):
@@ -24,5 +30,5 @@ def test_activate(stderr, stdout):
         tool = get_tool('replication')
         server = Server('localhost')
         tool.execute(server, ['replication', 'activate', '/content/catalog'])
-        eq_('Activated 130 of 130 resources in 4 seconds.\n', stdout.getvalue())
+        eq_(EXPECTED, stdout.getvalue())
         eq_('', stderr.getvalue())

@@ -43,7 +43,10 @@ def activate(server, options, path):
             sys.stdout.write("{}\n".format(resp.content))
         else:
             tree = html.fromstring(resp.text)
-            msg = tree.xpath('//body/div/strong/text()')[-1]
+            paths = tree.xpath("//body/div/div[@class='path']/text()")
+            paths = [path.split(' ')[0] for path in paths]
+            paths = filter(lambda path: path.strip() != '', paths)
+            msg = '\n'.join(paths)
             log("{}".format(msg))
 
             sys.stdout.write("{}\n".format(msg))
