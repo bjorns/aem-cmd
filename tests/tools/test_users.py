@@ -21,8 +21,11 @@ def create_service_mock(url, request):
 def test_print_help(stderr, stdout):
     tool = get_tool('users')
     server = Server('localhost')
-    status = tool.execute(server, ['users'])
-    eq_(USER_ERROR, status)
+    try:
+        tool.execute(server, ['users', '--help'])
+    except SystemExit as e:
+        status = e.code
+    eq_(0, status)
     ok_(len(stdout.getvalue()) > 0)
     eq_('', stderr.getvalue())
 

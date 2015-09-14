@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import sys
 import optparse
 
@@ -8,8 +9,10 @@ from lxml import html
 
 from acmd import tool
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
+from acmd.tools.tool_utils import get_action, get_argument, filter_system
 
-parser = optparse.OptionParser("acmd groups <create|adduser> [options] <groupname>")
+
+parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
@@ -19,9 +22,11 @@ parser.add_option("-r", "--raw",
 class GroupsTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        action = get_action(args)
+        action = get_action(args, 'list')
         groupname = get_argument(args)
-        if action == 'create':
+        if action == 'list':
+            return list_groups(server, options)
+        elif action == 'create':
             return create_group(server, options, groupname)
         if action == 'adduser':
             username = get_argument(args, 3)
@@ -29,20 +34,6 @@ class GroupsTool(object):
         else:
             parser.print_help()
             return USER_ERROR
-
-
-def get_action(argv):
-    if len(argv) < 2:
-        return 'list'
-    else:
-        return argv[1]
-
-
-def get_argument(argv, i=2):
-    if len(argv) < i+1:
-        return None
-    else:
-        return argv[i]
 
 
 def create_group(server, options, name):
@@ -89,4 +80,20 @@ def add_user(server, options, groupname, username):
         tree = html.fromstring(resp.text)
         path = tree.xpath('//div[@id="Path"]/text()')[0]
         sys.stdout.write("{}\n".format(path))
+    return OK
+
+
+def list_groups(server, options):
+    url = server.url('/home/groups.2.json')
+    resp = requests.get(url, auth=server.auth)
+    if resp.status_code != 200:
+        error("Failed to get groups list:\n{}\n".format(resp.content))
+        return SERVER_ERROR
+    data = resp.json()
+    if options.raw:
+        sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    else:
+        for initial, group in filter_system(data.items()):
+            for username, userdata in filter_system(group.items()):
+                sys.stdout.write("{}\n".format(username))
     return OK

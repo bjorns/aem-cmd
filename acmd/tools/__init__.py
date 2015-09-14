@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 import tool_utils
-get_command = tool_utils.get_command
+get_command = tool_utils.get_action
 get_argument = tool_utils.get_argument
 
 import acmd.tool_repo

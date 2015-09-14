@@ -21,8 +21,11 @@ def service_mock(url, request):
 def test_print_help(stderr, stdout):
     tool = get_tool('groups')
     server = Server('localhost')
-    status = tool.execute(server, ['groups'])
-    eq_(USER_ERROR, status)
+    try:
+        status = tool.execute(server, ['groups', '--help'])
+    except SystemExit as e:
+        status = e.code
+    eq_(0, status)
     ok_(len(stdout.getvalue()) > 0)
     eq_('', stderr.getvalue())
 
@@ -63,3 +66,39 @@ def test_add_user(stderr, stdout):
     eq_('/home/groups/m/mynewgroup1711\n', stdout.getvalue())
     eq_('', stderr.getvalue())
 
+
+@urlmatch(netloc='localhost:4502')
+def list_groups_mock(url, request):
+    with open('tests/test_data/list_groups_response.json', 'rb') as f:
+        data = f.read()
+    return {
+        'status_code': 200,
+        'content': data
+    }
+
+
+
+EXPECTED_GROUPS = """administrators
+everyone
+dam-users
+mynewgroup
+contributor
+content-authors
+mac-users
+user-administrators
+workflow-users
+workflow-editors
+tag-administrators
+"""
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_groups_users(stderr, stdout):
+    tool = get_tool('groups')
+    server = Server('localhost')
+    with HTTMock(list_groups_mock):
+        status = tool.execute(server, ['groups', 'list'])
+    eq_(OK, status)
+    eq_(EXPECTED_GROUPS, stdout.getvalue())
+    eq_('', stderr.getvalue())

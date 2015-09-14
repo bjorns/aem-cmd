@@ -9,8 +9,9 @@ from lxml import html
 from acmd import tool
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
 from acmd import parse_properties
+from acmd.tools.tool_utils import get_action, get_argument, filter_system
 
-parser = optparse.OptionParser("acmd users <create|setprop> [options] <username> [arguments]")
+parser = optparse.OptionParser("acmd users <list|create|setprop> [options] <username> [arguments]")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
@@ -22,7 +23,7 @@ parser.add_option("-p", "--password",
 class UserTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        action = get_action(args)
+        action = get_action(args, 'list')
         actionarg = get_argument(args)
         if action == 'list' or action == 'ls':
             return list_users(server, options)
@@ -37,11 +38,6 @@ class UserTool(object):
             return USER_ERROR
 
 
-def _filter_system(items):
-    f = lambda (key, data): not key.startswith('jcr:')
-    return filter(f, items)
-
-
 def list_users(server, options):
     url = server.url('/home/users.2.json')
     resp = requests.get(url, auth=server.auth)
@@ -52,24 +48,10 @@ def list_users(server, options):
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     else:
-        for initial, group in _filter_system(data.items()):
-            for username, userdata in _filter_system(group.items()):
+        for initial, group in filter_system(data.items()):
+            for username, userdata in filter_system(group.items()):
                 sys.stdout.write("{}\n".format(username))
     return OK
-
-
-def get_action(argv):
-    if len(argv) < 2:
-        return None
-    else:
-        return argv[1]
-
-
-def get_argument(argv, i=2):
-    if len(argv) < i + 1:
-        return None
-    else:
-        return argv[i]
 
 
 def create_user(server, options, username):

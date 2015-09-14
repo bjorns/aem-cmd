@@ -19,7 +19,7 @@ class IntrospectTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
-        cmd = tool_utils.get_command(args, 'tools')
+        cmd = tool_utils.get_action(args, 'tools')
         if cmd == 'tools':
             if options.raw:
                 for cmd in list_tools():

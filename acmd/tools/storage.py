@@ -4,7 +4,7 @@ import optparse
 import requests
 
 from acmd import tool, error
-from tool_utils import get_command
+from tool_utils import get_action
 
 OPT_PATH = '/system/console/jmx/com.adobe.granite:type=Repository/op/startTarOptimization/'
 GC_PATH = '/system/console/jmx/com.adobe.granite:type=Repository/op/runDataStoreGarbageCollection/java.lang.Boolean'
@@ -20,7 +20,7 @@ class DatastoreTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
-        cmd = get_command(args, None)
+        cmd = get_action(args, None)
         if cmd == 'optimize':
             optimize(server, options)
         elif cmd == 'gc':

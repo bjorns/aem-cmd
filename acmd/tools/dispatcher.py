@@ -4,7 +4,7 @@ import optparse
 import requests
 
 from acmd import tool
-from acmd.tools.tool_utils import get_command
+from acmd.tools.tool_utils import get_action
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
 parser.add_option("-r", "--raw",
@@ -16,7 +16,7 @@ parser.add_option("-r", "--raw",
 class DispatcherTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
-        action = get_command(args, 'help')
+        action = get_action(args, 'help')
         if action == 'clear':
             clear_cache(server, options)
         else:
