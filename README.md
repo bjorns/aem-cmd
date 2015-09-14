@@ -114,6 +114,11 @@ The rm tool if given no argument will read node paths from standard input.
 
 ### Users tool
 
+#### List Users
+
+    $ acmd users list
+    ...
+
 #### Create Users
 
     $ acmd users create --password=foobar jdoe
@@ -126,6 +131,14 @@ The rm tool if given no argument will read node paths from standard input.
 
 
 ### Groups tool
+
+#### List groups
+
+    $ acmd groups list
+    ....
+
+The list action is the default action of the groups tool so ```acmd groups```
+will actually suffice.
 
 #### Create group
 
