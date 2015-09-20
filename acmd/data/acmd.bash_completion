@@ -9,28 +9,61 @@ _acmd()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     prevprev="${COMP_WORDS[COMP_CWORD-2]}"
 
+    program=None
+    tool=None
+    cmd=None
 
-    if [[ ${prev} == "acmd" && ${cur} =~ [a-z:]+ ]] ; then
+    complete=None
+
+    for ((i=0; i < ${#COMP_WORDS[@]}; i++)); do
+        word="${COMP_WORDS[i]}"
+        echo "word=$word" >> /tmp/acmd_complete.log
+
+        if [[ "$word" == -* ]]; then
+            complete=option
+            option=$word
+            ((i++))
+            if [[ "$word" == --* ]]; then
+                ((i++))
+            fi
+            word="${COMP_WORDS[i]}"
+            echo "option=$word" >> /tmp/acmd_complete.log
+        else
+            if [[ "$word" == "acmd" ]]; then
+                program="acmd"
+                echo "program=$program" >> /tmp/acmd_complete.log
+            elif [[ "$program" != "None" && "$tool" == "None" ]]; then
+                tool=$word
+                complete=tool
+                echo "tool=$tool" >> /tmp/acmd_complete.log
+            elif [[ "$program" != "None" && "$tool" != "None" && "$cmd" == "None" ]]; then
+                cmd=$word
+                complete=cmd
+                echo "cmd=$cmd" >> /tmp/acmd_complete.log
+                if [[ ${cmd} == "cat" || ${cmd} == "ls" || ${cmd} == "find" ]]; then
+                    complete=jcrpath
+                fi
+            fi
+        fi
+    done
+    echo "complete=$complete" >> /tmp/acmd_complete.log
+
+
+
+    if [[ ${complete} == "tool" ]] ; then
         tools=`acmd help --raw tools`
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
     fi
-    if [[ ${prev} == "-s" ]] ; then
-        servers=`acmd help --raw servers`
-        COMPREPLY=( $(compgen -W "${servers}" -- "${cur}" ) )
+    if [[ ${complete} == "option" ]] ; then
+        if [[ ${option} == "-s" || ${option} == "--server" ]]; then
+            echo "Completing server=$option" >> /tmp/acmd_complete.log
+            servers=`acmd help --raw servers`
+            COMPREPLY=( $(compgen -W "${servers}" -- "${word}" ) )
+        fi
         return 0
     fi
-    if [[ ${prevprev} == "--server" && ${prev} == "=" ]]; then
-        servers=`acmd help --raw servers`
-        COMPREPLY=( $(compgen -W "${servers}" -- "${cur}" ) )
-        return 0
-    fi
-    if [[ ${prev} == "--server" && ${cur} == "=" ]]; then
-        servers=`acmd help --raw servers`
-        COMPREPLY=( $(compgen -W "${servers}" "" ) )
-        return 0
-    fi
-    if [[ ${prev} == "cat" || ${prev} == "ls" || ${prev} == "find" ]]; then
+    if [[ ${complete} == "jcrpath" ]]; then
         if [[ $cur == *"/" ]]; then
             dir=${cur}
         else
