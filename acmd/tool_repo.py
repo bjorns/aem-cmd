@@ -5,7 +5,7 @@ from acmd import log
 _tools = dict()
 
 
-def tool(tool_name):
+def tool(tool_name, commands=None):
     """ Tool decorator.
 
         Creates an instance and instantiates
@@ -19,6 +19,7 @@ def tool(tool_name):
     def class_rebuilder(cls):
         instance = cls()
         instance.name = tool_name
+        instance.commands = commands if commands is not None else []
         register_tool(instance)
         return cls
 

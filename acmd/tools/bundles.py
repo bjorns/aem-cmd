@@ -14,7 +14,7 @@ parser.add_option("-r", "--raw",
                   help="output raw response data")
 
 
-@tool('bundles')
+@tool('bundles', ['list', 'start', 'stop'])
 class BundlesTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)

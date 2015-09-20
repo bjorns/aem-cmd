@@ -20,7 +20,7 @@ parser.add_option("-r", "--raw",
                   help="output raw response data")
 
 
-@tool('packages')
+@tool('packages', ['list', 'build', 'install', 'download', 'upload'])
 class PackagesTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)

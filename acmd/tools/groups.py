@@ -18,7 +18,7 @@ parser.add_option("-r", "--raw",
                   help="output raw response data")
 
 
-@tool('groups')
+@tool('groups', ['list', 'create', 'adduser'])
 class GroupsTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)

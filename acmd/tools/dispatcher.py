@@ -12,7 +12,7 @@ parser.add_option("-r", "--raw",
                   help="output raw response data")
 
 
-@tool('dispatcher')
+@tool('dispatcher', ['clear'])
 class DispatcherTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)

@@ -19,7 +19,7 @@ parser.add_option("-p", "--password",
                   dest="password", help="Set password of the user")
 
 
-@tool('users')
+@tool('users', ['list', 'create', 'setprop'])
 class UserTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)

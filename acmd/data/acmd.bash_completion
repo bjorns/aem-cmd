@@ -62,6 +62,11 @@ _acmd()
         tools=`acmd help --raw tools`
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
+    elif [[ ${complete} == "cmd" ]] ; then
+        commands=`acmd help ${tool}`
+        echo "Completing command ${cur}" >> /tmp/acmd_complete.log
+        COMPREPLY=( $(compgen -W "${commands}" -- "${cur}" ) )
+        return 0
     elif [[ ${complete} == "option" ]] ; then
         if [[ ${option} == "-s" || ${option} == "--server" ]]; then
             echo "Completing server=$option" >> /tmp/acmd_complete.log
@@ -86,7 +91,7 @@ _acmd()
             echo "Completing file path $arg0" >> /tmp/acmd_complete.log
             files=("${arg0}*")
             compopt -o nospace &>/dev/null
-            COMPREPLY=($(compgen -W '"${files[@]}"' -- ${arg0}));
+            COMPREPLY=($(compgen -W "${files[@]}" -S '/' -- ${arg0}));
         else
             echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
         fi

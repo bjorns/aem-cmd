@@ -3,7 +3,8 @@
 import sys
 import optparse
 
-from acmd import tool, list_tools, get_current_config, USER_ERROR
+from acmd import tool, list_tools, get_current_config, OK
+from acmd import get_tool
 from acmd.config import DEFAULT_SERVER_SETTING
 from acmd.tools import tool_utils
 
@@ -19,20 +20,22 @@ class IntrospectTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
-        cmd = tool_utils.get_action(args, 'tools')
-        if cmd == 'tools':
+        arg = tool_utils.get_action(args, 'tools')
+        if arg == 'tools':
             if options.raw:
-                for cmd in list_tools():
-                    sys.stdout.write("{cmd}\n".format(cmd=cmd))
+                for arg in list_tools():
+                    sys.stdout.write("{cmd}\n".format(cmd=arg))
             else:
                 sys.stdout.write("Available tools:\n")
-                for cmd in list_tools():
-                    sys.stdout.write("    {cmd}\n".format(cmd=cmd))
-        elif cmd == 'servers':
+                for arg in list_tools():
+                    sys.stdout.write("    {cmd}\n".format(cmd=arg))
+        elif arg == 'servers':
             config = get_current_config()
             for name, _ in config.servers.items():
                 if name != DEFAULT_SERVER_SETTING:
                     sys.stdout.write("{}\n".format(name))
         else:
-            sys.stderr.write("error: Unknown help command {}\n".format(cmd))
-            return USER_ERROR
+            tool = get_tool(arg)
+            for cmd in tool.commands:
+                sys.stdout.write("{}\n".format(cmd))
+            return OK
