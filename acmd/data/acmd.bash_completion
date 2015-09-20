@@ -2,22 +2,23 @@
 have acmd &&
 _acmd()
 {
+    local raw_commands="ls cat find search"
+    local path_commands="ls cat find"
     local cur prev opts
     local IFS=$'\n'
     COMPREPLY=()
+
     cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    prevprev="${COMP_WORDS[COMP_CWORD-2]}"
 
     program=None
     tool=None
     cmd=None
+    arg0=None
 
     complete=None
 
     for ((i=0; i < ${#COMP_WORDS[@]}; i++)); do
         word="${COMP_WORDS[i]}"
-        echo "word=$word" >> /tmp/acmd_complete.log
 
         if [[ "$word" == -* ]]; then
             complete=option
@@ -33,47 +34,56 @@ _acmd()
                 program="acmd"
                 echo "program=$program" >> /tmp/acmd_complete.log
             elif [[ "$program" != "None" && "$tool" == "None" ]]; then
-                tool=$word
-                complete=tool
-                echo "tool=$tool" >> /tmp/acmd_complete.log
+                if [[ "${raw_commands}" =~ "$word" ]]; then
+                    tool=jcr
+                    cmd=$word
+                    complete=tool
+                    echo "tool=$tool" >> /tmp/acmd_complete.log
+                    echo "cmd=$cmd" >> /tmp/acmd_complete.log
+                else
+                    tool=$word
+                    complete=tool
+                    echo "tool=$tool" >> /tmp/acmd_complete.log
+                fi
             elif [[ "$program" != "None" && "$tool" != "None" && "$cmd" == "None" ]]; then
                 cmd=$word
                 complete=cmd
                 echo "cmd=$cmd" >> /tmp/acmd_complete.log
-                if [[ ${cmd} == "cat" || ${cmd} == "ls" || ${cmd} == "find" ]]; then
-                    complete=jcrpath
-                fi
+            else
+                complete=arg0
+                arg0=$word
             fi
         fi
     done
     echo "complete=$complete" >> /tmp/acmd_complete.log
 
-
-
     if [[ ${complete} == "tool" ]] ; then
         tools=`acmd help --raw tools`
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
-    fi
-    if [[ ${complete} == "option" ]] ; then
+    elif [[ ${complete} == "option" ]] ; then
         if [[ ${option} == "-s" || ${option} == "--server" ]]; then
             echo "Completing server=$option" >> /tmp/acmd_complete.log
             servers=`acmd help --raw servers`
             COMPREPLY=( $(compgen -W "${servers}" -- "${word}" ) )
         fi
         return 0
-    fi
-    if [[ ${complete} == "jcrpath" ]]; then
-        if [[ $cur == *"/" ]]; then
-            dir=${cur}
-        else
-            dir=`dirname ${cur}`
-        fi
+    elif [[ ${complete} == "arg0" ]]; then
+        if [[ "${path_commands}" =~ "$cmd" ]]; then
+            echo "Completing path $arg0" >> /tmp/acmd_complete.log
+            if [[ $arg0 == *"/" ]]; then
+                dir=${arg0}
+            else
+                dir=`dirname ${arg0}`
+            fi
 
-        dirs=`acmd ls --fullpath ${dir}`
-        # For some stupid reason I can't get rid of the spaces!
-        compopt -o nospace &>/dev/null
-        COMPREPLY=( $(compgen -W "${dirs}" -S '/' ${cur}) )
+            dirs=`acmd ls --fullpath ${dir}`
+            # For some stupid reason I can't get rid of the spaces!
+            compopt -o nospace &>/dev/null
+            COMPREPLY=( $(compgen -W "${dirs}" -S '/' ${arg0}) )
+        else
+            echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
+        fi
         return 0
     fi
 }
