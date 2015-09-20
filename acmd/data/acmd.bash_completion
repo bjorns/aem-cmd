@@ -3,7 +3,8 @@ have acmd &&
 _acmd()
 {
     local raw_commands="ls cat find search"
-    local path_commands="ls cat find"
+    local jcr_path_commands="ls cat find"
+    local path_commands="upload"
     local cur prev opts
     local IFS=$'\n'
     COMPREPLY=()
@@ -69,8 +70,8 @@ _acmd()
         fi
         return 0
     elif [[ ${complete} == "arg0" ]]; then
-        if [[ "${path_commands}" =~ "$cmd" ]]; then
-            echo "Completing path $arg0" >> /tmp/acmd_complete.log
+        if [[ "${jcr_path_commands}" =~ "$cmd" ]]; then
+            echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then
                 dir=${arg0}
             else
@@ -81,6 +82,11 @@ _acmd()
             # For some stupid reason I can't get rid of the spaces!
             compopt -o nospace &>/dev/null
             COMPREPLY=( $(compgen -W "${dirs}" -S '/' ${arg0}) )
+        elif [[ "${path_commands}" =~ "$cmd" ]]; then
+            echo "Completing file path $arg0" >> /tmp/acmd_complete.log
+            files=("${arg0}*")
+            compopt -o nospace &>/dev/null
+            COMPREPLY=($(compgen -W '"${files[@]}"' -- ${arg0}));
         else
             echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
         fi
