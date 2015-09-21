@@ -2,21 +2,24 @@
 have acmd &&
 _acmd()
 {
-    local raw_commands="ls cat find search"
-    local jcr_path_commands="ls cat find"
-    local path_commands="upload"
-    local cur prev opts
+    # Raw commands are commands that should be part of a jcr tool.
+    local RAW_COMMANDS="ls cat find search"
+    local JCR_PATH_COMMANDS="ls cat find"
+    local PKG_COMMANDS="download build download"
+    local FILE_COMMANDS="upload import"
+
+    local cur
     local IFS=$'\n'
     COMPREPLY=()
 
     cur="${COMP_WORDS[COMP_CWORD]}"
 
-    program=None
-    tool=None
-    cmd=None
-    arg0=None
+    local program=None
+    local tool=None
+    local cmd=None
+    local arg0=None
 
-    complete=None
+    local complete=None
 
     for ((i=0; i < ${#COMP_WORDS[@]}; i++)); do
         word="${COMP_WORDS[i]}"
@@ -35,7 +38,7 @@ _acmd()
                 program="acmd"
                 echo "program=$program" >> /tmp/acmd_complete.log
             elif [[ "$program" != "None" && "$tool" == "None" ]]; then
-                if [[ "${raw_commands}" =~ "$word" ]]; then
+                if [[ "${RAW_COMMANDS}" =~ "$word" ]]; then
                     tool=jcr
                     cmd=$word
                     complete=tool
@@ -75,7 +78,10 @@ _acmd()
         fi
         return 0
     elif [[ ${complete} == "arg0" ]]; then
-        if [[ "${jcr_path_commands}" =~ "$cmd" ]]; then
+        if [[ "${tool}" == "packages" && "${PKG_COMMANDS}" =~ "${cmd}" ]] ; then
+            pkgs=`acmd packages list --compact`
+            COMPREPLY=( $(compgen -W "${pkgs}" -- ${arg0}) )
+        elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" ]]; then
             echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then
                 dir=${arg0}
@@ -87,7 +93,7 @@ _acmd()
             # For some stupid reason I can't get rid of the spaces!
             compopt -o nospace &>/dev/null
             COMPREPLY=( $(compgen -W "${dirs}" -S '/' ${arg0}) )
-        elif [[ "${path_commands}" =~ "$cmd" ]]; then
+        elif [[ "${FILE_COMMANDS}" =~ "$cmd" ]]; then
             echo "Completing file path $arg0" >> /tmp/acmd_complete.log
             files=("${arg0}*")
             compopt -o nospace &>/dev/null

@@ -18,6 +18,9 @@ parser.add_option("-g", "--group",
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-c", "--compact",
+                  action="store_const", const=True, dest="compact",
+                  help="output only package name")
 
 
 @tool('packages', ['list', 'build', 'install', 'download', 'upload'])
@@ -75,9 +78,11 @@ def get_packages_list(server, raw=False):
 def list_packages(server, options):
     packages = get_packages_list(server, options.raw)
     for pkg in packages:
-        if not options.raw:
-            sys.stdout.write("{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version']))
-
+        if options.compact:
+            msg = "{pkg}\n".format(pkg=pkg['name'])
+        else:
+            msg = "{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'])
+        sys.stdout.write(msg)
 
 def parse_packages(tree):
     pkg_elems = tree.find('response').find('data').find('packages').findall('package')
