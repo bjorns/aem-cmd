@@ -1,12 +1,12 @@
 # coding: utf-8
 import sys
 import optparse
+from distutils.version import LooseVersion
 from xml.etree import ElementTree
-
-import requests
-
 from acmd import tool, error
 from acmd import OK, USER_ERROR, SERVER_ERROR
+
+import requests
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
@@ -84,6 +84,7 @@ def list_packages(server, options):
             msg = "{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'])
         sys.stdout.write(msg)
 
+
 def parse_packages(tree):
     pkg_elems = tree.find('response').find('data').find('packages').findall('package')
     packages = [parse_package(elem) for elem in pkg_elems]
@@ -97,21 +98,14 @@ def parse_package(elem):
     return ret
 
 
-def expand_package(server, package_name):
-    packages = get_packages_list(server)
-
+def get_latest_version(packages):
+    ret = None
+    highest_version = LooseVersion("0.0")
     for pkg in packages:
-        if package_name == pkg['name']:
-            return pkg
-    pkg_names = [pkg['name'] for pkg in packages]
-    raise Exception('No package named {} found, alternatives: {}'.format(package_name, " ".join(pkg_names)))
-
-
-def get_version(options, pkg):
-    if options.version is not None:
-        return options.version
-    else:
-        return pkg['version']
+        version = LooseVersion(pkg['version'])
+        if version > highest_version:
+            ret = pkg
+    return ret
 
 
 def get_group(options, pkg):
@@ -122,8 +116,16 @@ def get_group(options, pkg):
 
 
 def _get_package(package_name, server, options):
-    pkg = expand_package(server, package_name)
-    version = get_version(options, pkg)
+    packages = get_packages_list(server)
+    packages = filter(lambda x: x['name'] == package_name, packages)
+    if len(packages) == 0:
+        raise Exception('No package named {} found'.format(package_name))
+
+    pkg = get_latest_version(packages)
+    if options.version is None:
+        version = pkg['version']
+    else:
+        version = options.version
 
     zipfile = pkg['name'] + _zip_suffix(version)
     group = get_group(options, pkg)
@@ -145,6 +147,7 @@ def download_package(server, options, package_name):
     f = open(zipfile, 'wb')
     if response.status_code == 200:
         f.write(response.content)
+        sys.stdout.write("{}\n".format(zipfile))
         return OK
     else:
         sys.stderr.write("error: Failed to download " + url + " because " + str(response.status_code) + "\n")

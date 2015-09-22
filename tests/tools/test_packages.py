@@ -108,7 +108,7 @@ def test_download(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['packages', 'download', 'mock_package'])
     eq_(0, status)
-    eq_('', stdout.getvalue())
+    eq_('mock_package-1.6.5.zip\n', stdout.getvalue())
     eq_('', stderr.getvalue())
     url, request = get_command_stack()[-1]
     eq_('/etc/packages/test_packages/mock_package-1.6.5.zip', url.path)
