@@ -101,7 +101,7 @@ _acmd()
             echo "Completing file path $arg0" >> /tmp/acmd_complete.log
             files=("${arg0}*")
             compopt -o nospace &>/dev/null
-            COMPREPLY=($(compgen -W "${files[@]}" -S '/' -- ${arg0}));
+            _filedir
         else
             echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
         fi
