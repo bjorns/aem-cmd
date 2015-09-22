@@ -12,6 +12,9 @@ parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-c", "--compact",
+                  action="store_const", const=True, dest="compact",
+                  help="output only package name")
 
 
 @tool('bundles', ['list', 'start', 'stop'])
@@ -48,7 +51,9 @@ def get_bundle_list(server):
 def list_bundles(server, options):
     bundles = get_bundle_list(server)
     for bundle in bundles:
-        if options.raw:
+        if options.compact:
+            sys.stdout.write("{bundle}\n".format(bundle=bundle['symbolicName']))
+        elif options.raw:
             sys.stdout.write(json.dumps(bundle, indent=4) + "\n")
         else:
             sys.stdout.write("{bundle}\t{version}\t{status}\n".format(

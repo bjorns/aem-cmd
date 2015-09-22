@@ -6,6 +6,7 @@ _acmd()
     local RAW_COMMANDS="ls cat find search"
     local JCR_PATH_COMMANDS="ls cat find"
     local PKG_COMMANDS="download build download"
+    local BUNDLES_COMMANDS="stop start"
     local FILE_COMMANDS="upload import"
 
     local cur
@@ -62,7 +63,7 @@ _acmd()
     echo "complete=$complete" >> /tmp/acmd_complete.log
 
     if [[ ${complete} == "tool" ]] ; then
-        tools=`acmd help --raw tools`
+        tools=`acmd help --compact tools`
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
     elif [[ ${complete} == "cmd" ]] ; then
@@ -73,7 +74,7 @@ _acmd()
     elif [[ ${complete} == "option" ]] ; then
         if [[ ${option} == "-s" || ${option} == "--server" ]]; then
             echo "Completing server=$option" >> /tmp/acmd_complete.log
-            servers=`acmd help --raw servers`
+            servers=`acmd help --compact servers`
             COMPREPLY=( $(compgen -W "${servers}" -- "${word}" ) )
         fi
         return 0
@@ -81,6 +82,9 @@ _acmd()
         if [[ "${tool}" == "packages" && "${PKG_COMMANDS}" =~ "${cmd}" ]] ; then
             pkgs=`acmd packages list --compact`
             COMPREPLY=( $(compgen -W "${pkgs}" -- ${arg0}) )
+        elif [[ "${tool}" == "bundles" && "${BUNDLES_COMMANDS}" =~ "${cmd}" ]] ; then
+                bundles=`acmd bundles list --compact`
+                COMPREPLY=( $(compgen -W "${bundles}" -- ${arg0}) )
         elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" ]]; then
             echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then

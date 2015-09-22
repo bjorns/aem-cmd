@@ -10,9 +10,9 @@ from acmd.tools import tool_utils
 
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
-parser.add_option("-r", "--raw",
-                  action="store_const", const=True, dest="raw",
-                  help="output raw response data")
+parser.add_option("-c", "--compact",
+                  action="store_const", const=True, dest="compact",
+                  help="output compact lists useful for completion")
 
 
 @tool('help')
@@ -22,7 +22,7 @@ class IntrospectTool(object):
 
         arg = tool_utils.get_action(args, 'tools')
         if arg == 'tools':
-            if options.raw:
+            if options.compact:
                 for arg in list_tools():
                     sys.stdout.write("{cmd}\n".format(cmd=arg))
             else:
