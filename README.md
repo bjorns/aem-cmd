@@ -258,6 +258,8 @@ be installed by pip so to install it use the install_bash_completion tool.
     Password:
     Installed bash completion script in /etc/bash_completion.d
 
+The bash completion works best in bash 4. Due to licensing issues Mac OS still
+comes with bash 3 by default but it is possible to upgrade. See [here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
 
 ## Configuration
 
