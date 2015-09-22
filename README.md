@@ -1,9 +1,10 @@
 # AEM Command Line Tools
 
 This is a toolset package for working with AEM and especially
-CRX repositories via command line tools. It tries to utilize
+the Java Content Repository (JCR) via command line tools. It tries to utilize
 the unix philosophy by reading and writing plaintext in order
 to interoperate with common tools such as grep, cut, sed and awk.
+Mostly it depends on the Sling json apis for interfacing.
 
 [![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
 
@@ -308,7 +309,7 @@ arsenal. Let's say you have created a custom tool for handling a product
 catalog under _~/my_project/acmd-tools/catalog.py_. Now what you do is
 add the following to your ```.acmd.rc```
 
-    [pojects]
+    [projects]
     custom=~/my_project/acmd-tools
 
 All python files in _aem-tools_ will be imported and your tool should show up
@@ -331,8 +332,8 @@ Nevertheless here is boilerplate for creating a new tool.
 # coding: utf-8
 from acmd.tool import tool
 
-@tool('template')
-class TemplateTool(object):
+@tool('catalog')
+class CatalogTool(object):
     def execute(self, server, argv):
         sys.stdout.write("Hello, world.\n")
 ```
