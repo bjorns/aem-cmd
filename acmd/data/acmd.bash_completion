@@ -67,7 +67,7 @@ _acmd()
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
     elif [[ ${complete} == "cmd" ]] ; then
-        commands=`acmd help ${tool}`
+        commands=`acmd help --compact ${tool}`
         echo "Completing command ${cur}" >> /tmp/acmd_complete.log
         COMPREPLY=( $(compgen -W "${commands}" -- "${cur}" ) )
         return 0

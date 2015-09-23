@@ -35,7 +35,12 @@ class IntrospectTool(object):
                 if name != DEFAULT_SERVER_SETTING:
                     sys.stdout.write("{}\n".format(name))
         else:
-            tool = get_tool(arg)
-            for cmd in tool.commands:
-                sys.stdout.write("{}\n".format(cmd))
+            _tool = get_tool(arg)
+            if options.compact:
+                for cmd in _tool.commands:
+                    sys.stdout.write("{}\n".format(cmd))
+            else:
+                sys.stdout.write("Available commands:\n")
+                for cmd in _tool.commands:
+                    sys.stdout.write("    {}\n".format(cmd))
             return OK

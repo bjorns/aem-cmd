@@ -8,9 +8,12 @@ Mostly it depends on the Sling json apis for interfacing.
 
 [![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
 
-## Installation
+## Getting Started
 
-acmd is available in PyPI.
+### Installation
+
+acmd is available in PyPI. To install, simply call pip like any other python
+package.
 
     $ pip instal aem-cmd
     ...
@@ -22,11 +25,28 @@ acmd is available in PyPI.
       -h, --help            show this help message and exit
       -s str, --server=str  server name
 
+### Bash Completion
+
+Acmd comes with a bash completion script but for technical reason it cannot
+be installed by pip so to install it use the install_bash_completion command.
+
+    $ sudo acmd install_bash_completion
+    Password:
+    Installed bash completion script in /etc/bash_completion.d
+
+The bash completion works best in bash 4. Due to licensing issues Mac OS still
+comes with bash 3 by default but it is possible to upgrade. See
+[here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
+
+
+
 
 ## Tools
 
-To begin with the commons rest webservices for interacting with
-system resources is available
+Acmd is built around tools. Each tool represents a resource in the system.
+Packages, bundles and users each have separate tools for operating on them.
+Think of it in terms of REST services. Primarily you interact with a resource,
+not an action.
 
 ### Help
 
@@ -38,6 +58,18 @@ The help tool lists all installed tools
       bundles
       help
       packages
+
+To get more information on available actions call help on that tool:
+
+    $ acmd help packages
+    Available commands:
+        list
+        build
+        install
+        download
+        upload
+
+
 
 ### JCR tools
 
@@ -113,6 +145,49 @@ The rm tool if given no argument will read node paths from standard input.
     $ acmd find /content/catalog | grep product | acmd rm
     ....
 
+
+
+### Packages
+
+The packages tool support up- and downloading, installing and uninstalling
+packages. If you install the bash completion script, package names will be
+autocompleted.
+
+#### List packages
+
+By default the packages tool lists all installed packages.
+
+    $ acmd packages list
+    ...
+    day/cq540/product   cq-portlet-director 5.4.38
+    day/cq550/product   cq-upgrade-acl  5.5.2
+    day/cq560/collab/blog   cq-collab-blog-pkg  5.6.17
+    day/cq560/collab/calendar   cq-collab-calendar-pkg  5.6.12
+    day/cq560/social/calendar   cq-social-calendar-pkg  1.0.28
+    ....
+
+#### Rebuild package
+
+The packages commands require only that you provide the name of the package.
+The group and the latest version will be located automatically. If there are
+overlaying grops or you want a specific version you may specify them using the
+-g and -v flags.
+
+    $ acmd packages build --raw cq-upgrade-acl
+    {"success":true,"msg":"Package built"}
+
+#### Install package
+
+    $ acmd packages install --raw cq-upgrade-acl
+    {"success":true,"msg":"Package installed"}
+
+#### Upload package
+
+    $ acmd packages upload new-catalog-1.0.zip
+
+
+
+
 ### Users tool
 
 #### List Users
@@ -146,10 +221,16 @@ will actually suffice.
     $ acmd groups create editors
     /home/groups/e/editors
 
+#### Add user to group
+
+    $ acmd groups adduser editors jdoe
+    /home/groups/e/editors
+
 
 ### Bundles
 
-The bundles tool can list, start and stop jackrabbit OSGi bundles.
+The bundles tool can list, start and stop jackrabbit OSGi bundles. If you
+install the bash completion script bundle names will be autocompleted.
 
 #### List bundles
 
@@ -189,43 +270,6 @@ All bundles commands support the --raw flag which prints raw json output.
     $
 
 
-### Packages
-
-The packages tool support up- and downloading, installing and uninstalling packages.
-
-#### List packages
-
-By default the packages tool lists all installed packages.
-
-    $ acmd packages list
-    ...
-    day/cq540/product   cq-portlet-director 5.4.38
-    day/cq550/product   cq-upgrade-acl  5.5.2
-    day/cq560/collab/blog   cq-collab-blog-pkg  5.6.17
-    day/cq560/collab/calendar   cq-collab-calendar-pkg  5.6.12
-    day/cq560/social/calendar   cq-social-calendar-pkg  1.0.28
-    ....
-
-#### Rebuild package
-
-The packages commands require only that you provide the name of the package.
-The group and the latest version will be located automatically. If there are
-overlaying grops or you want a specific version you may specify them using the
--g and -v flags.
-
-    $ acmd packages build --raw cq-upgrade-acl
-    {"success":true,"msg":"Package built"}
-
-#### Install package
-
-    $ acmd packages install --raw cq-upgrade-acl
-    {"success":true,"msg":"Package installed"}
-
-#### Upload package
-
-    $ acmd packages upload new-catalog-1.0.zip
-
-####
 
 ### Replication
 
@@ -249,18 +293,6 @@ Asynchronously triggers a tar optimization job for the filesystem backend.
     $ acmd storage gc
 
 Asynchronously triggers a garbage collection job.
-
-### Bash Completion
-
-Acmd comes with a bash completion script but for technical reason it cannot
-be installed by pip so to install it use the install_bash_completion tool.
-
-    $ sudo acmd install_bash_completion
-    Password:
-    Installed bash completion script in /etc/bash_completion.d
-
-The bash completion works best in bash 4. Due to licensing issues Mac OS still
-comes with bash 3 by default but it is possible to upgrade. See [here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
 
 ## Configuration
 
@@ -352,9 +384,9 @@ class CatalogTool(object):
         sys.stdout.write("Hello, world.\n")
 ```
 
-There are two essential parts here. The ```@tool``` decorator takes care of declaring
-the tool so it can be found but acmd. The argument is the label used for the
-tool on the command line. Note that for custom tools declared under
+There are two essential parts here. The ```@tool``` decorator takes care of
+declaring the tool so it can be found but acmd. The argument is the label used
+for the tool on the command line. Note that for custom tools declared under
 ```[projects]``` a prefix will be added to the tool name.
 
 The ```execute()``` method takes a server argument

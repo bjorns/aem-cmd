@@ -12,7 +12,7 @@ from acmd import USER_ERROR, SERVER_ERROR, OK, error
 from acmd.tools.tool_utils import get_action, get_argument, filter_system
 
 
-parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname>")
+parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname> <username>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
