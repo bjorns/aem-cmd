@@ -3,7 +3,7 @@ import sys
 import optparse
 from distutils.version import LooseVersion
 from xml.etree import ElementTree
-from acmd import tool, error
+from acmd import tool, error, log
 from acmd import OK, USER_ERROR, SERVER_ERROR
 
 import requests
@@ -189,6 +189,7 @@ def install_package(server, options, package_name):
     url = get_package_url(package_name, server, options)
     form_data = dict(cmd='install')
 
+    log("Installing package with POST to {}".format(url))
     resp = requests.post(url, auth=server.auth, data=form_data)
     if resp.status_code != 200:
         error("Failed to install package: {}".format(resp.content))

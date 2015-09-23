@@ -3,7 +3,7 @@ import sys
 import optparse
 import requests
 
-from acmd import tool
+from acmd import tool, log, SERVER_ERROR
 from acmd.tools.tool_utils import get_action
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
@@ -32,16 +32,22 @@ def clear_cache(server, options):
     }
 
     # Clear on port 80
-    url = 'http://{host}{path}'.format(host=server.host, path='/dispatcher/invalidate.cache')
-
-    response = requests.get(
-        url,
-        auth=(server.username, server.password),
-        headers=headers)
-    if response.status_code == 200:
-        if "<H1>OK</H1>" not in response.content:
-            sys.stderr.write("error: Failed to validate response {}".format(response.content))
+    if server.dispatcher is not None:
+        host = server.dispatcher
     else:
+        host = 'http://{host}'.format(host=server.host)
+    url = '{host}{path}'.format(host=host, path='/dispatcher/invalidate.cache')
+    log("Clearing cache with request to {}".format(url))
+    response = requests.get(url, auth=server.auth, headers=headers)
+    if response.status_code != 200:
         sys.stderr.write("error: " + str(response.status_code) + "\n")
+        return SERVER_ERROR
+    if "<H1>OK</H1>" not in response.content:
+        sys.stderr.write("error: Failed to validate response '{}'\n".format(response.content.strip()))
+        return SERVER_ERROR
+
     if options.raw:
-        sys.stderr.write(response.content + "\n")
+        sys.stdout.write(response.content + "\n")
+    else:
+        sys.stdout.write("OK\n")
+
