@@ -1,9 +1,11 @@
 # coding: utf-8
 import sys
 import optparse
+from urlparse import urlparse
+from acmd import tool, log, SERVER_ERROR
+
 import requests
 
-from acmd import tool, log, SERVER_ERROR
 from acmd.tools.tool_utils import get_action
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
@@ -22,20 +24,17 @@ class DispatcherTool(object):
         else:
             parser.print_help()
 
-
 def clear_cache(server, options):
+    host_url = urlparse(server.host)
+
     headers = {
-        'Host': server.host,
+        'Host': host_url.hostname,
         'CQ-Action': 'DELETE',
         'CQ-Handle': '/',
         'CQ-Path': '/'
     }
 
-    # Clear on port 80
-    if server.dispatcher is not None:
-        host = server.dispatcher
-    else:
-        host = 'http://{host}'.format(host=server.host)
+    host = server.dispatcher if server.dispatcher is not None else server.host
     url = '{host}{path}'.format(host=host, path='/dispatcher/invalidate.cache')
     log("Clearing cache with request to {}".format(url))
     response = requests.get(url, auth=server.auth, headers=headers)
@@ -50,4 +49,3 @@ def clear_cache(server, options):
         sys.stdout.write(response.content + "\n")
     else:
         sys.stdout.write("OK\n")
-

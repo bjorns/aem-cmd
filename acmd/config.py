@@ -6,7 +6,7 @@ import os.path
 import acmd.server
 
 DEFAULT_SERVER_SETTING = 'default_server'
-DEFAULT_PORT = 80
+
 
 def get_rcfilename():
     home = os.path.expanduser("~")
@@ -30,11 +30,11 @@ def parse_server(parser, section):
 
     host = parser.get(section, 'host')
 
-    port = parser.getint(section, 'port') if parser.has_option(section, 'port') else DEFAULT_PORT
     username = parser.get(section, 'username')
     password = parser.get(section, 'password')
+    dispatcher = parser.get(section, 'dispatcher') if parser.has_option(section, 'dispatcher') else None
 
-    return acmd.server.Server(name, host=host, port=port, username=username, password=password)
+    return acmd.server.Server(name, host=host, username=username, password=password, dispatcher=dispatcher)
 
 
 def parse_servers(parser):
@@ -59,6 +59,8 @@ def parse_projects(parser):
 
 
 _current_config = None
+
+
 def get_current_config():
     global _current_config
     return _current_config

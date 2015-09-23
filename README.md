@@ -274,8 +274,7 @@ looks like:
     # Each server is defined by a section named [server <name>].
     # This server can then be accessed via the --server option.
     [server localhost]
-    host=localhost
-    port=4502
+    host=http://localhost:4502
     username=admin
     password=admin
 
@@ -301,6 +300,21 @@ flag. Like for example
 
     $ acmd -s prod-author bundles
     ....
+
+#### Dispatcher
+
+Since the dispatcher service is not always accessible at the same host as the
+normal service an extra setting 'dispatcher' can be added to the config like so.
+
+    [server publish]
+    host=http://publish.prod-backend.com:4502
+    dispatcher=http://publish.public-access.com
+
+No you can clear the dispatcher cache without adding extra servers for the
+dispatcher.
+
+    $ acmd -s publish dispatcher clear
+
 
 ### Projects
 

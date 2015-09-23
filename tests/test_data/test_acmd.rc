@@ -4,14 +4,12 @@
 # Each server is defined by a section named [server <name>].
 # This server can then be accessed via the --server option.
 [server localhost]
-host=localhost
-port=4502
+host=http://localhost:4502
 username=admin
 password=admin
 
 [server extraserver]
-host=hostname.com
-port=4503
+host=http://hostname.com:4503
 username=my_user
 password=open sesame
 

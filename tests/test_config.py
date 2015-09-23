@@ -1,6 +1,8 @@
 # coding: utf-8
 from nose.tools import eq_
+
 from acmd.config import read_config
+
 
 def test_read_config():
     config = read_config('tests/test_data/test_acmd.rc')
