@@ -17,6 +17,9 @@ parser.add_option("-r", "--raw",
                   help="output raw response data")
 parser.add_option("-p", "--password",
                   dest="password", help="Set password of the user")
+parser.add_option("-c", "--compact",
+                  action="store_const", const=True, dest="compact",
+                  help="output only package name")
 
 
 @tool('users', ['list', 'create', 'setprop'])
@@ -30,8 +33,9 @@ class UserTool(object):
         elif action == 'create':
             return create_user(server, options, actionarg)
         elif action == 'setprop':
-            props = parse_properties(actionarg)
-            username = get_argument(argv, 3)
+            username = actionarg
+            propstring = get_argument(argv, 3)
+            props = parse_properties(propstring)
             return set_profile_properties(server, options, username, props)
         else:
             parser.print_help()
@@ -47,10 +51,15 @@ def list_users(server, options):
     data = resp.json()
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
-    else:
+    if options.compact:
         for initial, group in filter_system(data.items()):
             for username, userdata in filter_system(group.items()):
                 sys.stdout.write("{}\n".format(username))
+    else:
+        sys.stdout.write("Available users:\n")
+        for initial, group in filter_system(data.items()):
+            for username, userdata in filter_system(group.items()):
+                sys.stdout.write("    {}\n".format(username))
     return OK
 
 

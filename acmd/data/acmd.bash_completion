@@ -8,6 +8,7 @@ _acmd()
     local PKG_COMMANDS="download build install"
     local BUNDLES_COMMANDS="stop start"
     local GROUPS_COMMANDS="adduser"
+    local USERS_COMMANDS="setprop"
     local FILE_COMMANDS="upload import"
 
     local cur
@@ -20,6 +21,7 @@ _acmd()
     local tool=None
     local cmd=None
     local arg0=None
+    local arg1=None
 
     local complete=None
 
@@ -55,9 +57,12 @@ _acmd()
                 cmd=$word
                 complete=cmd
                 echo "cmd=$cmd" >> /tmp/acmd_complete.log
-            else
+            elif [[ "$program" != "None" && "$tool" != "None" && "$cmd" != "None" && "$arg0" == "None" ]]; then
                 complete=arg0
                 arg0=$word
+            else
+                complete=arg1
+                arg1=$word
             fi
         fi
     done
@@ -89,6 +94,9 @@ _acmd()
         elif [[ "${tool}" == "groups" && "${GROUPS_COMMANDS}" =~ "${cmd}" ]]; then
             groups=`acmd groups list --compact`
             COMPREPLY=( $(compgen -W "${groups}" -- ${arg0}) )
+        elif [[ "${tool}" == "users" && "${USERS_COMMANDS}" =~ "${cmd}" ]]; then
+            users=`acmd users list --compact`
+            COMPREPLY=( $(compgen -W "${users}" -- ${arg0}) )
         elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" ]]; then
             echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then
@@ -111,6 +119,11 @@ _acmd()
             echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
         fi
         return 0
+    elif [[ ${complete} == "arg1" ]]; then
+        if [[ "${tool}" == "groups" && "${cmd}" == "adduser" ]]; then
+            users=`acmd users list --compact`
+            COMPREPLY=( $(compgen -W "${users}" -- ${arg1}) )            
+        fi
     fi
 }
 complete -F _acmd acmd
