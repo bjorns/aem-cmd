@@ -16,6 +16,9 @@ parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <gro
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-c", "--compact",
+                  action="store_const", const=True, dest="compact",
+                  help="output only package name")
 
 
 @tool('groups', ['list', 'create', 'adduser'])
@@ -92,8 +95,13 @@ def list_groups(server, options):
     data = resp.json()
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+    elif options.compact:
+        for initial, group in filter_system(data.items()):
+            for groupname, userdata in filter_system(group.items()):
+                sys.stdout.write("{}\n".format(groupname))
     else:
+        sys.stdout.write("Available groups:\n")
         for initial, group in filter_system(data.items()):
             for username, userdata in filter_system(group.items()):
-                sys.stdout.write("{}\n".format(username))
+                sys.stdout.write("    {}\n".format(username))
     return OK

@@ -78,17 +78,18 @@ def list_groups_mock(url, request):
 
 
 
-EXPECTED_GROUPS = """administrators
-everyone
-dam-users
-mynewgroup
-contributor
-content-authors
-mac-users
-user-administrators
-workflow-users
-workflow-editors
-tag-administrators
+EXPECTED_GROUPS = """Available groups:
+    administrators
+    everyone
+    dam-users
+    mynewgroup
+    contributor
+    content-authors
+    mac-users
+    user-administrators
+    workflow-users
+    workflow-editors
+    tag-administrators
 """
 
 
@@ -101,4 +102,29 @@ def test_groups_users(stderr, stdout):
         status = tool.execute(server, ['groups', 'list'])
     eq_(OK, status)
     eq_(EXPECTED_GROUPS, stdout.getvalue())
+    eq_('', stderr.getvalue())
+
+
+COMPACT_GROUPS = """administrators
+everyone
+dam-users
+mynewgroup
+contributor
+content-authors
+mac-users
+user-administrators
+workflow-users
+workflow-editors
+tag-administrators
+"""
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_groups_users_compact(stderr, stdout):
+    tool = get_tool('groups')
+    server = Server('localhost')
+    with HTTMock(list_groups_mock):
+        status = tool.execute(server, ['groups', 'list', '--compact'])
+    eq_(OK, status)
+    eq_(COMPACT_GROUPS, stdout.getvalue())
     eq_('', stderr.getvalue())

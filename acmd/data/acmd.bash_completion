@@ -7,6 +7,7 @@ _acmd()
     local JCR_PATH_COMMANDS="ls cat find"
     local PKG_COMMANDS="download build install"
     local BUNDLES_COMMANDS="stop start"
+    local GROUPS_COMMANDS="adduser"
     local FILE_COMMANDS="upload import"
 
     local cur
@@ -83,8 +84,11 @@ _acmd()
             pkgs=`acmd packages list --compact`
             COMPREPLY=( $(compgen -W "${pkgs}" -- ${arg0}) )
         elif [[ "${tool}" == "bundles" && "${BUNDLES_COMMANDS}" =~ "${cmd}" ]] ; then
-                bundles=`acmd bundles list --compact`
-                COMPREPLY=( $(compgen -W "${bundles}" -- ${arg0}) )
+            bundles=`acmd bundles list --compact`
+            COMPREPLY=( $(compgen -W "${bundles}" -- ${arg0}) )
+        elif [[ "${tool}" == "groups" && "${GROUPS_COMMANDS}" =~ "${cmd}" ]]; then
+            groups=`acmd groups list --compact`
+            COMPREPLY=( $(compgen -W "${groups}" -- ${arg0}) )
         elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" ]]; then
             echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then
@@ -102,6 +106,7 @@ _acmd()
             files=("${arg0}*")
             compopt -o nospace &>/dev/null
             _filedir
+
         else
             echo "Completing arg0 $arg0" >> /tmp/acmd_complete.log
         fi
