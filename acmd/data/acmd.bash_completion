@@ -97,7 +97,7 @@ _acmd()
         elif [[ "${tool}" == "users" && "${USERS_COMMANDS}" =~ "${cmd}" ]]; then
             users=`acmd users list --compact`
             COMPREPLY=( $(compgen -W "${users}" -- ${arg0}) )
-        elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" ]]; then
+        elif [[ "${JCR_PATH_COMMANDS}" =~ "$cmd" || "$cmd" == "activate" ]]; then
             echo "Completing jcr path $arg0" >> /tmp/acmd_complete.log
             if [[ $arg0 == *"/" ]]; then
                 dir=${arg0}
@@ -122,7 +122,7 @@ _acmd()
     elif [[ ${complete} == "arg1" ]]; then
         if [[ "${tool}" == "groups" && "${cmd}" == "adduser" ]]; then
             users=`acmd users list --compact`
-            COMPREPLY=( $(compgen -W "${users}" -- ${arg1}) )            
+            COMPREPLY=( $(compgen -W "${users}" -- ${arg1}) )
         fi
     fi
 }
