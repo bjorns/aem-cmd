@@ -3,9 +3,9 @@ have acmd &&
 _acmd()
 {
     # Raw commands are commands that should be part of a jcr tool.
-    local RAW_COMMANDS="ls cat find search"
+    local JCR_COMMANDS="ls cat find search"
     local JCR_PATH_COMMANDS="ls cat find"
-    local PKG_COMMANDS="download build download"
+    local PKG_COMMANDS="download build install"
     local BUNDLES_COMMANDS="stop start"
     local FILE_COMMANDS="upload import"
 
@@ -63,7 +63,7 @@ _acmd()
     echo "complete=$complete" >> /tmp/acmd_complete.log
 
     if [[ ${complete} == "tool" ]] ; then
-        tools=`acmd help --compact tools`
+        tools=`acmd help --compact _tools`
         COMPREPLY=( $(compgen -W "${tools}" -- "${cur}" ) )
         return 0
     elif [[ ${complete} == "cmd" ]] ; then
@@ -74,7 +74,7 @@ _acmd()
     elif [[ ${complete} == "option" ]] ; then
         if [[ ${option} == "-s" || ${option} == "--server" ]]; then
             echo "Completing server=$option" >> /tmp/acmd_complete.log
-            servers=`acmd help --compact servers`
+            servers=`acmd help --compact _servers`
             COMPREPLY=( $(compgen -W "${servers}" -- "${word}" ) )
         fi
         return 0

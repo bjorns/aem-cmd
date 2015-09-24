@@ -2,12 +2,13 @@
 """ Tools for bash command completion are hidden from normal listings. """
 import sys
 import optparse
-
-from acmd import tool, list_tools, get_current_config, OK
+from acmd import tool, get_current_config, OK
 from acmd import get_tool
-from acmd.config import DEFAULT_SERVER_SETTING
+from acmd import list_tools
+
 from acmd.tools import tool_utils
 
+from acmd.config import DEFAULT_SERVER_SETTING
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
 parser.add_option("-c", "--compact",
@@ -17,23 +18,19 @@ parser.add_option("-c", "--compact",
 
 @tool('help')
 class IntrospectTool(object):
-    def execute(self, server, argv):
+    @property
+    def commands(self):
+        """ Allow autocomplete of help tools. """
+        return list_tools()
+
+    def execute(self, _, argv):
         (options, args) = parser.parse_args(argv)
 
-        arg = tool_utils.get_action(args, 'tools')
-        if arg == 'tools':
-            if options.compact:
-                for arg in list_tools():
-                    sys.stdout.write("{cmd}\n".format(cmd=arg))
-            else:
-                sys.stdout.write("Available tools:\n")
-                for arg in list_tools():
-                    sys.stdout.write("    {cmd}\n".format(cmd=arg))
-        elif arg == 'servers':
-            config = get_current_config()
-            for name, _ in config.servers.items():
-                if name != DEFAULT_SERVER_SETTING:
-                    sys.stdout.write("{}\n".format(name))
+        arg = tool_utils.get_action(args, '_tools')
+        if arg == '_tools':
+            print_tools(sys.stdout, options.compact)
+        elif arg == '_servers':
+            print_servers(sys.stdout)
         else:
             _tool = get_tool(arg)
             if options.compact:
@@ -44,3 +41,20 @@ class IntrospectTool(object):
                 for cmd in _tool.commands:
                     sys.stdout.write("    {}\n".format(cmd))
             return OK
+
+
+def print_servers(f):
+    config = get_current_config()
+    for name, _ in config.servers.items():
+        if name != DEFAULT_SERVER_SETTING:
+            f.write("{}\n".format(name))
+
+
+def print_tools(f, compact):
+    if compact:
+        for arg in list_tools():
+            f.write("{cmd}\n".format(cmd=arg))
+    else:
+        sys.stdout.write("Available tools:\n")
+        for arg in list_tools():
+            f.write("    {cmd}\n".format(cmd=arg))

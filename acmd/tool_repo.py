@@ -19,7 +19,8 @@ def tool(tool_name, commands=None):
     def class_rebuilder(cls):
         instance = cls()
         instance.name = tool_name
-        instance.commands = commands if commands is not None else []
+        if not hasattr(instance, 'commands'):
+            instance.commands = commands if commands is not None else []
         register_tool(instance)
         return cls
 
