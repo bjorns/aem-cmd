@@ -1,7 +1,7 @@
 all: dist
 
 clean:
-	rm -rf dist build aem_cmd.egg-info test_reports
+	rm -rf dist build aem_cmd.egg-info test_reports .coverage
 
 dist: clean
 	python setup.py bdist_wheel

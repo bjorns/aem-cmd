@@ -9,7 +9,7 @@ def test_read_config():
     eq_(3, len(config.servers))
     eq_(['extraserver', 'default_server', 'localhost'], config.servers.keys())
     eq_(config.servers['default_server'], config.servers['extraserver'])
-    eq_(config.servers['default_server'], config.get_server('non existing label'))
+    eq_(None, config.get_server('non existing label'))
     eq_(config.servers['default_server'], config.get_server(None))
 
     eq_(1, len(config.projects))

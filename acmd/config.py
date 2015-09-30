@@ -23,9 +23,9 @@ class Config(object):
         self.projects = dict()
 
     def get_server(self, server_name):
-        if server_name not in self.servers:
+        if server_name is None:
             server_name = DEFAULT_SERVER_SETTING
-        return self.servers.get(server_name)
+        return self.servers.get(server_name, None)
 
 
 def parse_server(parser, section):
