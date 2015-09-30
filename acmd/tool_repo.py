@@ -63,4 +63,6 @@ def get_tool(tool_name):
 
 def list_tools():
     """ Returns list of all tool names."""
-    return _tools.keys()
+    tool_names = _tools.keys()
+    tool_names.sort()
+    return tool_names

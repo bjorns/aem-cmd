@@ -3,7 +3,7 @@ have acmd &&
 _acmd()
 {
     # Raw commands are commands that should be part of a jcr tool.
-    local JCR_COMMANDS="ls cat find search"
+    local JCR_COMMANDS="ls cat find search setprop"
     local JCR_PATH_COMMANDS="ls cat find"
     local PKG_COMMANDS="download build install"
     local BUNDLES_COMMANDS="stop start"
@@ -42,7 +42,7 @@ _acmd()
                 program="acmd"
                 echo "program=$program" >> /tmp/acmd_complete.log
             elif [[ "$program" != "None" && "$tool" == "None" ]]; then
-                if [[ "${RAW_COMMANDS}" =~ "$word" ]]; then
+                if [[ "${JCR_COMMANDS}" =~ "$word" ]]; then
                     tool=jcr
                     cmd=$word
                     complete=tool
