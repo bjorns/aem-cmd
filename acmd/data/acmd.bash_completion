@@ -3,6 +3,7 @@ have acmd &&
 _acmd()
 {
     # Raw commands are commands that should be part of a jcr tool.
+
     local JCR_COMMANDS="ls cat find search setprop"
     local JCR_PATH_COMMANDS="ls cat find"
     local PKG_COMMANDS="download build install"
@@ -14,6 +15,7 @@ _acmd()
     local cur
     local IFS=$'\n'
     COMPREPLY=()
+    COMP_WORDBREAKS=" \"'><=;|&("
 
     cur="${COMP_WORDS[COMP_CWORD]}"
 
@@ -27,16 +29,26 @@ _acmd()
 
     for ((i=0; i < ${#COMP_WORDS[@]}; i++)); do
         word="${COMP_WORDS[i]}"
+        next="${COMP_WORDS[((i+1))]}"
 
-        if [[ "$word" == -* ]]; then
+        if [[ "$word" == "-s" ]]; then
             complete=option
             option=$word
             ((i++))
-            if [[ "$word" == --* ]]; then
-                ((i++))
-            fi
             word="${COMP_WORDS[i]}"
             echo "option=$word" >> /tmp/acmd_complete.log
+        elif [[ "$word" == --* ]]; then
+            if [[ "$next" == "=" ]]; then
+                complete=option
+                option=$word
+                ((i++))
+                ((i++))
+                word="${COMP_WORDS[i]}"
+                echo "option=$word" >> /tmp/acmd_complete.log
+            else
+                # Ignore long form options without =.
+                echo "unary option $word" >> /tmp/acmd_complete.log
+            fi
         else
             if [[ "$word" == "acmd" ]]; then
                 program="acmd"
@@ -60,6 +72,7 @@ _acmd()
             elif [[ "$program" != "None" && "$tool" != "None" && "$cmd" != "None" && "$arg0" == "None" ]]; then
                 complete=arg0
                 arg0=$word
+                echo "arg0=$arg0" >> /tmp/acmd_complete.log
             else
                 complete=arg1
                 arg1=$word
