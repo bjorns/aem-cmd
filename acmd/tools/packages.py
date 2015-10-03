@@ -30,10 +30,10 @@ class PackagesTool(object):
 
         action = get_action(args)
         actionarg = get_argument(args)
+
         if action == 'list' or action == 'ls':
             return list_packages(server, options)
-
-        if actionarg is None:
+        elif actionarg is None:
             parser.print_help()
             return USER_ERROR
         elif action == 'build':
@@ -79,10 +79,14 @@ def list_packages(server, options):
     packages = get_packages_list(server, options.raw)
     for pkg in packages:
         if options.compact:
-            msg = "{pkg}\n".format(pkg=pkg['name'])
+            msg = "{pkg}".format(pkg=pkg['name'])
         else:
-            msg = "{g}\t{pkg}\t{v}\n".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'])
-        sys.stdout.write(msg)
+            msg = format_package(pkg)
+        sys.stdout.write("{}\n".format(msg))
+
+
+def format_package(pkg):
+    return "{g}\t{pkg}\t{v}".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'])
 
 
 def parse_packages(tree):
@@ -174,6 +178,11 @@ def upload_package(server, options, filename):
         return SERVER_ERROR
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
+    else:
+        tree = ElementTree.fromstring(resp.content)
+        pkg_elem = tree.find('response').find('data').find('package')
+        pkg = parse_package(pkg_elem)
+        sys.stdout.write("{}\n".format(format_package(pkg)))
     return OK
 
 
@@ -194,8 +203,12 @@ def install_package(server, options, package_name):
     if resp.status_code != 200:
         error("Failed to install package: {}".format(resp.content))
         return SERVER_ERROR
+    data = resp.json()
+    assert data['success'] is True
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
+    else:
+        sys.stdout.write("{}\n".format(data['msg']))
     return OK
 
 
