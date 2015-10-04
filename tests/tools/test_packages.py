@@ -22,16 +22,32 @@ def get_command_stack():
 @urlmatch(netloc='localhost:4502')
 def packages_mock(url, request):
     get_command_stack().append((url, request))
-    if url.path == '/crx/packmgr/service.jsp':
-        with open('tests/test_data/packages_list.xml', 'rb') as f:
-            return f.read()
-    elif url.path.startswith('/crx/packmgr/service/.json/etc/packages'):
-        return '{"status": "OK"}'
-    elif url.path == '/etc/packages/test_packages/mock_package-1.6.5.zip':
-        return ""
-    else:
-        raise Exception(url.path)
 
+    if request.method == 'POST':
+        if url.path == '/crx/packmgr/service.jsp':
+            with open('tests/test_data/packages_list.xml') as f:
+                return f.read()
+        elif url.path.startswith('/crx/packmgr/service/.json/etc/packages'):
+            return '{"success": true, "msg": "Package Installed"}'
+        else:
+            raise Exception("Unknown path " + url.path)
+    elif request.method == 'GET':
+        if url.path == '/etc/packages/test_packages/mock_package-1.6.5.zip':
+            return '{"success":true,"msg":"Package built"}'
+
+    else:
+        raise Exception("Unknown method " + request.method + " for " + url.path)
+
+
+@urlmatch(netloc='localhost:4502')
+def upload_packages_mock(url, request):
+    get_command_stack().append((url, request))
+
+    if request.method == 'POST':
+        if url.path == '/crx/packmgr/service.jsp':
+            with open('tests/test_data/package_upload_response.xml') as f:
+                return f.read()
+    raise Exception("Unknown method " + request.method)
 
 EXPECTED_LIST = """test_packages\tmock_package\t1.6.5
 adobe/granite\tcom.adobe.coralui.rte-cq5\t5.6.18
@@ -52,13 +68,13 @@ def test_list_packages(stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_upload_package(stderr, stdout):
-    with HTTMock(packages_mock):
+    with HTTMock(upload_packages_mock):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['packages', 'upload', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
-        eq_('', stdout.getvalue())
+        eq_('my_packages\tmock-package\t1.0\n', stdout.getvalue())
         eq_('', stderr.getvalue())
 
         status = tool.execute(server, ['packages', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
@@ -76,12 +92,19 @@ def test_install_package(stderr, stdout):
 
         status = tool.execute(server, ['packages', 'install', 'mock_package'])
         eq_(0, status)
-        eq_('', stdout.getvalue())
+        eq_('Package Installed\n', stdout.getvalue())
         eq_('', stderr.getvalue())
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_install_package_raw(stderr, stdout):
+    with HTTMock(packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
 
         status = tool.execute(server, ['packages', 'install', '--raw', 'mock_package'])
         eq_(0, status)
-        eq_('{"status": "OK"}\n', stdout.getvalue())
+        eq_('{"success": true, "msg": "Package Installed"}\n', stdout.getvalue())
         eq_('', stderr.getvalue())
 
 

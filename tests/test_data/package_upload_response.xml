@@ -1,0 +1,23 @@
+<crx version="2.4.30" user="admin" workspace="crx.default">
+    <request>
+        <param name="file" value="/Users/bjorn/Downloads/family-pages-1.0.zip"/>
+    </request>
+    <response>
+        <data>
+            <package>
+                <group>my_packages</group>
+                <name>mock-package</name>
+                <version>1.0</version>
+                <downloadName>mock-package-1.0.zip</downloadName>
+                <size>4990603</size>
+                <created>Tue, 29 Sep 2015 15:49:44 -0400</created>
+                <createdBy>bskoglund</createdBy>
+                <lastModified>Tue, 29 Sep 2015 15:49:12 -0400</lastModified>
+                <lastModifiedBy>bskoglund</lastModifiedBy>
+                <lastUnpacked>Tue, 29 Sep 2015 16:20:59 -0400</lastUnpacked>
+                <lastUnpackedBy>admin</lastUnpackedBy>
+            </package>
+        </data>
+        <status code="200">ok</status>
+    </response>
+</crx>
