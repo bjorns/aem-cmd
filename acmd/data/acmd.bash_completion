@@ -10,7 +10,7 @@ _acmd()
     local BUNDLES_COMMANDS="stop start"
     local GROUPS_COMMANDS="adduser"
     local USERS_COMMANDS="setprop"
-    local FILE_COMMANDS="upload import"
+    local FILE_COMMANDS="upload import execute"
 
     local cur
     local IFS=$'\n'
@@ -58,13 +58,17 @@ _acmd()
                     tool=jcr
                     cmd=$word
                     complete=tool
-                    echo "tool=$tool" >> /tmp/acmd_complete.log
-                    echo "cmd=$cmd" >> /tmp/acmd_complete.log
+                elif [[ "$word" == "groovy" ]]; then
+                    tool=groovy
+                    cmd=execute
+                    complete=arg0
                 else
                     tool=$word
                     complete=tool
-                    echo "tool=$tool" >> /tmp/acmd_complete.log
                 fi
+
+                echo "tool=$tool" >> /tmp/acmd_complete.log
+                echo "cmd=$cmd" >> /tmp/acmd_complete.log
             elif [[ "$program" != "None" && "$tool" != "None" && "$cmd" == "None" ]]; then
                 cmd=$word
                 complete=cmd

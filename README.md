@@ -269,6 +269,21 @@ All bundles commands support the --raw flag which prints raw json output.
     }
     $
 
+### Groovy
+
+Note: the groovy tool requires the
+[cq-groovy-console](https://github.com/Citytechinc/cq-groovy-console) bundle
+from Citytech.
+
+The groovy tool allows execution of arbitrary code server side. Put your code
+in a file and execute with:
+
+    $ acmd groovy list-entire-catalog.groovy
+    ....
+
+For more documentation on how to write groovy scripts install the
+cq-groovy-console bundle and go to
+[http://localhost:4502/etc/groovyconsole.html](http://localhost:4502/etc/groovyconsole.html)
 
 
 ### Replication
