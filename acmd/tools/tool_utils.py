@@ -8,7 +8,7 @@ def get_action(argv, default=None):
         return argv[1]
 
 
-def get_argument(argv, i=2, default=None):
+def get_argument(argv, i=2, default=""):
     if len(argv) < i+1:
         return default
     else:

@@ -77,7 +77,28 @@ def test_upload_package(stderr, stdout):
         eq_('my_packages\tmock-package\t1.0\n', stdout.getvalue())
         eq_('', stderr.getvalue())
 
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_upload_package_raw(stderr, stdout):
+    with HTTMock(upload_packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
+
         status = tool.execute(server, ['packages', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
+        eq_(0, status)
+        eq_('', stderr.getvalue())
+        eq_(True, len(stdout.getvalue()) > 0)
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_upload_package_and_install(stderr, stdout):
+    with HTTMock(upload_packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
+
+        status = tool.execute(server, ['packages', 'upload', '--install', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
         eq_('', stderr.getvalue())
         eq_(True, len(stdout.getvalue()) > 0)

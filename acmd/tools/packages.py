@@ -21,6 +21,9 @@ parser.add_option("-r", "--raw",
 parser.add_option("-c", "--compact",
                   action="store_const", const=True, dest="compact",
                   help="output only package name")
+parser.add_option("-i", "--install",
+                  action="store_const", const=True, dest="install",
+                  help="install package after upload")
 
 
 @tool('packages', ['list', 'build', 'install', 'download', 'upload'])
@@ -66,6 +69,7 @@ def get_argument(argv):
 def get_packages_list(server, raw=False):
     url = server.url(SERVICE_PATH)
     form_data = {'cmd': (None, 'ls')}
+
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
@@ -161,15 +165,24 @@ def download_package(server, options, package_name):
         return SERVER_ERROR
 
 
+def json_bool(val):
+    """ Returns the string 'true' if val is boolean is True """
+    if val is True:
+        return 'true'
+    else:
+        return 'false'
+
+
 def upload_package(server, options, filename):
     """ curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
             -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp """
     form_data = dict(
         file=(filename, open(filename, 'rb'), 'application/zip', dict()),
         name=filename.rstrip('.zip'),
-        force='false',
-        install='false'
+        force=json_bool(options.install),
+        install=json_bool(options.install)
     )
+    print form_data
     url = server.url(SERVICE_PATH)
     resp = requests.post(url, auth=server.auth, files=form_data)
 
