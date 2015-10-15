@@ -39,7 +39,7 @@ def run(options, config, args, cmdargs):
     tool_name, args = args[1], []
     server = config.get_server(options.server)
     if server is None:
-        sys.stderr.write("error: serer '{srv}' not found.\n".format(srv=options.server))
+        sys.stderr.write("error: server '{srv}' not found.\n".format(srv=options.server))
         return acmd.USER_ERROR
     acmd.log("Using server {}".format(server))
     cmd = acmd.get_tool(tool_name)
