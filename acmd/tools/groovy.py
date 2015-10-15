@@ -41,12 +41,18 @@ class GroovyTool(object):
                 content=resp.content))
             return SERVER_ERROR
         data = resp.json()
-        if data['stacktraceText'] != '':
-            sys.stderr.write(data['stacktraceText'])
-            return SERVER_ERROR
+        if options.raw:
+            sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
         else:
-            if options.raw:
-                sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
+            # The stacktrace prop changed name with newer versions.
+            if data.get('stacktraceText', '') != '':
+                sys.stderr.write(data['stacktraceText'])
+                return SERVER_ERROR
+            elif data['exceptionStackTrace'] != '':
+                sys.stderr.write(data['stacktraceText'])
+                return SERVER_ERROR
+            elif data.get('outputText', '') != '':
+                sys.stdout.write("{}".format(data['outputText'].encode('utf-8')))
             else:
-                sys.stdout.write(u"{}".format(data['outputText']))
-            return OK
+                sys.stdout.write("{}".format(data['output'].encode('utf-8')))
+        return OK
