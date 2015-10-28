@@ -12,10 +12,10 @@ USAGE = """acmd [options] <tool> <args>
 parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
                   help="server name", metavar="<name>")
-parser.add_option("-X", "--verbose",
+parser.add_option("-v", "--verbose",
                   action="store_const", const=True, dest="verbose",
                   help="verbose logging useful for debugging")
-parser.add_option("-v", "--version",
+parser.add_option("-V", "--version",
                   action="store_const", const=True, dest="show_version",
                   help="Show package version")
 

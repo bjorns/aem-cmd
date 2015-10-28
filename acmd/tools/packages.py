@@ -182,7 +182,7 @@ def upload_package(server, options, filename):
         force=json_bool(options.install),
         install=json_bool(options.install)
     )
-    print form_data
+    log(form_data)
     url = server.url(SERVICE_PATH)
     resp = requests.post(url, auth=server.auth, files=form_data)
 
