@@ -2,14 +2,13 @@
 import sys
 import optparse
 import json
-import requests
 
+import requests
 from lxml import html
 
-from acmd import tool
+from acmd import tool, parse_properties
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
-from acmd import parse_properties
-from acmd.tools.tool_utils import get_action, get_argument, filter_system
+from acmd.tools import get_argument, get_command, filter_system
 
 parser = optparse.OptionParser("acmd users <list|create|setprop> [options] <username> [arguments]")
 parser.add_option("-r", "--raw",
@@ -26,7 +25,7 @@ parser.add_option("-c", "--compact",
 class UserTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        action = get_action(args, 'list')
+        action = get_command(args, 'list')
         actionarg = get_argument(args)
         if action == 'list' or action == 'ls':
             return list_users(server, options)

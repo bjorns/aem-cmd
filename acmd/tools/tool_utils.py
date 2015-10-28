@@ -1,7 +1,7 @@
 # coding: utf-8
 
 
-def get_action(argv, default=None):
+def get_command(argv, default=None):
     if len(argv) < 2:
         return default
     else:
@@ -16,5 +16,6 @@ def get_argument(argv, i=2, default=""):
 
 
 def filter_system(items):
+    """ Filter properties that start with jcr: """
     f = lambda (key, data): not key.startswith('jcr:')
     return filter(f, items)

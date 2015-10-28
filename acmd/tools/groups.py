@@ -9,7 +9,7 @@ from lxml import html
 
 from acmd import tool
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
-from acmd.tools.tool_utils import get_action, get_argument, filter_system
+from acmd.tools import get_command, get_argument, filter_system
 
 
 parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname> <username>")
@@ -25,7 +25,7 @@ parser.add_option("-c", "--compact",
 class GroupsTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        action = get_action(args, 'list')
+        action = get_command(args, 'list')
         groupname = get_argument(args)
         if action == 'list':
             return list_groups(server, options)

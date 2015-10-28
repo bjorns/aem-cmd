@@ -6,9 +6,8 @@ from acmd import tool, get_current_config, OK
 from acmd import get_tool
 from acmd import list_tools
 
-from acmd.tools import tool_utils
-
 from acmd.config import DEFAULT_SERVER_SETTING
+from acmd.tools import get_command
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
 parser.add_option("-c", "--compact",
@@ -26,7 +25,7 @@ class IntrospectTool(object):
     def execute(self, _, argv):
         (options, args) = parser.parse_args(argv)
 
-        arg = tool_utils.get_action(args, '_tools')
+        arg = get_command(args, '_tools')
         if arg == '_tools':
             print_tools(sys.stdout, options.compact)
         elif arg == '_servers':
