@@ -66,27 +66,36 @@ def get_argument(argv):
         return argv[2]
 
 
-def get_packages_list(server, raw=False):
+def make_packages_request(server):
     url = server.url(SERVICE_PATH)
     form_data = {'cmd': (None, 'ls')}
-
     resp = requests.post(url, auth=(server.username, server.password), files=form_data)
     if resp.status_code != 200:
         raise Exception("Failed to get " + url)
-    if raw:
-        sys.stdout.write(resp.content + '\n')
-    tree = ElementTree.fromstring(resp.content)
+    return resp.content
+
+
+def get_packages_list(server):
+    content = make_packages_request(server)
+    tree = ElementTree.fromstring(content)
     return parse_packages(tree)
 
 
 def list_packages(server, options):
-    packages = get_packages_list(server, options.raw)
-    for pkg in packages:
-        if options.compact:
-            msg = "{pkg}".format(pkg=pkg['name'])
-        else:
-            msg = format_package(pkg)
-        sys.stdout.write("{}\n".format(msg))
+    content = make_packages_request(server)
+
+    if options.raw:
+        sys.stdout.write(content)
+    else:
+        tree = ElementTree.fromstring(content)
+        packages = parse_packages(tree)
+        for pkg in packages:
+            if options.compact:
+                msg = "{pkg}".format(pkg=pkg['name'])
+            else:
+                msg = format_package(pkg)
+            sys.stdout.write("{}\n".format(msg))
+    return OK
 
 
 def format_package(pkg):
