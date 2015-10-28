@@ -15,7 +15,7 @@ Mostly it depends on the Sling json apis for interfacing.
 acmd is available in PyPI. To install, simply call pip like any other python
 package.
 
-    $ pip instal aem-cmd
+    $ pip install aem-cmd
     ...
     $ acmd
     Usage: acmd [options] <tool> <args>
