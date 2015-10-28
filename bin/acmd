@@ -3,4 +3,7 @@ import sys
 from acmd.main import main
 
 if __name__ == '__main__':
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except KeyboardInterrupt as e:
+        sys.exit(-1)
