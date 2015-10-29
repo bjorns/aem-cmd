@@ -52,9 +52,9 @@ def run(options, config, args, cmdargs):
 
 def split_argv(argv):
     """ Split argument list into system arguments before the tool
-    and tool arguments afterwards.
-    ['foo', 'bar', 'inspect', 'bink', 'bonk']
-        => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
+        and tool arguments afterwards.
+        ['foo', 'bar', 'inspect', 'bink', 'bonk']
+            => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
     for i, arg in enumerate(argv):
         if acmd.get_tool(arg) is not None:
             return argv[0:i + 1], argv[i:]

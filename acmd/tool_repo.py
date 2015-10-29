@@ -14,7 +14,7 @@ def tool(tool_name, commands=None):
         Usage: Decorate your class with @tool(<tool_name>) e.g.
 
         @tool('packages')
-        """
+    """
 
     def class_rebuilder(cls):
         instance = cls()
@@ -42,10 +42,13 @@ def import_tools(path, package=None):
 # This is a hack, couldn't come up with a nice way of setting the
 # tool prefix automatically.
 _init_project = None
+
+
 def set_current_project(name):
     """ Set a project name context when initializing project tools. """
     global _init_project
     _init_project = name
+
 
 def register_tool(_tool):
     assert get_tool(_tool.name) is None

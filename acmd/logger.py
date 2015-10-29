@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+import traceback
 
 display_log = False
 
@@ -18,5 +19,7 @@ def warning(msg):
     sys.stderr.write("warning: {}\n".format(msg))
 
 
-def error(msg):
+def error(msg, e=None):
     sys.stderr.write("error: {}\n".format(msg))
+    if e is not None:
+        sys.stderr.write(traceback.format_exc())
