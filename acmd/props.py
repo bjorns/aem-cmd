@@ -14,8 +14,20 @@ def parse_properties(props_str):
     while rest.strip() != '':
         key, val, rest = _parse_property(rest)
         log("    setting {}={}".format(key, val))
+        if val.lower() == 'true' or val.lower() == 'false':
+            log("Setting boolean typehint")
+            ret[_typeof(key)] = 'Boolean'
+        elif val.isdigit():
+            log("Setting integer typehint")
+            ret[_typeof(key)] = 'Long'
+        else:
+            pass
         ret[key] = val
     return ret
+
+
+def _typeof(key):
+    return key + "@TypeHint"
 
 
 def _parse_property(prop_str):
