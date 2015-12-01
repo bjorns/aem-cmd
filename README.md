@@ -122,6 +122,13 @@ on all nodes under /content/catalog
 
     $ acmd find /content/catalog | acmd setprop prop="I like cheese"
 
+#### Create node
+
+Note that the setprop command will create the path if it does not exist. The
+folowing will create a new folder:
+
+    $ acmd setprop jcr:primaryType=sling:Folder /content/new_folder
+
 #### Delete property
 
     $ acmd rmprop prop /content/catalog/product4711
