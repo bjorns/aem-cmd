@@ -4,6 +4,7 @@ import optparse
 import json
 
 import requests
+
 from lxml import html
 
 from acmd import tool, parse_properties

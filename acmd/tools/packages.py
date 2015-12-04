@@ -3,10 +3,11 @@ import sys
 import optparse
 from distutils.version import LooseVersion
 from xml.etree import ElementTree
-from acmd import tool, error, log
-from acmd import OK, USER_ERROR, SERVER_ERROR
 
 import requests
+
+from acmd import tool, error, log
+from acmd import OK, USER_ERROR, SERVER_ERROR
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 

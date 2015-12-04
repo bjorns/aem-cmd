@@ -9,7 +9,7 @@ def get_command(argv, default=None):
 
 
 def get_argument(argv, i=2, default=""):
-    if len(argv) < i+1:
+    if len(argv) < i + 1:
         return default
     else:
         return argv[i]

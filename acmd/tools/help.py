@@ -2,10 +2,10 @@
 """ Tools for bash command completion are hidden from normal listings. """
 import sys
 import optparse
+
 from acmd import tool, get_current_config, OK
 from acmd import get_tool
 from acmd import list_tools
-
 from acmd.config import DEFAULT_SERVER_SETTING
 from acmd.tools import get_command
 

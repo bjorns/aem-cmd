@@ -1,11 +1,14 @@
 # coding: utf-8
 import sys
 import optparse
+
 import requests
+
 from lxml import html
 
 from acmd import tool, log, error
 from acmd.tools import get_command, get_argument
+
 SERVICE_PATH = '/etc/replication/treeactivation.html'
 
 parser = optparse.OptionParser("acmd replication [options] <activate> <path>")

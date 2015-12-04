@@ -2,10 +2,10 @@
 import sys
 import optparse
 from urlparse import urlparse
-from acmd import tool, log, SERVER_ERROR
 
 import requests
 
+from acmd import tool, log, SERVER_ERROR
 from acmd.tools import get_command
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
@@ -23,6 +23,7 @@ class DispatcherTool(object):
             clear_cache(server, options)
         else:
             parser.print_help()
+
 
 def clear_cache(server, options):
     host_url = urlparse(server.host)
