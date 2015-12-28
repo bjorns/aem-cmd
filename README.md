@@ -400,16 +400,20 @@ Nevertheless here is boilerplate for creating a new tool.
 # coding: utf-8
 from acmd.tool import tool
 
-@tool('catalog')
+@tool('catalog', ['inspect', 'upload'])
 class CatalogTool(object):
     def execute(self, server, argv):
         sys.stdout.write("Hello, world.\n")
 ```
 
 There are two essential parts here. The ```@tool``` decorator takes care of
-declaring the tool so it can be found but acmd. The argument is the label used
-for the tool on the command line. Note that for custom tools declared under
-```[projects]``` a prefix will be added to the tool name.
+declaring the tool so it can be found by acmd. The first argument is the label used
+for the tool on the command line. Note that for custom tools declared
+under ```[projects]``` a prefix will be added to the tool name. The second
+argument is a list of commands available under the tool. Remember that under
+normal circumstances the tool represents a resource and the first argument is
+a command to perform on that resource. This list is used for autocompletion and
+can be omitted for simpler tools.
 
 The ```execute()``` method takes a server argument
 containing all info on the currently selected server and argv is a list of
