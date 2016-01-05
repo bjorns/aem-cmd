@@ -78,7 +78,7 @@ as separate commands.
 
 #### List subpaths:
 
-    $ amcd ls /
+    $ acmd ls /
     index.servlet
     bundles
     rep:policy
@@ -118,7 +118,7 @@ rudimentary type inference is performed recognizing numbers and booleans.
 
     $ acmd setprop prop1="I like cheese",prop2="I also like wine" /content/catalog/product4711
 
-The setprop tool also takes paths on stdin. The folling line sets the property
+The setprop tool also takes paths on stdin. The following line sets the property
 on all nodes under /content/catalog
 
     $ acmd find /content/catalog | acmd setprop prop="I like cheese"
@@ -126,7 +126,7 @@ on all nodes under /content/catalog
 #### Create node
 
 Note that the setprop command will create the path if it does not exist. The
-folowing will create a new folder:
+following will create a new folder:
 
     $ acmd setprop jcr:primaryType=sling:Folder /content/new_folder
 
@@ -139,6 +139,9 @@ Works very similar to setprop, takes multiple paths on stdin and can take
 multiple comma separated property names as prop0,prop1,prop2.
 
 #### Search for properties
+
+The search tool uses the AEM query API to find nodes which contain a given property
+value.
 
     $ acmd search serial_nbr=1234
     /content/catalog/product4711
@@ -157,9 +160,11 @@ The rm tool if given no argument will read node paths from standard input.
 
 ### Packages
 
-The packages tool support up- and downloading, installing and uninstalling
+The packages tool supports up- and downloading, installing and uninstalling
 packages. If you install the bash completion script, package names will be
-autocompleted.
+autocompleted. In addition to autocomplete the tool also automatically finds
+group and version of the latest package so only the simple package name needs
+to be supplied as argument.
 
 #### List packages
 
@@ -191,9 +196,9 @@ overlaying grops or you want a specific version you may specify them using the
 
 #### Upload package
 
+You may install a properly generated package zip e.g. downloaded from another instance.
+
     $ acmd packages upload new-catalog-1.0.zip
-
-
 
 
 ### Users tool
@@ -222,7 +227,7 @@ overlaying grops or you want a specific version you may specify them using the
     ....
 
 The list action is the default action of the groups tool so ```acmd groups```
-will actually suffice.
+will suffice.
 
 #### Create group
 
@@ -238,7 +243,9 @@ will actually suffice.
 ### Bundles
 
 The bundles tool can list, start and stop jackrabbit OSGi bundles. If you
-install the bash completion script bundle names will be autocompleted.
+install the bash completion script bundle names will be autocompleted. Like
+the packages tool, the group and version of the bundle will be inferred
+for all commands.
 
 #### List bundles
 
