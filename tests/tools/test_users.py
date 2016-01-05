@@ -47,7 +47,7 @@ def test_create_user(stderr, stdout):
 def setprop_service_mock(url, request):
     with open('tests/test_data/create_user_response.html', 'rb') as f:
         data = f.read()
-    eq_('profile%2Fprop0=val0&profile%2Fprop1=Quoted+value', request.body)
+    eq_('profile%2Fprop0=val0&profile%2Fprop1=Quoted+value&profile%2Fprop1%40TypeHint=String', request.body)
     return {
         'status_code': 200,
         'content': data

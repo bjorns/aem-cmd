@@ -24,20 +24,27 @@ def test_parser_properties():
     x = 'key0="value0",key1="value1"'
     props = parse_properties(x)
     eq_('value0', props['key0'])
+    eq_('String', props['key0@TypeHint'])
     eq_('value1', props['key1'])
-    eq_(2, len(props))
+    eq_('String', props['key1@TypeHint'])
+    eq_(4, len(props))
 
     x = 'key0="value0",key1="Sentence with \\"quotes in it\\""'
     props = parse_properties(x)
+
+    eq_(4, len(props))
     eq_('value0', props['key0'])
+    eq_('String', props['key0@TypeHint'])
     eq_('Sentence with \\"quotes in it\\"', props['key1'])
-    eq_(2, len(props))
+    eq_('String', props['key1@TypeHint'])
 
     x = 'key0="value0",key1="Sentence, with comma in it"'
     props = parse_properties(x)
+    eq_(4, len(props))
     eq_('value0', props['key0'])
+    eq_('String', props['key0@TypeHint'])
     eq_('Sentence, with comma in it', props['key1'])
-    eq_(2, len(props))
+    eq_('String', props['key1@TypeHint'])
 
 
 @urlmatch(netloc='localhost:4502', method='POST')

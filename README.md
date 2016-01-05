@@ -113,7 +113,8 @@ as separate commands.
 
 
 Multiple properties can be set comma separated. Just quote the values if there
-are commas or spaces in the values.
+are commas or spaces in the values. Quoting will also force the type to string, otherwise
+rudimentary type inference is performed recognizing numbers and booleans.
 
     $ acmd setprop prop1="I like cheese",prop2="I also like wine" /content/catalog/product4711
 

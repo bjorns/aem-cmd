@@ -12,14 +12,16 @@ def test_parse_simple_prop():
 
 def test_parse_quoted_prop():
     y = parse_properties("name=\"John Doe\"")
-    eq_(1, len(y))
+    eq_(2, len(y))
     eq_('John Doe', y['name'])
+    eq_('String', y['name@TypeHint'])
 
 
 def test_parse_double_quoted_prop():
     y = parse_properties('name="John \\"The machine\\" Doe"')
-    eq_(1, len(y))
+    eq_(2, len(y))
     eq_('John \\"The machine\\" Doe', y['name'])
+    eq_('String', y['name@TypeHint'])
 
 
 def test_parse_multi_props():
@@ -41,3 +43,11 @@ def test_parse_integer():
     eq_(2, len(y))
     eq_('7', y['nbr_dwarves'])
     eq_('Long', y['nbr_dwarves@TypeHint'])
+
+
+def test_parse_quoted_number():
+    y = parse_properties("answer=\"42\"")
+    eq_(2, len(y))
+    eq_('42', y['answer'])
+    eq_('String', y['answer@TypeHint'])
+
