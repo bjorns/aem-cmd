@@ -14,3 +14,6 @@ __pycache__
 test_reports
 
 mock_package-1.6.5.zip
+
+# Puppet stuff
+puppet-module/pkg
