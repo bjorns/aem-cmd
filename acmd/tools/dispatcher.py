@@ -26,27 +26,5 @@ class DispatcherTool(object):
 
 
 def clear_cache(server, options):
-    host_url = urlparse(server.host)
-
-    headers = {
-        'Host': host_url.hostname,
-        'CQ-Action': 'DELETE',
-        'CQ-Handle': '/',
-        'CQ-Path': '/'
-    }
-
-    host = server.dispatcher if server.dispatcher is not None else server.host
-    url = '{host}{path}'.format(host=host, path='/dispatcher/invalidate.cache')
-    log("Clearing cache with request to {}".format(url))
-    response = requests.get(url, auth=server.auth, headers=headers)
-    if response.status_code != 200:
-        sys.stderr.write("error: " + str(response.status_code) + "\n")
-        return SERVER_ERROR
-    if "<H1>OK</H1>" not in response.content:
-        sys.stderr.write("error: Failed to validate response '{}'\n".format(response.content.strip()))
-        return SERVER_ERROR
-
-    if options.raw:
-        sys.stdout.write(response.content + "\n")
-    else:
-        sys.stdout.write("OK\n")
+    raise Exception("""The service for clearing dispatcher cache is not safe
+        and therefor support has been removed""")

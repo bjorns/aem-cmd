@@ -301,13 +301,6 @@ cq-groovy-console bundle and go to
 [http://localhost:4502/etc/groovyconsole.html](http://localhost:4502/etc/groovyconsole.html)
 
 
-### Replication
-
-Activate tree:
-
-    $ acmd replication activate /content/catalog
-    Activated 130 of 130 resources in 4 seconds.
-
 ### Storage
 
 The backend storage tool can trigger optimization jobs.
@@ -362,21 +355,6 @@ flag. Like for example
 
     $ acmd -s prod-author bundles
     ....
-
-#### Dispatcher
-
-Since the dispatcher service is not always accessible at the same host as the
-normal service an extra setting 'dispatcher' can be added to the config like so.
-
-    [server publish]
-    host=http://publish.prod-backend.com:4502
-    dispatcher=http://publish.public-access.com
-
-No you can clear the dispatcher cache without adding extra servers for the
-dispatcher.
-
-    $ acmd -s publish dispatcher clear
-
 
 ### Projects
 
