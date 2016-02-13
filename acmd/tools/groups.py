@@ -5,9 +5,8 @@ import optparse
 
 import requests
 
-from lxml import html
 
-from acmd import tool
+from acmd import tool, html
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
 from acmd.tools import get_command, get_argument, filter_system
 
@@ -55,8 +54,7 @@ def create_group(server, options, name):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     else:
-        tree = html.fromstring(resp.text)
-        path = tree.xpath('//div[@id="Path"]/text()')[0]
+        path = html.parse_value(resp.text, 'div', 'Path')
         sys.stdout.write("{}\n".format(path))
     return OK
 
@@ -79,8 +77,7 @@ def add_user(server, options, groupname, username):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     else:
-        tree = html.fromstring(resp.text)
-        path = tree.xpath('//div[@id="Path"]/text()')[0]
+        path = html.parse_value(resp.text, 'div', 'Path')
         sys.stdout.write("{}\n".format(path))
     return OK
 

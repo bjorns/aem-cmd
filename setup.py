@@ -52,7 +52,7 @@ config = {
     'classifiers': classifiers,
 
     # Build specs
-    'install_requires': ['requests', 'lxml'],
+    'install_requires': ['requests'],
     'packages': ['acmd', 'acmd.tools'],
     'package_data': {'acmd': ['data/acmd.rc.template', 'data/acmd.bash_completion']},
     'scripts': ['bin/acmd']

@@ -5,9 +5,7 @@ import json
 
 import requests
 
-from lxml import html
-
-from acmd import tool, parse_properties
+from acmd import tool, html, parse_properties
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
 from acmd.tools import get_argument, get_command, filter_system
 
@@ -80,8 +78,7 @@ def create_user(server, options, username):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     else:
-        tree = html.fromstring(resp.text)
-        path = tree.xpath('//div[@id="Path"]/text()')[0]
+        path = html.parse_value(resp.text, 'div', 'Path')
         sys.stdout.write("{}\n".format(path))
     return OK
 
