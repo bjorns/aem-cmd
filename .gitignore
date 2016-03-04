@@ -2,6 +2,7 @@
 
 # IDE
 aem-cmd.iml
+.idea
 
 # Dist residuals
 dist
