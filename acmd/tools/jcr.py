@@ -173,7 +173,9 @@ def rm_node(server, options, path):
 
 @tool('setprop')
 class SetPropertyTool(object):
-    """ curl -u admin:admin -X POST --data test=sample  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+    """ curl -u admin:admin -X POST --data test=sample
+            http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
+    """
 
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
@@ -189,7 +191,9 @@ class SetPropertyTool(object):
 
 
 def set_node_properties(server, options, path, props):
-    """ curl -u admin:admin -X POST --data test=sample  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+    """ curl -u admin:admin -X POST --data test=sample
+            http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
+    """
     url = server.url(path)
     resp = requests.post(url, auth=server.auth, data=props)
     if resp.status_code != 200:
@@ -204,7 +208,9 @@ def set_node_properties(server, options, path, props):
 
 @tool('rmprop')
 class DeletePropertyTool(object):
-    """ curl -u admin:admin -X POST --data test@Delete=  http://localhost:4502/content/geometrixx/en/toolbar/jcr:content """
+    """ curl -u admin:admin -X POST --data test@Delete=
+            http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
+    """
 
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)

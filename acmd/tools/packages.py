@@ -185,27 +185,33 @@ def json_bool(val):
 
 def upload_package(server, options, filename):
     """ curl -u admin:admin -F file=@"name of zip file" -F name="name of package"
-            -F force=true -F install=false http://localhost:4505/crx/packmgr/service.jsp """
+            -F strict=true -F install=false http://localhost:4505/crx/packmgr/service.jsp """
     form_data = dict(
         file=(filename, open(filename, 'rb'), 'application/zip', dict()),
         name=filename.rstrip('.zip'),
-        force=json_bool(options.install),
+        strict="true",
         install=json_bool(options.install)
     )
     log(form_data)
     url = server.url(SERVICE_PATH)
+    log("POSTing to {}".format(url))
     resp = requests.post(url, auth=server.auth, files=form_data)
+    log("Got status %s" % str(resp.content))
 
     if resp.status_code != 200:
         error('Failed to upload paackage: {}: {}'.format(resp.status_code, resp.content))
         return SERVER_ERROR
-    if options.raw:
-        sys.stdout.write("{}\n".format(resp.content))
+        if options.raw:
+            sys.stdout.write("{}\n".format(resp.content))
     else:
-        tree = ElementTree.fromstring(resp.content)
-        pkg_elem = tree.find('response').find('data').find('package')
-        pkg = parse_package(pkg_elem)
-        sys.stdout.write("{}\n".format(format_package(pkg)))
+        try:
+            tree = ElementTree.fromstring(resp.content)
+            pkg_elem = tree.find('response').find('data').find('package')
+            pkg = parse_package(pkg_elem)
+            sys.stdout.write("{}\n".format(format_package(pkg)))
+        except:
+            sys.stderr.write('error: Failed to parse response\n')
+            return SERVER_ERROR
     return OK
 
 
