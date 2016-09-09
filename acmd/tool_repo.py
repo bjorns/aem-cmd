@@ -1,5 +1,7 @@
 # coding: utf-8
 import os
+import sys
+
 from acmd import log
 
 _tools = dict()
@@ -29,7 +31,13 @@ def tool(tool_name, commands=None):
 
 def import_tools(path, package=None):
     module = None
-    for module in os.listdir(os.path.dirname(path)):
+    try:
+        modules = os.listdir(os.path.dirname(path))
+    except OSError:
+        sys.stderr.write("error: Failed to load modules in {}".format(path))
+        modules = []
+        pass
+    for module in modules:
         if module == '__init__.py' or module[-3:] != '.py':
             continue
         if package is not None:
