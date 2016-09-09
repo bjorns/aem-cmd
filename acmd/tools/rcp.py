@@ -13,7 +13,6 @@ from acmd import tool, log, error, warning
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
-
 parser = optparse.OptionParser("acmd rcp [options] [list|fetch] [path]")
 parser.add_option("-s", "--source-host",
                   dest="source_host", help="Specify source hostname eg. qa-author:4502")
@@ -30,6 +29,11 @@ parser.add_option("-r", "--raw",
 
 @tool('rcp', ['list', 'fetch', 'start', 'rm'])
 class VltRcpTool(object):
+    """ This tool requires the vault rcp bundle to be installed in both source and target installation
+
+        Documentation: http://jackrabbit.apache.org/filevault/rcp.html#
+    """
+
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
@@ -106,10 +110,10 @@ def fetch_tree_synchronous(server, options, content_path):
     if status != OK:
         error("Failed to fetch {} from {}".format(content_path, options.source_host))
         return status
-    time.sleep(3)
+
     status, task = get_task_status(server, task_id)
-    if task_state(task) != 'NEW':
-        error("Failed to locate new task {}".format(task_id))
+    if task['status']['state'] != 'NEW':
+        error("Failed to locsate new task {}".format(task_id))
         return SERVER_ERROR
 
     status = start_task(server, task_id)
@@ -124,7 +128,7 @@ def fetch_tree_synchronous(server, options, content_path):
 
 
 def random_hex(num_chars):
-    lst = [random.choice("abcdef" + string.digits) for n in xrange(num_chars)]
+    lst = [random.choice("abcdef" + string.digits) for _ in xrange(num_chars)]
     return ''.join(lst)
 
 
@@ -133,6 +137,7 @@ def _create_task_id():
 
 
 def create_task(server, options, task_id, content_path):
+    """ Create a new task, does not start it """
     log("Creating task {}".format(task_id))
     payload = {
         "cmd": "create",
@@ -147,17 +152,10 @@ def create_task(server, options, task_id, content_path):
         "update": True,
         "onlyNewer": False,
         "recursive": True,
-        "throttle": 1,
-        # "resumeFrom": "/content/geometrixx/fr",
-        # "excludes": [
-        #     "/content/geometrixx/(en|fr)/tools(/.*)?"
-        # ]
+        "throttle": 1
     }
     url = server.url("/system/jackrabbit/filevault/rcp")
-
-
     resp = requests.post(url, auth=server.auth, json=payload)
-
     if resp.status_code != 201:
         error("Failed to create task, request returned {} and {}\n".format(resp.status_code, resp.content))
         return SERVER_ERROR
@@ -166,19 +164,21 @@ def create_task(server, options, task_id, content_path):
 
 
 def start_task(server, task_id):
+    """ Returns OK on success """
     log("Starting task {}".format(task_id))
-    status, content = send_command(server, task_id, 'start')
-
+    status, content = post_command(server, task_id, 'start')
     return status
 
 
 def remove_task(server, task_id):
+    """ Delete task - returns OK on success """
     log("Removing task {}".format(task_id))
-    status, content = send_command(server, task_id, 'remove')
+    status, _ = post_command(server, task_id, 'remove')
     return status
 
 
 def clear_tasks(server):
+    """ Remove all tasks """
     status, content = get_task_list(server)
     if status != OK:
         return status
@@ -189,7 +189,9 @@ def clear_tasks(server):
 
     return OK
 
+
 def get_task_status(server, task_id):
+    """ Return all data on a single task """
     status, content = get_task_list(server)
     for task in content['tasks']:
         if task['id'] == task_id:
@@ -197,25 +199,19 @@ def get_task_status(server, task_id):
     return SERVER_ERROR, None
 
 
-def task_state(task):
-    if 'status' not in task:
-        return 'ERROR'
-    status = task['status']
-    if 'state' not in status:
-        return 'ERROR'
-    return status['state']
-
-
 def wait_for_task(server, task_id):
+    """ Wait until task finishes """
     is_running = True
     while is_running:
         status, task = get_task_status(server, task_id)
-        is_running = task_state(task) == 'RUNNING'
+        is_running = task['status']['state'] == 'RUNNING'
         time.sleep(1)
     return OK
 
 
-def send_command(server, task_id, cmd):
+def post_command(server, task_id, cmd):
+    """ Generic function for sending simple POST requests """
+
     payload = {
         'id': task_id,
         'cmd': cmd

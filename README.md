@@ -301,6 +301,37 @@ cq-groovy-console bundle and go to
 [http://localhost:4502/etc/groovyconsole.html](http://localhost:4502/etc/groovyconsole.html)
 
 
+### Remote Copy (rcp)
+
+Note: the rcp tool requires the JackRabbit
+[Vault rcp bundle](http://jackrabbit.apache.org/filevault/rcp.html)
+
+The rcp tool allows the user to copy large repositories of data between two
+aem instances without large packages or configuring replication.
+
+Rcp is implemented as a fetch operation. You call the destination server,
+give it the url to the source data and it will start a job to fetch the
+data.
+
+    $ acmd -s uat rcp fetch --source-host prod-author:4502 /content/dam/mysite
+
+The fetch operation is a synchronous macro operation. For very large
+operations you can also utilize the async low level commands but creating a task
+and managing it on your own. The create operation prints the newly created
+task id. This id is then used as a reference when managing the task.
+
+    $ acmd rcp create --source-host prod-author:4502 /content/dam/mysite
+    rcp-45cfa2
+    $ acmd rcp ls
+    rcp-45cfa2  NEW     /content/dam/mysite
+    $ acmd rcp start rcp-45cfa2
+    $ acmd rcp ls
+    rcp-45cfa2  RUNNING     /content/dam/mysite
+    ...
+    $ acmd rcp ls
+    rcp-45cfa2  ENDED     /content/dam/mysite
+    $ acmd rcp rm rcp-45cfa2
+
 ### Storage
 
 The backend storage tool can trigger optimization jobs.
