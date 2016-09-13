@@ -6,6 +6,7 @@ import optparse
 from acmd import tool, get_current_config, OK
 from acmd import get_tool
 from acmd import list_tools
+from acmd import error, USER_ERROR
 from acmd.config import DEFAULT_SERVER_SETTING
 from acmd.tools import get_command
 
@@ -32,6 +33,10 @@ class IntrospectTool(object):
             print_servers(sys.stdout)
         else:
             _tool = get_tool(arg)
+            if _tool is None:
+                error("No tool named {} found".format(arg))
+                print_tools(sys.stderr, options.compact)
+                return USER_ERROR
             if options.compact:
                 for cmd in _tool.commands:
                     sys.stdout.write("{}\n".format(cmd))
