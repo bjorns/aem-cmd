@@ -34,6 +34,7 @@ class VltRcpTool(object):
 
         Documentation: http://jackrabbit.apache.org/filevault/rcp.html#
     """
+
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
@@ -58,7 +59,6 @@ class VltRcpTool(object):
 
 
 def list_rcp_tasks(server, options):
-
     def _get_hostname(url):
         parts = url.split('/crx')
         if len(parts) < 2:
@@ -248,5 +248,3 @@ def fetch_tree_synchronous(server, options, content_path):
 
     remove_task(server, task_id)
     return OK
-
-

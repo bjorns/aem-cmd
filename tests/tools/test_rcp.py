@@ -42,7 +42,6 @@ def get_service_mock(url, request):
 posted_data = None
 
 
-
 def tabbed(lines):
     lines = ['\t'.join(l) for l in lines]
     return '\n'.join(lines) + '\n'
@@ -68,15 +67,30 @@ def test_rcp_ls(stderr, stdout):
 def post_service_mock(url, request):
     global posted_data
 
-    if url.path == '/system/jackrabbit/filevault/rcp':
-        posted_data = json.loads(request.body)
+    eq_('/system/jackrabbit/filevault/rcp', url.path)
+    posted_data = json.loads(request.body)
+
+    if posted_data['cmd'] == 'create':
         return {
             'status_code': 201,
             'content': '{"status": "ok", "id": "rcp-0ed9f8"}'
         }
-
+    elif posted_data['cmd'] == 'start':
+        eq_('rcp-0ed9f8', posted_data['id'])
+        body = json.dumps({
+            "status": "ok",
+            "id": "rcp-0ed9f8"
+        })
+        return body
+    elif posted_data['cmd'] == 'remove':
+        eq_('rcp-0ed9f8', posted_data['id'])
+        body = json.dumps({
+            "status": "ok",
+            "id": "rcp-0ed9f8"
+        })
+        return body
     else:
-        raise Exception("Unexpected post uri {}".format(url))
+        raise Exception("Unknown command " + posted_data['cmd'])
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -85,10 +99,35 @@ def test_rcp_create(stderr, stdout):
     with HTTMock(post_service_mock):
         tool = get_tool('rcp')
         server = Server('localhost')
-        status = tool.execute(server, ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '/content/dam/data'])
+        status = tool.execute(server,
+                              ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '/content/dam/data'])
 
         eq_('http://user:pass@other-host:4502/crx/-/jcr:root/content/dam/data', posted_data['src'])
 
         eq_(0, status)
         eq_('rcp-0ed9f8\n', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rcp_start(stderr, stdout):
+    with HTTMock(post_service_mock):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        status = tool.execute(server, ['rcp', 'start', 'rcp-0ed9f8'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rcp_rm(stderr, stdout):
+    with HTTMock(post_service_mock):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        status = tool.execute(server, ['rcp', 'rm', 'rcp-0ed9f8'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
