@@ -10,6 +10,7 @@ import requests
 
 from acmd import OK, USER_ERROR, SERVER_ERROR
 from acmd import tool, log, error, warning
+from acmd.tools.tool_utils import get_argument, get_command
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
@@ -37,36 +38,22 @@ class VltRcpTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_action(args)
-        actionarg = get_argument(args)
+        action = get_command(args, default='list')
+        argument = get_argument(args)
 
         if action == 'list' or action == 'ls':
             return list_rcp_tasks(server, options)
         elif action == 'fetch':
-            return fetch_tree_synchronous(server, options, actionarg)
+            return fetch_tree_synchronous(server, options, argument)
         elif action == 'start':
-            return start_task(server, actionarg)
+            return start_task(server, argument)
         elif action == 'rm':
-            return remove_task(server, actionarg)
+            return remove_task(server, argument)
         elif action == 'clear':
             clear_tasks(server)
         else:
             error("Unknown rcp action {a}\n".format(a=action))
             return USER_ERROR
-
-
-def get_action(argv):
-    if len(argv) < 2:
-        return 'list'
-    else:
-        return argv[1]
-
-
-def get_argument(argv):
-    if len(argv) < 3:
-        return None
-    else:
-        return argv[2]
 
 
 def list_rcp_tasks(server, options):
