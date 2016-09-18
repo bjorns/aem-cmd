@@ -50,7 +50,7 @@ class VltRcpTool(object):
         elif action == 'rm':
             return remove_task(server, argument)
         elif action == 'clear':
-            clear_tasks(server)
+            return clear_tasks(server)
         elif action == 'fetch':
             return fetch_tree_synchronous(server, options, argument)
         else:
@@ -235,6 +235,7 @@ def fetch_tree_synchronous(server, options, content_path):
         return status
 
     status, task = get_task_status(server, task_id)
+    log("Debug {}".format(json.dumps(task, indent=4)))
     if task['status']['state'] != 'NEW':
         error("Failed to locsate new task {}".format(task_id))
         return SERVER_ERROR
