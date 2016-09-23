@@ -27,6 +27,9 @@ parser.add_option("-p", "--content-path",
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
+parser.add_option("-f", "--force",
+                  action="store_const", const=True, dest="force",
+                  help="Skip security checks when running tasks")
 
 
 @tool('rcp', ['list', 'fetch', 'start', 'rm'])
@@ -47,7 +50,7 @@ class VltRcpTool(object):
         if action == 'create':
             return create_new_task(server, argument, options)
         elif action == 'start':
-            return start_task(server, argument)
+            return start_task(server, argument, options.force)
         elif action == 'remove' or action == 'rm':
             return remove_task(server, argument)
         elif action == 'clear':
@@ -55,7 +58,7 @@ class VltRcpTool(object):
         elif action == 'fetch':
             return fetch_tree_synchronous(server, options, argument)
         else:
-            error("Unknown rcp action {a}\n".format(a=action))
+            error("Unknown rcp action {a}".format(a=action))
             return USER_ERROR
 
 
@@ -92,7 +95,7 @@ def _get_task_list(server):
     resp = requests.get(url, auth=server.auth)
 
     if resp.status_code != 200:
-        error("Failed to list rcp tasks, request returned {}\n".format(resp.status_code))
+        error("Failed to list rcp tasks, request returned {}".format(resp.status_code))
         return SERVER_ERROR, None
 
     return OK, resp.json()
@@ -147,7 +150,7 @@ def _create_task(server, task_id, content_path, options):
     url = server.url("/system/jackrabbit/filevault/rcp")
     resp = requests.post(url, auth=server.auth, json=payload)
     if resp.status_code != 201:
-        error("Failed to create task, request returned {} and {}\n".format(resp.status_code, resp.content))
+        error("Failed to create task, request returned {} and {}".format(resp.status_code, resp.content))
         return SERVER_ERROR, None
 
     return OK, resp.json()
@@ -161,10 +164,10 @@ def get_bundle_status(server, bundle_name):
     raise Exception("Failed to locate bundle {}".format(bundle_name))
 
 
-def start_task(server, task_id):
+def start_task(server, task_id, force=False):
     """ Returns OK on success """
     bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
-    if bundle['state'] == 'Active':
+    if not force and bundle['state'] == 'Active':
         error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
               " is active. It might bog down the server in unnecessary workflow.")
         return SERVER_ERROR
@@ -227,7 +230,7 @@ def post_command(server, task_id, cmd):
 
     if resp.status_code != 200:
         error(
-            "Failed to send command {cmd} to rcp task {taskid}, request returned {status} and {content}\n".format(
+            "Failed to send command {cmd} to rcp task {taskid}, request returned {status} and {content}".format(
                 cmd=cmd,
                 taskid=task_id,
                 status=resp.status_code,
@@ -255,7 +258,7 @@ def fetch_tree_synchronous(server, options, content_path):
         error("Failed to locsate new task {}".format(task_id))
         return SERVER_ERROR
 
-    status = start_task(server, task_id)
+    status = start_task(server, task_id, options.force)
     if status != OK:
         error("Failed to fetch {} from {}, task {} did not start".format(content_path, options.source_host, task_id))
         return status
