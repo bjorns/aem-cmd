@@ -10,6 +10,7 @@ import requests
 
 from acmd import OK, USER_ERROR, SERVER_ERROR
 from acmd import tool, log, error, warning
+from acmd.tools.bundles import get_bundle_list
 from acmd.tools.tool_utils import get_argument, get_command
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
@@ -47,7 +48,7 @@ class VltRcpTool(object):
             return create_new_task(server, argument, options)
         elif action == 'start':
             return start_task(server, argument)
-        elif action == 'rm':
+        elif action == 'remove' or action == 'rm':
             return remove_task(server, argument)
         elif action == 'clear':
             return clear_tasks(server)
@@ -152,8 +153,22 @@ def _create_task(server, task_id, content_path, options):
     return OK, resp.json()
 
 
+def get_bundle_status(server, bundle_name):
+    bundle_list = get_bundle_list(server)
+    for bundle in bundle_list:
+        if bundle['symbolicName'] == bundle_name:
+            return bundle
+    raise Exception("Failed to locate bundle {}".format(bundle_name))
+
+
 def start_task(server, task_id):
     """ Returns OK on success """
+    bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
+    if bundle['state'] == 'Active':
+        error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
+              " is active. It might bog down the server in unnecessary workflow.")
+        return SERVER_ERROR
+
     log("Starting task {}".format(task_id))
     status, content = post_command(server, task_id, 'start')
     return status

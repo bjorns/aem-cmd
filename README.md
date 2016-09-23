@@ -440,3 +440,22 @@ for info on how to use the optparse package to add tool specific options.
 And that is pretty much it. The tool does not have to have any specific name
 (though a -Tool suffix is idiomatic), and it does not have to inherit any
 specific class.
+
+
+
+## Other tools, recommendations and shout outs
+
+### OAK-run
+
+https://github.com/apache/jackrabbit-oak/tree/trunk/oak-run
+
+### PCMD
+
+The inspiration for acmd comes from the Polopoly CMS command line tools.
+
+https://github.com/polopolyps/pcmd
+
+
+AEM Curl command reference
+
+https://gist.github.com/sergeimuller/2916697
