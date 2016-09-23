@@ -153,7 +153,8 @@ def test_rcp_start(stderr, stdout):
     with HTTMock(service):
         tool = get_tool('rcp')
         server = Server('localhost')
-        status = tool.execute(server, ['rcp', 'start', 'rcp-0ed9f8'])
+        # TODO: Run tests without force flag
+        status = tool.execute(server, ['rcp', 'start', 'rcp-0ed9f8', '--force'])
         eq_(0, status)
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -183,8 +184,9 @@ def test_rcp_fetch(stderr, stdout):
     with HTTMock(service):
         tool = get_tool('rcp')
         server = Server('localhost')
+        # TODO: Run tests without force flag
         status = tool.execute(server, ['rcp', 'fetch', '-s', 'other-server:4502', '-c',
-                                       '"jdoe:abc123"', '/content/dam/test-fetch'])
+                                       '"jdoe:abc123"', '/content/dam/test-fetch', '--force'])
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
         eq_(0, status)

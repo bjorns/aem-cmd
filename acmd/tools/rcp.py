@@ -166,11 +166,12 @@ def get_bundle_status(server, bundle_name):
 
 def start_task(server, task_id, force=False):
     """ Returns OK on success """
-    bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
-    if not force and bundle['state'] == 'Active':
-        error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
-              " is active. It might bog down the server in unnecessary workflow.")
-        return SERVER_ERROR
+    if not force:
+        bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
+        if bundle['state'] == 'Active':
+            error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
+                  " is active. It might bog down the server in unnecessary workflow.")
+            return SERVER_ERROR
 
     log("Starting task {}".format(task_id))
     status, content = post_command(server, task_id, 'start')
