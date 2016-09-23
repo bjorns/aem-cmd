@@ -22,8 +22,6 @@ parser.add_option("-c", "--source-credentials",
                   dest="source_credentials",
                   help="Specify remote server username and password as <u>:<p>, defaults to 'admin:admin'",
                   default='admin:admin')
-parser.add_option("-p", "--content-path",
-                  dest="content_path", help="Specify content path to copy e.g. /content/geometrixx")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
