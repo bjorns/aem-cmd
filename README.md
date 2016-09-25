@@ -12,8 +12,19 @@ Mostly it depends on the Sling json apis for interfacing.
 
 ### Installation
 
-acmd is available in PyPI. To install, simply call pip like any other python
-package.
+#### Quick install
+
+A quick install script is provided for convenience:
+
+    $ curl https://raw.githubusercontent.com/bjorns/aem-cmd/master/get-acmd.sh | bash
+
+Note: The install script requires sudo access. There is always a risk to
+running arbitrary code off the internet like this.
+
+#### Manual install
+
+For manual install, acmd is available in PyPI. To install, simply call pip like
+any other python package.
 
     $ pip install aem-cmd
     ...
@@ -25,7 +36,7 @@ package.
       -h, --help            show this help message and exit
       -s str, --server=str  server name
 
-### Bash Completion
+#### Bash Completion
 
 Acmd comes with a bash completion script but for technical reason it cannot
 be installed by pip so to install it use the install_bash_completion command.
@@ -34,11 +45,11 @@ be installed by pip so to install it use the install_bash_completion command.
     Password:
     Installed bash completion script in /etc/bash_completion.d
 
-The bash completion works best in bash 4. Due to licensing issues Mac OS still
+Note 1: The bash completion works best in bash 4. Due to licensing issues Mac OS still
 comes with bash 3 by default but it is possible to upgrade. See
 [here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
 
-
+Note 2: The quick install scripts automatically adds the bash completion.
 
 
 ## Tools
@@ -448,4 +459,3 @@ specific class.
 * The inspiration for acmd comes from the Polopoly CMS command line tools - https://github.com/polopolyps/pcmd
 * The AEM Curl command reference was incredibly helpful during the development of acmd - https://gist.github.com/sergeimuller/2916697
 * oak-run is a another great command line tool for maintaining AEM instances - https://github.com/apache/jackrabbit-oak/tree/trunk/oak-run
-

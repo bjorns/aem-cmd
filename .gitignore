@@ -18,3 +18,7 @@ mock_package-1.6.5.zip
 
 # Puppet stuff
 puppet-module/pkg
+
+# Vagrant testing
+Vagrantfile
+.vagrant
