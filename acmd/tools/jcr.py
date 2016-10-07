@@ -10,7 +10,7 @@ from acmd import tool, log
 from acmd import OK, SERVER_ERROR, USER_ERROR
 from acmd.props import parse_properties
 
-parser = optparse.OptionParser("acmd <ls|cat|find> [options] <jcr path>")
+parser = optparse.OptionParser("acmd <ls|cat|find|mv|setprop|rmprop> [options] <jcr path>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
@@ -197,7 +197,8 @@ def set_node_properties(server, options, path, props):
     url = server.url(path)
     resp = requests.post(url, auth=server.auth, data=props)
     if resp.status_code != 200:
-        sys.stderr.write("error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
+        sys.stderr.write(
+            "error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
         return SERVER_ERROR
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
@@ -235,10 +236,72 @@ def rm_node_properties(server, options, prop_names, path):
     url = server.url(path)
     resp = requests.post(url, auth=server.auth, data=props)
     if resp.status_code != 200:
-        sys.stderr.write("error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
+        sys.stderr.write(
+            "error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
         return SERVER_ERROR
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     else:
         sys.stdout.write("{}\n".format(path))
     return OK
+
+
+@tool('cp')
+class CopyTool(object):
+
+    @staticmethod
+    def execute(server, argv):
+        parser.set_usage("%prog cp <src-path> <dst-path>")
+        options, args = parser.parse_args(argv)
+        if len(args) < 3:
+            parser.print_help()
+            return USER_ERROR
+        src_path = args[1]
+        dst_path = args[2]
+
+        data = {":operation": "copy", ":dest": dst_path}
+        url = server.url(src_path)
+        data[":applyTo"] = list()
+        for i in args:
+            data[":applyTo"].append(i)
+
+        resp = requests.post(url, auth=server.auth, data=data)
+        if resp.status_code != 200 and resp.status_code != 201:
+            log.error("Failed to copy, request returned {}".format(resp.status_code))
+            return SERVER_ERROR
+
+        if options.raw:
+            sys.stdout.write("{}\n".format(resp.content))
+        else:
+            sys.stdout.write("{}\n".format(dst_path))
+        return OK
+
+
+@tool('mv')
+class MoveTool(object):
+    @staticmethod
+    def execute(server, argv):
+        options, args = parser.parse_args(argv)
+        if len(args) < 3:
+            parser.print_help()
+            return USER_ERROR
+
+        src_path = args[1]
+        dst_path = args[2]
+
+        data = {":operation": "move", ":dest": dst_path}
+        url = server.url(src_path)
+        data[":applyTo"] = list()
+        for i in args:
+            data[":applyTo"].append(i)
+
+        resp = requests.post(url, auth=server.auth, data=data)
+        if resp.status_code != 200 and resp.status_code != 201:
+            log.error("Failed to move, request returned {}".format(resp.status_code))
+            return SERVER_ERROR
+
+        if options.raw:
+            sys.stdout.write("{}\n".format(resp.content))
+        else:
+            sys.stdout.write("{}\n".format(dst_path))
+        return OK
