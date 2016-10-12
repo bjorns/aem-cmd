@@ -32,6 +32,10 @@ class MockTaskService(object):
         self.log.append('start')
         self.tasks[task_id]['status']['state'] = 'RUNNING'
 
+    def stop_task(self, task_id):
+        self.log.append('stop')
+        self.tasks[task_id]['status']['state'] = 'STOPPED'
+
     def remove_task(self, task_id):
         self.log.append('remove')
         del self.tasks[task_id]
@@ -78,6 +82,14 @@ class MockHttpService(object):
         elif data['cmd'] == 'start':
             task_id = data['id']
             self.task_service.start_task(task_id)
+            body = json.dumps({
+                "status": "ok",
+                "id": task_id
+            })
+            return body
+        elif data['cmd'] == 'stop':
+            task_id = data['id']
+            self.task_service.stop_task(task_id)
             body = json.dumps({
                 "status": "ok",
                 "id": task_id
@@ -158,6 +170,28 @@ def test_rcp_start(stderr, stdout):
         eq_(0, status)
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
+
+    eq_('RUNNING', task_service.tasks['rcp-0ed9f8']['status']['state'])
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rcp_stop(stderr, stdout):
+    task_service = MockTaskService()
+    task_service.create_task('rcp-0ed9f8', '/content/dam/something')
+    task_service.start_task('rcp-0ed9f8')
+    service = MockHttpService(task_service)
+
+    with HTTMock(service):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        # TODO: Run tests without force flag
+        status = tool.execute(server, ['rcp', 'stop', 'rcp-0ed9f8', '--force'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+    eq_('STOPPED', task_service.tasks['rcp-0ed9f8']['status']['state'])
+
 
 
 @patch('sys.stdout', new_callable=StringIO)

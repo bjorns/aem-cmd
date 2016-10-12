@@ -30,7 +30,7 @@ parser.add_option("-f", "--force",
                   help="Skip security checks when running tasks")
 
 
-@tool('rcp', ['list', 'fetch', 'start', 'rm'])
+@tool('rcp', ['list', 'fetch', 'start', 'stop', 'rm'])
 class VltRcpTool(object):
     """ This tool requires the vault rcp bundle to be installed in both source and target installation
 
@@ -48,7 +48,9 @@ class VltRcpTool(object):
         if action == 'create':
             return create_new_task(server, argument, options)
         elif action == 'start':
-            return start_task(server, argument, options.force)
+            return start_task(server, argument, options)
+        elif action == 'stop':
+            return stop_task(server, argument, options)
         elif action == 'remove' or action == 'rm':
             return remove_task(server, argument)
         elif action == 'clear':
@@ -162,9 +164,9 @@ def get_bundle_status(server, bundle_name):
     raise Exception("Failed to locate bundle {}".format(bundle_name))
 
 
-def start_task(server, task_id, force=False):
+def start_task(server, task_id, options):
     """ Returns OK on success """
-    if not force:
+    if not options.force:
         bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
         if bundle['state'] == 'Active':
             error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
@@ -173,6 +175,18 @@ def start_task(server, task_id, force=False):
 
     log("Starting task {}".format(task_id))
     status, content = post_command(server, task_id, 'start')
+
+    if options.raw:
+        sys.stderr.write("{}\n".format(json.dumps(resp.json())))
+    return status
+
+
+def stop_task(server, task_id, options):
+    """ Returns OK on success """
+    log("Stopping task {}".format(task_id))
+    status, content = post_command(server, task_id, 'stop')
+    if options.raw:
+        sys.stderr.write("{}\n".format(json.dumps(resp.json())))
     return status
 
 
@@ -236,7 +250,6 @@ def post_command(server, task_id, cmd):
                 content=resp.content
             ))
         return SERVER_ERROR, resp.json()
-
     return OK, resp.json()
 
 
@@ -257,7 +270,7 @@ def fetch_tree_synchronous(server, options, content_path):
         error("Failed to locsate new task {}".format(task_id))
         return SERVER_ERROR
 
-    status = start_task(server, task_id, options.force)
+    status = start_task(server, task_id, options)
     if status != OK:
         error("Failed to fetch {} from {}, task {} did not start".format(content_path, options.source_host, task_id))
         return status
