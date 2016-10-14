@@ -118,6 +118,19 @@ def test_install_package(stderr, stdout):
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
+def test_uninstall_package(stderr, stdout):
+    with HTTMock(packages_mock):
+        tool = packages.PackagesTool()
+        server = Server('localhost')
+
+        status = tool.execute(server, ['packages', 'uninstall', 'mock_package'])
+        eq_(0, status)
+        eq_('Package Installed\n', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
 def test_install_package_raw(stderr, stdout):
     with HTTMock(packages_mock):
         tool = packages.PackagesTool()
