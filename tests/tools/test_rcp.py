@@ -14,23 +14,29 @@ class MockTaskService(object):
         self.log = []
 
     @staticmethod
-    def _new_task(task_id, path):
+    def _new_task(task_id, src_path, dst_path):
         return {
             'id': task_id,
-            'dst': path,
-            "src": "http://admin:admin@localhost:4503/crx/server/-/jcr:root{}".format(path),
+            "src": "http://admin:admin@localhost:4503/crx/server/-/jcr:root{}".format(src_path),
+            'dst': dst_path,
             'status': {
                 'state': 'NEW'
             }
         }
 
-    def create_task(self, task_id, path):
+    def create_task(self, task_id, src_path, dst_path=None):
+        if dst_path is None:
+            dst_path = src_path
         self.log.append('create')
-        self.tasks[task_id] = self._new_task(task_id, path)
+        self.tasks[task_id] = self._new_task(task_id, src_path, dst_path)
 
     def start_task(self, task_id):
         self.log.append('start')
         self.tasks[task_id]['status']['state'] = 'RUNNING'
+
+    def stop_task(self, task_id):
+        self.log.append('stop')
+        self.tasks[task_id]['status']['state'] = 'STOPPED'
 
     def remove_task(self, task_id):
         self.log.append('remove')
@@ -69,7 +75,7 @@ class MockHttpService(object):
 
         if data['cmd'] == 'create':
             task_id = data['id']
-            self.task_service.create_task(task_id, data['dst'])
+            self.task_service.create_task(task_id, data['src'], data['dst'])
 
             return {
                 'status_code': 201,
@@ -78,6 +84,14 @@ class MockHttpService(object):
         elif data['cmd'] == 'start':
             task_id = data['id']
             self.task_service.start_task(task_id)
+            body = json.dumps({
+                "status": "ok",
+                "id": task_id
+            })
+            return body
+        elif data['cmd'] == 'stop':
+            task_id = data['id']
+            self.task_service.stop_task(task_id)
             body = json.dumps({
                 "status": "ok",
                 "id": task_id
@@ -104,7 +118,7 @@ def tabbed(lines):
 def test_rcp_ls(stderr, stdout):
     task_service = MockTaskService()
     task_service.create_task('task_id_4711', '/content/dam/something')
-    task_service.create_task('task_id_4712', '/content/dam/something_else')
+    task_service.create_task('task_id_4712', '/content/dam/something_else', '/content/dam/new target')
     task_service.start_task('task_id_4711')
 
     service = MockHttpService(task_service)
@@ -115,8 +129,8 @@ def test_rcp_ls(stderr, stdout):
         status = tool.execute(server, ['ls'])
         eq_(0, status)
         lines = [
-            ['task_id_4711', 'localhost:4503', '/content/dam/something', 'FINISHED'],
-            ['task_id_4712', 'localhost:4503', '/content/dam/something_else', 'NEW']
+            ['task_id_4711', 'localhost:4503/content/dam/something', '/content/dam/something', 'FINISHED'],
+            ['task_id_4712', 'localhost:4503/content/dam/something_else', '/content/dam/new target', 'NEW']
         ]
         eq_(tabbed(lines), stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -158,6 +172,28 @@ def test_rcp_start(stderr, stdout):
         eq_(0, status)
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
+
+    eq_('RUNNING', task_service.tasks['rcp-0ed9f8']['status']['state'])
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rcp_stop(stderr, stdout):
+    task_service = MockTaskService()
+    task_service.create_task('rcp-0ed9f8', '/content/dam/something')
+    task_service.start_task('rcp-0ed9f8')
+    service = MockHttpService(task_service)
+
+    with HTTMock(service):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        # TODO: Run tests without force flag
+        status = tool.execute(server, ['rcp', 'stop', 'rcp-0ed9f8', '--force'])
+        eq_(0, status)
+        eq_('', stdout.getvalue())
+        eq_('', stderr.getvalue())
+
+    eq_('STOPPED', task_service.tasks['rcp-0ed9f8']['status']['state'])
 
 
 @patch('sys.stdout', new_callable=StringIO)

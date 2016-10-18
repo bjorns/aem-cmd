@@ -30,25 +30,31 @@ parser.add_option("-f", "--force",
                   help="Skip security checks when running tasks")
 
 
-@tool('rcp', ['list', 'fetch', 'start', 'rm'])
+@tool('rcp', ['list', 'fetch', 'start', 'stop', 'rm'])
 class VltRcpTool(object):
     """ This tool requires the vault rcp bundle to be installed in both source and target installation
 
         Documentation: http://jackrabbit.apache.org/filevault/rcp.html#
     """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
 
         action = get_command(args, default='list')
-        argument = get_argument(args)
+        argument = get_argument(args, i=2)
+        argument2 = get_argument(args, i=3, default=argument)
 
         if action == 'list' or action == 'ls':
             return list_rcp_tasks(server, options)
         if action == 'create':
-            return create_new_task(server, argument, options)
+            src_path = argument
+            dst_path = argument2
+            return create_new_task(server, src_path, dst_path, options)
         elif action == 'start':
-            return start_task(server, argument, options.force)
+            return start_task(server, argument, options)
+        elif action == 'stop':
+            return stop_task(server, argument, options)
         elif action == 'remove' or action == 'rm':
             return remove_task(server, argument)
         elif action == 'clear':
@@ -61,6 +67,10 @@ class VltRcpTool(object):
 
 
 def list_rcp_tasks(server, options):
+    def _get_path(url):
+        parts = url.split('/jcr:root')
+        return parts[1]
+
     def _get_hostname(url):
         parts = url.split('/crx')
         if len(parts) < 2:
@@ -80,9 +90,9 @@ def list_rcp_tasks(server, options):
         sys.stdout.write("{}\n".format(json.dumps(content, indent=4)))
     else:
         for task in content['tasks']:
-            sys.stdout.write("{id}\t{src}\t{path}\t{status}\n".format(
+            sys.stdout.write("{id}\t{src}{src_path}\t{dst_path}\t{status}\n".format(
                 id=task['id'], src=_get_hostname(task['src']),
-                path=task['dst'], status=task['status']['state']))
+                src_path=_get_path(task['src']), dst_path=task['dst'], status=task['status']['state']))
     return OK
 
 
@@ -99,16 +109,16 @@ def _get_task_list(server):
     return OK, resp.json()
 
 
-def create_new_task(server, content_path, options):
+def create_new_task(server, src_path, dst_path, options):
     if options.source_host is None:
         error("Missing argument source host (-s)")
         return USER_ERROR
 
     task_id = _create_task_id()
 
-    status, data = _create_task(server, task_id, content_path, options)
+    status, data = _create_task(server, task_id, src_path, dst_path, options)
     if status != OK:
-        error("Failed to fetch {} from {}".format(content_path, options.source_host))
+        error("Failed to fetch {} from {}".format(src_path, options.source_host))
         return status
 
     if options.raw:
@@ -127,7 +137,7 @@ def _create_task_id():
     return "rcp-{}".format(random_hex(6))
 
 
-def _create_task(server, task_id, content_path, options):
+def _create_task(server, task_id, src_path, dst_path, options):
     """ Create a new task, does not start it """
     log("Creating task {}".format(task_id))
     payload = {
@@ -136,9 +146,9 @@ def _create_task(server, task_id, content_path, options):
         "src": "http://{credentials}@{source_host}/crx/-/jcr:root{content_path}".format(
             credentials=options.source_credentials,
             source_host=options.source_host,
-            content_path=content_path
+            content_path=src_path
         ),
-        "dst": content_path,
+        "dst": dst_path,
         "batchsize": 2048,
         "update": True,
         "onlyNewer": False,
@@ -162,9 +172,9 @@ def get_bundle_status(server, bundle_name):
     raise Exception("Failed to locate bundle {}".format(bundle_name))
 
 
-def start_task(server, task_id, force=False):
+def start_task(server, task_id, options):
     """ Returns OK on success """
-    if not force:
+    if not options.force:
         bundle = get_bundle_status(server, 'com.adobe.granite.workflow.core')
         if bundle['state'] == 'Active':
             error("Do not run rcp when workflow bundle(com.adobe.granite.workflow.core)" +
@@ -173,6 +183,18 @@ def start_task(server, task_id, force=False):
 
     log("Starting task {}".format(task_id))
     status, content = post_command(server, task_id, 'start')
+
+    if options.raw:
+        sys.stderr.write("{}\n".format(json.dumps(content)))
+    return status
+
+
+def stop_task(server, task_id, options):
+    """ Returns OK on success """
+    log("Stopping task {}".format(task_id))
+    status, content = post_command(server, task_id, 'stop')
+    if options.raw:
+        sys.stderr.write("{}\n".format(json.dumps(content)))
     return status
 
 
@@ -236,7 +258,6 @@ def post_command(server, task_id, cmd):
                 content=resp.content
             ))
         return SERVER_ERROR, resp.json()
-
     return OK, resp.json()
 
 
@@ -246,7 +267,7 @@ def fetch_tree_synchronous(server, options, content_path):
     """
     task_id = _create_task_id()
 
-    status, data = _create_task(server, task_id, content_path, options)
+    status, data = _create_task(server, task_id, content_path, content_path, options)
     if status != OK:
         error("Faiiled to fetch {} from {}".format(content_path, options.source_host))
         return status
@@ -257,7 +278,7 @@ def fetch_tree_synchronous(server, options, content_path):
         error("Failed to locsate new task {}".format(task_id))
         return SERVER_ERROR
 
-    status = start_task(server, task_id, options.force)
+    status = start_task(server, task_id, options)
     if status != OK:
         error("Failed to fetch {} from {}, task {} did not start".format(content_path, options.source_host, task_id))
         return status
