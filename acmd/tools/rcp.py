@@ -151,7 +151,7 @@ def _create_task(server, task_id, src_path, dst_path, options):
         "dst": dst_path,
         "batchsize": 2048,
         "update": True,
-        "onlyNewer": False,
+        "onlyNewer": True,
         "recursive": True,
         "throttle": 1
     }
