@@ -1,8 +1,6 @@
 # coding: utf-8
 import json
 import optparse
-import random
-import string
 import sys
 import time
 
@@ -11,7 +9,7 @@ import requests
 from acmd import OK, USER_ERROR, SERVER_ERROR
 from acmd import tool, log, error, warning
 from acmd.tools.bundles import get_bundle_list
-from acmd.tools.tool_utils import get_argument, get_command
+from acmd.tools.tool_utils import get_argument, get_command, create_task_id
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
@@ -114,7 +112,7 @@ def create_new_task(server, src_path, dst_path, options):
         error("Missing argument source host (-s)")
         return USER_ERROR
 
-    task_id = _create_task_id()
+    task_id = create_task_id('rcp')
 
     status, data = _create_task(server, task_id, src_path, dst_path, options)
     if status != OK:
@@ -126,15 +124,6 @@ def create_new_task(server, src_path, dst_path, options):
     else:
         sys.stdout.write("{}\n".format(data['id']))
     return OK
-
-
-def random_hex(num_chars):
-    lst = [random.choice("abcdef" + string.digits) for _ in xrange(num_chars)]
-    return ''.join(lst)
-
-
-def _create_task_id():
-    return "rcp-{}".format(random_hex(6))
 
 
 def _create_task(server, task_id, src_path, dst_path, options):
@@ -265,7 +254,7 @@ def fetch_tree_synchronous(server, options, content_path):
     """ Compount tool for fetching data immediately.
         Performs: Create, Fetch, Wait, Remove
     """
-    task_id = _create_task_id()
+    task_id = create_task_id('rcp')
 
     status, data = _create_task(server, task_id, content_path, content_path, options)
     if status != OK:
