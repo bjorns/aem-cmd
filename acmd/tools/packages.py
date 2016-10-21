@@ -27,7 +27,7 @@ parser.add_option("-i", "--install",
                   help="install package after upload")
 
 
-@tool('packages', ['list', 'build', 'install', 'download', 'upload'])
+@tool('packages', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
 class PackagesTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
@@ -44,6 +44,8 @@ class PackagesTool(object):
             return build_package(server, options, actionarg)
         elif action == 'install':
             return install_package(server, options, actionarg)
+        elif action == 'uninstall':
+            return uninstall_package(server, options, actionarg)
         elif action == 'download':
             return download_package(server, options, actionarg)
         elif action == 'upload':
@@ -238,6 +240,20 @@ def install_package(server, options, package_name):
         sys.stdout.write("{}\n".format(resp.content))
     else:
         sys.stdout.write("{}\n".format(data['msg']))
+    return OK
+
+
+def uninstall_package(server, options, package_name):
+    url = get_package_url(package_name, server, options)
+    form_data = dict(cmd='uninstall')
+
+    log("Uninstalling package with POST to {}".format(url))
+    resp = requests.post(url, auth=server.auth, data=form_data)
+    if resp.status_code != 200:
+        error("Failed to uninstall package: {}".format(resp.content))
+        return SERVER_ERROR
+    if options.raw:
+        sys.stdout.write("{}\n".format(resp.content))
     return OK
 
 
