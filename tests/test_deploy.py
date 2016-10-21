@@ -1,10 +1,11 @@
 # coding: utf-8
 import tempfile
-import pkg_resources
-from nose.tools import eq_, ok_
-from distutils.version import Version
-from mock import patch
 from StringIO import StringIO
+from distutils.version import Version
+
+import pkg_resources
+from mock import patch
+from nose.tools import eq_, ok_
 
 import acmd
 
@@ -13,6 +14,7 @@ def test_get_current_version():
     v = acmd.get_current_version()
     eq_(True, isinstance(v, Version))
     eq_(acmd.__version__, str(v))
+
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
@@ -25,6 +27,7 @@ def test_setup_rcfile(stderr, stdout):
         ok_(len(content) > 0)
         eq_(template, content)
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_deploy_bash_completion(stderr, stdout):
@@ -33,10 +36,10 @@ def test_deploy_bash_completion(stderr, stdout):
     ret = acmd.deploy_bash_completion(paths=paths)
     eq_(path, ret)
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_no_deploy_dirs(stderr, stdout):
     path = '/THIS/IS/A/NON/EXISTING/PATH'
     ret = acmd.deploy_bash_completion(paths=[path])
     eq_(None, ret)
-
