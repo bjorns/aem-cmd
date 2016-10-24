@@ -61,7 +61,6 @@ class MockHttpService(object):
     @urlmatch(netloc='localhost:4502')
     def __call__(self, url, request):
         self.request_log.append(request)
-
         if request.method == 'GET':
             eq_('/system/jackrabbit/filevault/rcp', url.path)
             return json.dumps(self.task_service.list_tasks())

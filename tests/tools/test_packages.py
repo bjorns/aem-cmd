@@ -1,12 +1,12 @@
 # coding: utf-8
 from StringIO import StringIO
 
-from mock import patch
 from httmock import urlmatch, HTTMock
+from mock import patch
 from nose.tools import eq_
 
-from acmd.tools import packages
 from acmd import get_tool, Server, USER_ERROR
+from acmd.tools import packages
 
 
 def test_tool_registration():
@@ -15,9 +15,12 @@ def test_tool_registration():
 
 
 _command_stack = []
+
+
 def get_command_stack():
     global _command_stack
     return _command_stack
+
 
 @urlmatch(netloc='localhost:4502')
 def packages_mock(url, request):
@@ -48,6 +51,7 @@ def upload_packages_mock(url, request):
             with open('tests/test_data/package_upload_response.xml') as f:
                 return f.read()
     raise Exception("Unknown method " + request.method)
+
 
 EXPECTED_LIST = """test_packages\tmock_package\t1.6.5
 adobe/granite\tcom.adobe.coralui.rte-cq5\t5.6.18
@@ -116,6 +120,7 @@ def test_install_package(stderr, stdout):
         eq_('Package Installed\n', stdout.getvalue())
         eq_('', stderr.getvalue())
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_uninstall_package(stderr, stdout):
@@ -125,7 +130,7 @@ def test_uninstall_package(stderr, stdout):
 
         status = tool.execute(server, ['packages', 'uninstall', 'mock_package'])
         eq_(0, status)
-        eq_('Package Installed\n', stdout.getvalue())
+        eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
 
 

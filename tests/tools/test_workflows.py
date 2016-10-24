@@ -1,11 +1,10 @@
 # coding: utf-8
 import json
 from StringIO import StringIO
-from mock import patch
 
-from httmock import urlmatch
-from nose.tools import eq_
 from httmock import urlmatch, HTTMock
+from mock import patch
+from nose.tools import eq_
 
 from acmd import get_tool, Server
 
@@ -24,20 +23,25 @@ class MockWorkflowsService(object):
 
 class MockHttpService(object):
     def __init__(self, task_service=None):
-        self.task_service = task_service if task_service is not None else MockWorkflowsService()
+        self.wf_service = task_service if task_service is not None else MockWorkflowsService()
         self.request_log = []
 
     @urlmatch(netloc='localhost:4502')
     def __call__(self, url, request):
         self.request_log.append(request)
-
         if request.method == 'GET':
-            return json.dumps(self.task_service.list_tasks())
+            return json.dumps(self.wf_service.list_tasks())
         elif request.method == 'POST':
             return self._handle_post(url, request)
 
     def _handle_post(self, url, request):
-        pass
+        model = 'foo'
+        self.wf_service.add_workflow(model)
+
+        return {
+            'status_code': 201,
+            'content': ''
+        }
 
 
 def tabbed(lines):
@@ -69,5 +73,17 @@ def test_list_workflows(stderr, stdout):
         eq_(0, status)
 
 
-def test_start_workflow():
-    pass
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_start_workflow(stderr, stdout):
+    wf_service = MockWorkflowsService()
+
+    service = MockHttpService(wf_service)
+
+    with HTTMock(service):
+        tool = get_tool('workflows')
+        server = Server('localhost')
+        status = tool.execute(server, ['workflows', 'start', '/dam/update_asset', '/content/dam/something/image.png'])
+        eq_('', stderr.getvalue())
+        eq_(stdout.getvalue().startswith('/dam/update_asset-'), True)
+        eq_(0, status)
