@@ -6,7 +6,7 @@ import sys
 import requests
 
 from acmd import USER_ERROR, SERVER_ERROR, OK
-from acmd import tool, error
+from acmd import tool, error, log
 from acmd.tools.tool_utils import get_argument, get_command, create_task_id
 
 parser = optparse.OptionParser("acmd workflows [options] [list|start]")
@@ -34,8 +34,15 @@ class WorkflowsTool(object):
             return list_workflows(server, options)
         elif action == 'start':
             model = actionarg
-            path = get_argument(args, i=3)
-            return start_workflow(server, options, model, path)
+            if len(args) >= 4:
+                path = get_argument(args, i=3)
+                return start_workflow(server, options, model, path)
+            else:
+                ret = OK
+                for path in sys.stdin:
+                    ret = ret | start_workflow(server, options, model, path.strip())
+
+                return ret
         else:
             error('Unknown workflows action {a}\n'.format(a=action))
             return USER_ERROR
@@ -64,25 +71,32 @@ def list_workflows(server, options):
     return OK
 
 
+def _asset_path(path):
+    if path.startswith('/content/dam') and not path.endswith('/jcr:content/renditions/original'):
+        return path + '/jcr:content/renditions/original'
+    return path
+
+
 def start_workflow(server, options, model, path):
     task_id = create_task_id(model)
+
     form_data = dict(
         model='/etc/workflow/models/{}/jcr:content/model'.format(model),
-        payload='{}/jcr:content/renditions/original'.format(path),
+        payload=_asset_path(path),
         payloadType='JCR_PATH',
         workflowTitle=task_id,
         startComment=''
     )
-
+    log(_asset_path(path))
+    
     url = server.url(INSTANCES_PATH)
     resp = requests.post(url, auth=server.auth, data=form_data)
     if resp.status_code != 201:
         error("Unexpected error code {code}: {content}".format(
             code=resp.status_code, content=resp.content))
         return SERVER_ERROR
-    if options.raw:
-        sys.stdout.write(resp.content)
-    else:
-        sys.stdout.write(task_id)
+
+    output = resp.content if options.raw else task_id
+    sys.stdout.write("{}\n".format(output))
     return OK
 
