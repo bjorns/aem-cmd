@@ -2,6 +2,7 @@
 import optparse
 import os
 import sys
+import mimetypes
 
 import requests
 
@@ -18,16 +19,25 @@ parser.add_option("-D", "--dry-run",
                   help="Do not change repository")
 parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
+parser.add_option("-c", "--cache-dir", dest="cache_dir",
+                  help="Directory to store information on uploaded files")
 
 
 @tool('assets')
 class AssetsTool(object):
     """ Manage AEM DAM assets """
+
     def __init__(self):
         self.created_paths = set([])
+        # TODO, separate per server
+        self.cache_dir = "/tmp/acmd_assets_upload"
 
     def execute(self, server, argv):
+
         options, args = parser.parse_args(argv)
+        if options.cache_dir is not None:
+            self.cache_dir = options.cache_dir
+        log("Cache dir is {}".format(self.cache_dir))
         action = get_command(args)
         actionarg = get_argument(args)
 
@@ -57,8 +67,18 @@ class AssetsTool(object):
                 if status != OK:
                     return status
 
+    def _lock_file(self, filepath):
+        if filepath.startswith('/'):
+            filepath = filepath[1:]
+        return os.path.join(self.cache_dir, filepath)
+
     def import_file(self, server, options, import_root, filepath):
         assert os.path.isfile(filepath)
+
+        lock_file = self._lock_file(filepath)
+        if os.path.exists(lock_file):
+            sys.stdout.write("Skipping {}\n".format(lock_file, filepath))
+            return OK
 
         local_dir = os.path.dirname(filepath)
 
@@ -79,6 +99,9 @@ class AssetsTool(object):
         else:
             log("Skipping creating dam path {}".format(dam_path))
         status = _post_file(server, filepath, dam_path)
+        if status == OK:
+            _touch(lock_file)
+
         return status
 
 
@@ -93,7 +116,6 @@ def _create_dir(server, path):
         return SERVER_ERROR
     return OK
 
-import mimetypes
 
 # curl -v -u admin:admin -X POST -i -F "file=@\"$FILENAME\"" $HOST$dampath.createasset.html &> $tempfile
 def _post_file(server, filepath, dst_path):
@@ -119,8 +141,20 @@ def _post_file(server, filepath, dst_path):
 
 
 def _filter(filename):
+    """ Returns true for hidden or unwanted files """
     return filename.startswith(".")
 
 
 def _ok(status_code):
+    """ Returns true if http status code is considered success """
     return status_code == 200 or status_code == 201
+
+
+def _touch(filename):
+    """ Create empty file """
+    par_dir = os.path.dirname(filename)
+    if not os.path.exists(par_dir):
+        log("Creating directory {}".format(par_dir))
+        os.makedirs(par_dir, mode=0755)
+    log("Creating lock file {}".format(filename))
+    open(filename, 'a').close()
