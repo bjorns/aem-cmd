@@ -31,6 +31,8 @@ class AssetsTool(object):
         self.created_paths = set([])
         # TODO, separate per server
         self.cache_dir = "/tmp/acmd_assets_upload"
+        self.total_files = 1
+        self.current_file = 1
 
     def execute(self, server, argv):
 
@@ -55,17 +57,23 @@ class AssetsTool(object):
             return self.import_file(server, options, import_root, path)
 
     def import_directory(self, server, options, rootdir):
-        log("Importing file {}".format(rootdir))
+
+        self.total_files = _count_files(rootdir)
+
+        log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
+
         for subdir, dirs, files in os.walk(rootdir):
             # _create_dir(server, subdir)
             for filename in files:
                 filepath = os.path.join(subdir, filename)
                 if _filter(filename):
-                    log("Skipping {}".format(filepath))
+                    log("Skipping {path}".format(path=filepath))
                     continue
                 status = self.import_file(server, options, rootdir, filepath)
                 if status != OK:
                     return status
+                self.current_file += 1
+        return OK
 
     def _lock_file(self, filepath):
         if filepath.startswith('/'):
@@ -77,7 +85,7 @@ class AssetsTool(object):
 
         lock_file = self._lock_file(filepath)
         if os.path.exists(lock_file):
-            sys.stdout.write("Skipping {}\n".format(lock_file, filepath))
+            sys.stdout.write("{i}/{n} Skipping {path}\n".format(i=self.current_file, n=self.total_files, path=filepath))
             return OK
 
         local_dir = os.path.dirname(filepath)
@@ -100,6 +108,8 @@ class AssetsTool(object):
             log("Skipping creating dam path {}".format(dam_path))
         status = _post_file(server, filepath, dam_path)
         if status == OK:
+            sys.stdout.write("{i}/{n} {local} -> {dam}\n".format(i=self.current_file, n=self.total_files,
+                                                                 local=filepath, dam=dam_path))
             _touch(lock_file)
 
         return status
@@ -136,7 +146,6 @@ def _post_file(server, filepath, dst_path):
     if not _ok(resp.status_code):
         error("Failed to upload file {}\n{}".format(filepath, resp.content))
         return SERVER_ERROR
-    sys.stdout.write("{}/{}\n".format(dst_path, os.path.basename(filepath)))
     return OK
 
 
@@ -158,3 +167,12 @@ def _touch(filename):
         os.makedirs(par_dir, mode=0755)
     log("Creating lock file {}".format(filename))
     open(filename, 'a').close()
+
+
+def _count_files(root_dir):
+    i = 0
+    for subdir, dirs, files in os.walk(root_dir):
+        for filename in files:
+            if not _filter(filename):
+                i += 1
+    return i
