@@ -19,7 +19,7 @@ parser.add_option("-D", "--dry-run",
                   help="Do not change repository")
 parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
-parser.add_option("-c", "--cache-dir", dest="cache_dir",
+parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
 
 
@@ -30,16 +30,16 @@ class AssetsTool(object):
     def __init__(self):
         self.created_paths = set([])
         # TODO, separate per server
-        self.cache_dir = "/tmp/acmd_assets_upload"
+        self.lock_dir = "/tmp/acmd_assets_upload"
         self.total_files = 1
         self.current_file = 1
 
     def execute(self, server, argv):
 
         options, args = parser.parse_args(argv)
-        if options.cache_dir is not None:
-            self.cache_dir = options.cache_dir
-        log("Cache dir is {}".format(self.cache_dir))
+        if options.lock_dir is not None:
+            self.lock_dir = options.lock_dir
+        log("Cache dir is {}".format(self.lock_dir))
         action = get_command(args)
         actionarg = get_argument(args)
 
@@ -78,7 +78,7 @@ class AssetsTool(object):
     def _lock_file(self, filepath):
         if filepath.startswith('/'):
             filepath = filepath[1:]
-        return os.path.join(self.cache_dir, filepath)
+        return os.path.join(self.lock_dir, filepath)
 
     def import_file(self, server, options, import_root, filepath):
         assert os.path.isfile(filepath)
