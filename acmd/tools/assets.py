@@ -35,7 +35,6 @@ class AssetsTool(object):
         self.current_file = 1
 
     def execute(self, server, argv):
-
         options, args = parser.parse_args(argv)
         if options.lock_dir is not None:
             self.lock_dir = options.lock_dir
