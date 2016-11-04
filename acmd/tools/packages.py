@@ -102,7 +102,7 @@ def list_packages(server, options):
 
 
 def format_package(pkg):
-    return "{g}\t{pkg}\t{v}".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'])
+    return "{g}\t{pkg}\t{v}\t{u}".format(g=pkg['group'], pkg=pkg['name'], v=pkg['version'], u=pkg['lastUnpacked'])
 
 
 def parse_packages(tree):

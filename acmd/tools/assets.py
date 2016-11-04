@@ -56,9 +56,7 @@ class AssetsTool(object):
             return self.import_file(server, options, import_root, path)
 
     def import_directory(self, server, options, rootdir):
-
         self.total_files = _count_files(rootdir)
-
         log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
 
         for subdir, dirs, files in os.walk(rootdir):

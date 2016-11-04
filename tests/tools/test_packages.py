@@ -53,10 +53,14 @@ def upload_packages_mock(url, request):
     raise Exception("Unknown method " + request.method)
 
 
-EXPECTED_LIST = """test_packages\tmock_package\t1.6.5
-adobe/granite\tcom.adobe.coralui.rte-cq5\t5.6.18
-adobe/granite\tcom.adobe.granite.activitystreams.content\t0.0.12
-"""
+EXPECTED_LIST = [["test_packages", "mock_package", "1.6.5", "Fri, 13 Jun 2014 14:16:31 -0400"],
+                 ["adobe/granite", "com.adobe.coralui.rte-cq5", "5.6.18", "Fri, 13 Jun 2014 14:18:11 -0400"],
+                 ["adobe/granite", "com.adobe.granite.activitystreams.content", "0.0.12", "Fri, 13 Jun 2014 14:16:32 -0400"]]
+
+
+def untab(data):
+    lines = data.split("\n")
+    return map(lambda x: x.split('\t'), lines)
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -66,7 +70,11 @@ def test_list_packages(stdout):
         server = Server('localhost')
 
         tool.execute(server, ['packages', 'list'])
-        eq_(EXPECTED_LIST, stdout.getvalue())
+
+        i = 0
+        for line in EXPECTED_LIST:
+            eq_(line, untab(stdout.getvalue())[i])
+            i += 1
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -78,7 +86,7 @@ def test_upload_package(stderr, stdout):
 
         status = tool.execute(server, ['packages', 'upload', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
-        eq_('my_packages\tmock-package\t1.0\n', stdout.getvalue())
+        eq_(["my_packages", "mock-package", "1.0", "Tue, 29 Sep 2015 16:20:59 -0400"], untab(stdout.getvalue())[0])
         eq_('', stderr.getvalue())
 
 
