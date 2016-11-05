@@ -73,13 +73,17 @@ The help tool lists all installed tools
 To get more information on available actions call help on that tool:
 
     $ acmd help packages
-    Available commands:
-        list
-        build
-        install
-        download
-        upload
+    Usage: acmd packages [options] [list|build|install|upload|download] [<zip>|<package>]
 
+    Options:
+      -h, --help            show this help message and exit
+      -v VERSION, --version=VERSION
+                            specify explicit version
+      -g GROUP, --group=GROUP
+                            specify explicit group
+      -r, --raw             output raw response data
+      -c, --compact         output only package name
+      -i, --install         install package after upload
 
 
 ### JCR tools

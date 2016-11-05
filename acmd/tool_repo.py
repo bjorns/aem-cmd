@@ -5,6 +5,7 @@ import sys
 from acmd import log
 
 _tools = dict()
+_modules = dict()
 
 
 def tool(tool_name, commands=None):
@@ -20,10 +21,12 @@ def tool(tool_name, commands=None):
 
     def class_rebuilder(cls):
         instance = cls()
+
         instance.name = tool_name
         if not hasattr(instance, 'commands'):
             instance.commands = commands if commands is not None else []
-        register_tool(instance)
+        _module = __import__(cls.__module__, locals(), globals(), '__main__', 0)
+        register_tool(instance, _module)
         return cls
 
     return class_rebuilder
@@ -58,18 +61,23 @@ def set_current_project(name):
     _init_project = name
 
 
-def register_tool(_tool):
-    assert get_tool(_tool.name) is None
+def register_tool(_tool, _module):
+    assert get_tool(_tool.name) is None, None
     if _init_project is None:
         name = _tool.name
     else:
         name = _init_project + ':' + _tool.name
     log("Registering tool {}".format(name))
     _tools[name] = _tool
+    _modules[name] = _module
 
 
 def get_tool(tool_name):
     return _tools.get(tool_name)
+
+
+def get_module(tool_name):
+    return _modules[tool_name]
 
 
 def list_tools():

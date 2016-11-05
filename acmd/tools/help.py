@@ -1,13 +1,14 @@
 # coding: utf-8
 """ Tools for bash command completion are hidden from normal listings. """
-import sys
 import optparse
+import sys
 
-from acmd import tool, get_current_config, OK
+from acmd import error, USER_ERROR
 from acmd import get_tool
 from acmd import list_tools
-from acmd import error, USER_ERROR
+from acmd import tool, get_current_config, OK
 from acmd.config import DEFAULT_SERVER_SETTING
+from acmd.tool_repo import get_module
 from acmd.tools import get_command
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
@@ -23,7 +24,8 @@ class IntrospectTool(object):
         """ Allow autocomplete of help tools. """
         return list_tools()
 
-    def execute(self, _, argv):
+    @staticmethod
+    def execute(_, argv):
         (options, args) = parser.parse_args(argv)
 
         arg = get_command(args, '_tools')
@@ -33,6 +35,7 @@ class IntrospectTool(object):
             print_servers(sys.stdout)
         else:
             _tool = get_tool(arg)
+            _module = get_module(arg)
             if _tool is None:
                 error("No tool named {} found".format(arg))
                 print_tools(sys.stderr, options.compact)
@@ -41,9 +44,12 @@ class IntrospectTool(object):
                 for cmd in _tool.commands:
                     sys.stdout.write("{}\n".format(cmd))
             else:
-                sys.stdout.write("Available commands:\n")
-                for cmd in _tool.commands:
-                    sys.stdout.write("    {}\n".format(cmd))
+                if hasattr(_module, 'parser'):
+                    _module.parser.print_help()
+                else:
+                    sys.stdout.write("Available commands:\n")
+                    for cmd in _tool.commands:
+                        sys.stdout.write("\t{}\n".format(cmd))
             return OK
 
 

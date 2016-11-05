@@ -161,8 +161,8 @@ def _create_task(server, task_id, src_path, dst_path, options):
         "batchsize": int(options.batch_size),
         "update": options.overwrite_existing,
         "onlyNewer": options.respect_modified_date,
+        "throttle": int(options.throttle),
         "recursive": True,
-        "throttle": int(options.throttle)
     }
     url = server.url("/system/jackrabbit/filevault/rcp")
     resp = requests.post(url, auth=server.auth, json=payload)
