@@ -50,7 +50,7 @@ class IntrospectTool(object):
                     sys.stdout.write("Available commands:\n")
                     for cmd in _tool.commands:
                         sys.stdout.write("\t{}\n".format(cmd))
-            return OK
+        return OK
 
 
 def print_servers(f):
