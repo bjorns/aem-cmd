@@ -13,7 +13,7 @@ from acmd.tools.tool_utils import get_argument, get_command, create_task_id
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
-parser = optparse.OptionParser("acmd rcp [options] [list|fetch] [path]")
+parser = optparse.OptionParser("acmd rcp [options] [list|fetch] [path] <[dst_path]>")
 parser.add_option("-s", "--source-host",
                   dest="source_host", help="Specify source hostname eg. qa-author:4502")
 parser.add_option("-c", "--source-credentials",
@@ -26,6 +26,18 @@ parser.add_option("-r", "--raw",
 parser.add_option("-f", "--force",
                   action="store_const", const=True, dest="force",
                   help="Skip security checks when running tasks")
+parser.add_option("-n", "--new-only",
+                  action="store_const", const=False, dest="overwrite_existing",
+                  help="Copy only nodes that don't already exist in destination", default=True)
+parser.add_option("-i", "--ignore-modified",
+                  action="store_const", const=False, dest="respect_modified_date",
+                  help="Ignore lastModified property during update", default=True)
+parser.add_option("-b", "--batch-size",
+                  dest="batch_size",
+                  help="Node updates between each intermediate save", default='2048')
+parser.add_option("-t", "--throttle",
+                  dest="throttle",
+                  help="Number of seconds to wait after an intermediate save", default='1')
 
 
 @tool('rcp', ['list', 'fetch', 'start', 'stop', 'rm'])
@@ -112,6 +124,14 @@ def create_new_task(server, src_path, dst_path, options):
         error("Missing argument source host (-s)")
         return USER_ERROR
 
+    if not options.batch_size.isdigit():
+        error("Batch size '{}' needs to be a number. (Default is 2048)".format(options.batch_size))
+        return USER_ERROR
+
+    if not options.throttle.isdigit():
+        error("Throttling '{}' needs to be a number. (Default is 1)".format(options.throttle))
+        return USER_ERROR
+
     task_id = create_task_id('rcp')
 
     status, data = _create_task(server, task_id, src_path, dst_path, options)
@@ -138,11 +158,11 @@ def _create_task(server, task_id, src_path, dst_path, options):
             content_path=src_path
         ),
         "dst": dst_path,
-        "batchsize": 2048,
-        "update": True,
-        "onlyNewer": True,
+        "batchsize": int(options.batch_size),
+        "update": options.overwrite_existing,
+        "onlyNewer": options.respect_modified_date,
         "recursive": True,
-        "throttle": 1
+        "throttle": int(options.throttle)
     }
     url = server.url("/system/jackrabbit/filevault/rcp")
     resp = requests.post(url, auth=server.auth, json=payload)

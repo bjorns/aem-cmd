@@ -57,6 +57,7 @@ class MockHttpService(object):
     def __init__(self, task_service=None):
         self.task_service = task_service if task_service is not None else MockTaskService()
         self.request_log = []
+        self.data_log = []
 
     @urlmatch(netloc='localhost:4502')
     def __call__(self, url, request):
@@ -71,6 +72,7 @@ class MockHttpService(object):
 
         eq_('/system/jackrabbit/filevault/rcp', url.path)
         data = json.loads(request.body)
+        self.data_log.append(data)
 
         if data['cmd'] == 'create':
             task_id = data['id']
@@ -155,6 +157,41 @@ def test_rcp_create(stderr, stdout):
         eq_('{}\n'.format(data['id']), stdout.getvalue())
         eq_('', stderr.getvalue())
 
+        eq_(True, service.data_log[0]['update'])
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_rcp_create_flags(stderr, stdout):
+
+    service = MockHttpService()
+
+    with HTTMock(service):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        status = tool.execute(server,
+                              ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '--new-only', '/content/dam/data'])
+
+        eq_(0, status)
+        eq_(False, service.data_log[0]['update'])
+        eq_(True, service.data_log[0]['onlyNewer'])
+        eq_(2048, service.data_log[0]['batchsize'])
+        eq_(1, service.data_log[0]['throttle'])
+
+    service = MockHttpService()
+
+    with HTTMock(service):
+        tool = get_tool('rcp')
+        server = Server('localhost')
+        status = tool.execute(server,
+                              ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '--ignore-modified',
+                               '--throttle=7', '--batch-size=4711', '/content/dam/data'])
+
+        eq_(0, status)
+        eq_(True, service.data_log[0]['update'])
+        eq_(False, service.data_log[0]['onlyNewer'])
+        eq_(4711, service.data_log[0]['batchsize'])
+        eq_(7, service.data_log[0]['throttle'])
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)

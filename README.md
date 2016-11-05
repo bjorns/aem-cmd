@@ -326,6 +326,12 @@ data.
 
     $ acmd -s uat rcp fetch --source-host prod-author:4502 /content/dam/mysite
 
+An optional second argument defines the target path. If omitted, destination is
+the same as source
+
+    $ acmd -s uat rcp fetch --source-host prod-author:4502 /content/dam/mysite /content/dam/mysite_backup
+
+
 The fetch operation is a synchronous macro operation. For very large
 operations you can also utilize the async low level commands but creating a task
 and managing it on your own. The create operation prints the newly created
@@ -342,6 +348,10 @@ task id. This id is then used as a reference when managing the task.
     $ acmd rcp ls
     rcp-45cfa2  ENDED     /content/dam/mysite
     $ acmd rcp rm rcp-45cfa2
+
+By default the task copies all nodes that don't already exist on the destination
+or have a lastModified date later on the source than on the destination. This can
+be controlled using the -i and the -n flags.
 
 ### Storage
 
