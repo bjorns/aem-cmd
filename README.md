@@ -315,6 +315,33 @@ For more documentation on how to write groovy scripts install the
 cq-groovy-console bundle and go to
 [http://localhost:4502/etc/groovyconsole.html](http://localhost:4502/etc/groovyconsole.html)
 
+### Assets
+
+#### Import assets
+
+The import command allows for importing single files and entire directories
+into the DAM.
+
+To import a single file into /content/dam
+
+    $ acmd assets import ~/Pictures/selfie.jpg
+
+Send file to a separate directory
+
+    $ acmd assets import -d /content/dam/selfies ~/Pictures/selfie.jpg
+
+If a directory is given it will be recreated at /content/dam
+
+    $ acmd assets import ~/Images/selfies
+
+will create /content/dam/selfies.
+
+The maintains a directory of lockfiles under /tmp/acmd_assets_upload where each
+uploaded file is marked so that aborted imports can be resumed without redoing
+previous imports. The lockfile directory can be overridden with the
+`--lock-dir` flag.
+
+    $ acmd assets import -l ~/my_lock_dir ~/Images/selfies
 
 ### Remote Copy (rcp)
 
