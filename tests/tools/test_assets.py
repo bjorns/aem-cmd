@@ -89,3 +89,28 @@ def test_import_asset_directory(stderr, stdout):
     shutil.rmtree(lock_dir)
 
 
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_dry_run_import_asset_directory(stderr, stdout):
+    http_service = MockHttpService()
+    eq_(0, len(http_service.req_log))
+
+    lock_dir = tempfile.mkdtemp()
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', '--dry-run', '--lock-dir={}'.format(lock_dir), 'import', 'tests/test_data/assets'])
+
+    eq_('', stderr.getvalue())
+
+    lines = stdout.getvalue().split('\n')
+    eq_(4, len(lines))
+    eq_(lines[0], '1/3 tests/test_data/assets/logo.jpg -> /content/dam/assets')
+    eq_(lines[1], '2/3 tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir')
+    eq_(lines[2], '3/3 tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir')
+    eq_(OK, status)
+
+    eq_(0, len(http_service.req_log))
+    shutil.rmtree(lock_dir)
+
+

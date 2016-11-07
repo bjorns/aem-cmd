@@ -3,6 +3,7 @@ import optparse
 import os
 import sys
 import mimetypes
+import yaml
 
 import requests
 
@@ -21,6 +22,7 @@ parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
 parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
+
 
 
 @tool('assets')
@@ -47,6 +49,7 @@ class AssetsTool(object):
         return OK
 
     def import_path(self, server, options, path):
+        """ Import generic file system path, could be file or dir """
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
         else:
@@ -56,6 +59,9 @@ class AssetsTool(object):
             return self.import_file(server, options, import_root, path)
 
     def import_directory(self, server, options, rootdir):
+        """ Import directory recursively """
+        assert os.path.isdir(rootdir)
+
         self.total_files = _count_files(rootdir)
         log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
 
@@ -73,11 +79,13 @@ class AssetsTool(object):
         return OK
 
     def _lock_file(self, filepath):
+        """ Return the filepath to the lock file for a given file """
         if filepath.startswith('/'):
             filepath = filepath[1:]
         return os.path.join(self.lock_dir, filepath)
 
     def import_file(self, server, options, import_root, filepath):
+        """ Import single file """
         assert os.path.isfile(filepath)
 
         lock_file = self._lock_file(filepath)
@@ -94,16 +102,15 @@ class AssetsTool(object):
         dam_path = local_dir.replace(import_root, dest_dir)
         log("Uplading {} to {}".format(filepath, dam_path))
 
-        if options.dry_run:
-            return OK
         if dam_path not in self.created_paths:
-            status = _create_dir(server, dam_path)
+            status = _create_dir(server, dam_path, options.dry_run)
             if status != OK:
                 return status
             self.created_paths.add(dam_path)
         else:
             log("Skipping creating dam path {}".format(dam_path))
-        status = _post_file(server, filepath, dam_path)
+
+        status = _post_file(server, filepath, dam_path, options.dry_run)
         if status == OK:
             sys.stdout.write("{i}/{n} {local} -> {dam}\n".format(i=self.current_file, n=self.total_files,
                                                                  local=filepath, dam=dam_path))
@@ -112,8 +119,13 @@ class AssetsTool(object):
         return status
 
 
-# curl -s -u admin:admin -X POST -F "jcr:primaryType=sling:OrderedFolder" $HOST$dampath > /dev/null
-def _create_dir(server, path):
+def _create_dir(server, path, dry_run):
+    """ Create file in the DAM
+        e.g. curl -s -u admin:admin -X POST -F "jcr:primaryType=sling:OrderedFolder" $HOST$dampath > /dev/null
+    """
+    if dry_run:
+        return OK
+
     form_data = {'jcr:primaryType': 'sling:OrderedFolder'}
     url = server.url(path)
     log("POSTing to {}".format(url))
@@ -124,9 +136,14 @@ def _create_dir(server, path):
     return OK
 
 
-# curl -v -u admin:admin -X POST -i -F "file=@\"$FILENAME\"" $HOST$dampath.createasset.html &> $tempfile
-def _post_file(server, filepath, dst_path):
+def _post_file(server, filepath, dst_path, dry_run):
+    """ POST single file to DAM
+        curl -v -u admin:admin -X POST -i -F "file=@\"$FILENAME\"" $HOST$dampath.createasset.html &> $tempfile
+    """
     assert os.path.isfile(filepath)
+
+    if dry_run:
+        return OK
 
     filename = os.path.basename(filepath)
     f = open(filepath, 'rb')
@@ -166,9 +183,10 @@ def _touch(filename):
     open(filename, 'a').close()
 
 
-def _count_files(root_dir):
+def _count_files(dirpath):
+    """ Return the number of files in directory """
     i = 0
-    for subdir, dirs, files in os.walk(root_dir):
+    for subdir, dirs, files in os.walk(dirpath):
         for filename in files:
             if not _filter(filename):
                 i += 1
