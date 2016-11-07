@@ -1,9 +1,8 @@
 # coding: utf-8
+import mimetypes
 import optparse
 import os
 import sys
-import mimetypes
-import yaml
 
 import requests
 
@@ -22,7 +21,6 @@ parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
 parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
-
 
 
 @tool('assets')
