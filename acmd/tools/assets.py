@@ -28,7 +28,6 @@ parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
 
 
-
 @tool('assets')
 class AssetsTool(object):
     """ Manage AEM DAM assets """
@@ -96,7 +95,10 @@ class AssetsTool(object):
         t0 = time.time()
         lock_file = self._lock_file(filepath)
         if os.path.exists(lock_file):
-            sys.stdout.write("{i}/{n} Skipping {path}\n".format(i=self.current_file, n=self.total_files, path=filepath))
+            sys.stdout.write("{ts}\t{i}/{n}\tSkipping {local}\n".format(ts=format_timestamp(time.time()),
+                                                                        i=self.current_file,
+                                                                        n=self.total_files,
+                                                                        local=filepath))
             return OK
 
         local_dir = os.path.dirname(filepath)
@@ -120,15 +122,18 @@ class AssetsTool(object):
         t1 = time.time()
         if status == OK:
             benchmark = '{0:.3g}'.format(t1 - t0)
-            timestamp = datetime.datetime.fromtimestamp(t1).strftime('%Y-%m-%d %H:%M:%S')
-            sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=timestamp,
-                                                                                   i=self.current_file,
-                                                                                   n=self.total_files,
-                                                                                   local=filepath, dam=dam_path,
-                                                                                   benchmark=benchmark))
+            sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=format_timestamp(t1),
+                                                                                     i=self.current_file,
+                                                                                     n=self.total_files,
+                                                                                     local=filepath, dam=dam_path,
+                                                                                     benchmark=benchmark))
             _touch(lock_file)
 
         return status
+
+
+def format_timestamp(t):
+    return datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
 
 
 def hash_job(server, path):
