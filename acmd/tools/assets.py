@@ -10,7 +10,7 @@ import time
 
 import requests
 
-from acmd import OK, SERVER_ERROR, USER_ERROR
+from acmd import OK, USER_ERROR, SERVER_ERROR
 from acmd import tool, error, log
 from acmd.tools.tool_utils import get_argument, get_command
 
@@ -27,6 +27,10 @@ parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
 parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
+
+
+class AssetException(Exception):
+    pass
 
 
 @tool('assets')
@@ -51,7 +55,9 @@ class AssetsTool(object):
 
         if action == 'import':
             return self.import_path(server, options, actionarg)
-        return OK
+        else:
+            error("Unknown action {}".format(action))
+            return USER_ERROR
 
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
@@ -71,16 +77,21 @@ class AssetsTool(object):
         self.total_files = _count_files(rootdir)
         log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
 
+        status = OK
         for subdir, dirs, files in os.walk(rootdir):
             # _create_dir(server, subdir)
             for filename in files:
-                filepath = os.path.join(subdir, filename)
-                if _filter(filename):
-                    log("Skipping {path}".format(path=filepath))
-                    continue
-                self.import_file(server, options, rootdir, filepath)
-                self.current_file += 1
-        return OK
+                try:
+                    filepath = os.path.join(subdir, filename)
+                    if _filter(filename):
+                        log("Skipping {path}".format(path=filepath))
+                        continue
+                    self.import_file(server, options, rootdir, filepath)
+                    self.current_file += 1
+                except AssetException as e:
+                    error("Failed to import {}: {}".format(filepath, e.message))
+                    status = SERVER_ERROR
+        return status
 
     def _lock_file(self, filepath):
         """ Return the filepath to the lock file for a given file """
@@ -101,32 +112,25 @@ class AssetsTool(object):
             sys.stdout.write(msg)
             return OK
 
-        status, dam_path = get_dam_path(filepath, local_import_root, options.destination_root)
-        if status != OK:
-            error("Failed to import, unexpected characters in path {}".format(dam_path))
-            return status
+        dam_path = get_dam_path(filepath, local_import_root, options.destination_root)
+
         log("Uplading {} to {}".format(filepath, dam_path))
 
         if dam_path not in self.created_paths:
-            status = _create_dir(server, dam_path, options.dry_run)
-            if status != OK:
-                return status
+            _create_dir(server, dam_path, options.dry_run)
             self.created_paths.add(dam_path)
         else:
             log("Skipping creating dam path {}".format(dam_path))
 
-        status = _post_file(server, filepath, dam_path, options.dry_run)
+        _post_file(server, filepath, dam_path, options.dry_run)
         t1 = time.time()
-        if status == OK:
-            benchmark = '{0:.3g}'.format(t1 - t0)
-            sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=format_timestamp(t1),
-                                                                                     i=self.current_file,
-                                                                                     n=self.total_files,
-                                                                                     local=filepath, dam=dam_path,
-                                                                                     benchmark=benchmark))
-            _touch(lock_file)
-
-        return status
+        benchmark = '{0:.3g}'.format(t1 - t0)
+        sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=format_timestamp(t1),
+                                                                                 i=self.current_file,
+                                                                                 n=self.total_files,
+                                                                                 local=filepath, dam=dam_path,
+                                                                                 benchmark=benchmark))
+        _touch(lock_file)
 
 
 def get_dam_path(filepath, local_import_root, dam_import_root):
@@ -134,7 +138,7 @@ def get_dam_path(filepath, local_import_root, dam_import_root):
     if dam_import_root is None:
         dam_import_root = os.path.join('/content/dam', os.path.basename(local_import_root))
     dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
-    return OK, dam_path
+    return dam_path
 
 
 def create_dam_path(local_path, local_import_root, dam_import_root):
@@ -147,8 +151,8 @@ def clean_path(path):
     ret = path.replace(' ', '_')
     pattern = re.compile("[a-zA-Z0-9_/-]+")
     if pattern.match(ret) is None:
-        return USER_ERROR, path
-    return OK, ret
+        raise AssetException("File path {} contains unallowed characters".format(path))
+    return ret
 
 
 def format_timestamp(t):
@@ -164,17 +168,12 @@ def _create_dir(server, path, dry_run):
     """ Create file in the DAM
         e.g. curl -s -u admin:admin -X POST -F "jcr:primaryType=sling:OrderedFolder" $HOST$dampath > /dev/null
     """
-    if dry_run:
-        return OK
-
     form_data = {'jcr:primaryType': 'sling:OrderedFolder'}
     url = server.url(path)
     log("POSTing to {}".format(url))
     resp = requests.post(url, auth=server.auth, data=form_data)
     if not _ok(resp.status_code):
-        error("Failed to create directory {}\n{}".format(url, resp.content))
-        return SERVER_ERROR
-    return OK
+        raise AssetException("Failed to create directory {}\n{}".format(url, resp.content))
 
 
 def _post_file(server, filepath, dst_path, dry_run):
@@ -199,8 +198,7 @@ def _post_file(server, filepath, dst_path, dry_run):
     log("POSTing to {}".format(url))
     resp = requests.post(url, auth=server.auth, files=form_data)
     if not _ok(resp.status_code):
-        error("Failed to upload file {}\n{}".format(filepath, resp.content))
-        return SERVER_ERROR
+        raise AssetException("Failed to upload file {}\n{}".format(filepath, resp.content))
     return OK
 
 
