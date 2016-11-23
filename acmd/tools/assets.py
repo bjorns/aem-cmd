@@ -1,5 +1,6 @@
 # coding: utf-8
 import datetime
+import hashlib
 import mimetypes
 import optparse
 import os
@@ -11,6 +12,8 @@ import requests
 from acmd import OK, SERVER_ERROR
 from acmd import tool, error, log
 from acmd.tools.tool_utils import get_argument, get_command
+
+ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
@@ -25,6 +28,7 @@ parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
 
 
+
 @tool('assets')
 class AssetsTool(object):
     """ Manage AEM DAM assets """
@@ -32,7 +36,7 @@ class AssetsTool(object):
     def __init__(self):
         self.created_paths = set([])
         # TODO, separate per server
-        self.lock_dir = "/tmp/acmd_assets_upload"
+        self.lock_dir = ROOT_IMPORT_DIR
         self.total_files = 1
         self.current_file = 1
 
@@ -41,6 +45,7 @@ class AssetsTool(object):
         if options.lock_dir is not None:
             self.lock_dir = options.lock_dir
         log("Cache dir is {}".format(self.lock_dir))
+
         action = get_command(args)
         actionarg = get_argument(args)
 
@@ -50,6 +55,7 @@ class AssetsTool(object):
 
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
+        self.lock_dir = ROOT_IMPORT_DIR + "/" + hash_job(server, path)
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
         else:
@@ -123,6 +129,11 @@ class AssetsTool(object):
             _touch(lock_file)
 
         return status
+
+
+def hash_job(server, path):
+    """ Produce unique folder for upload based on path and server """
+    return hashlib.sha1('{}:{}'.format(server.name, path)).hexdigest()[:8]
 
 
 def _create_dir(server, path, dry_run):
