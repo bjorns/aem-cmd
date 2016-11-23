@@ -4,12 +4,13 @@ import hashlib
 import mimetypes
 import optparse
 import os
+import re
 import sys
 import time
 
 import requests
 
-from acmd import OK, SERVER_ERROR
+from acmd import OK, SERVER_ERROR, USER_ERROR
 from acmd import tool, error, log
 from acmd.tools.tool_utils import get_argument, get_command
 
@@ -77,9 +78,7 @@ class AssetsTool(object):
                 if _filter(filename):
                     log("Skipping {path}".format(path=filepath))
                     continue
-                status = self.import_file(server, options, rootdir, filepath)
-                if status != OK:
-                    return status
+                self.import_file(server, options, rootdir, filepath)
                 self.current_file += 1
         return OK
 
@@ -89,25 +88,23 @@ class AssetsTool(object):
             filepath = filepath[1:]
         return os.path.join(self.lock_dir, filepath)
 
-    def import_file(self, server, options, import_root, filepath):
+    def import_file(self, server, options, local_import_root, filepath):
         """ Import single file """
         assert os.path.isfile(filepath)
         t0 = time.time()
         lock_file = self._lock_file(filepath)
         if os.path.exists(lock_file):
-            sys.stdout.write("{ts}\t{i}/{n}\tSkipping {local}\n".format(ts=format_timestamp(time.time()),
-                                                                        i=self.current_file,
-                                                                        n=self.total_files,
-                                                                        local=filepath))
+            msg = "{ts}\t{i}/{n}\tSkipping {local}\n".format(ts=format_timestamp(time.time()),
+                                                             i=self.current_file,
+                                                             n=self.total_files,
+                                                             local=filepath)
+            sys.stdout.write(msg)
             return OK
 
-        local_dir = os.path.dirname(filepath)
-
-        dest_dir = options.destination_root
-        if dest_dir is None:
-            dest_dir = os.path.join('/content/dam', os.path.basename(import_root))
-
-        dam_path = local_dir.replace(import_root, dest_dir)
+        status, dam_path = get_dam_path(filepath, local_import_root, options.destination_root)
+        if status != OK:
+            error("Failed to import, unexpected characters in path {}".format(dam_path))
+            return status
         log("Uplading {} to {}".format(filepath, dam_path))
 
         if dam_path not in self.created_paths:
@@ -130,6 +127,28 @@ class AssetsTool(object):
             _touch(lock_file)
 
         return status
+
+
+def get_dam_path(filepath, local_import_root, dam_import_root):
+    local_dir = os.path.dirname(filepath)
+    if dam_import_root is None:
+        dam_import_root = os.path.join('/content/dam', os.path.basename(local_import_root))
+    dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
+    return OK, dam_path
+
+
+def create_dam_path(local_path, local_import_root, dam_import_root):
+    """ Returns <ok>, <path> """
+    return local_path.replace(local_import_root, dam_import_root)
+
+
+def clean_path(path):
+    """ Replace spaces in target path """
+    ret = path.replace(' ', '_')
+    pattern = re.compile("[a-zA-Z0-9_/-]+")
+    if pattern.match(ret) is None:
+        return USER_ERROR, path
+    return OK, ret
 
 
 def format_timestamp(t):
