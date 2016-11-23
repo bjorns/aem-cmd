@@ -1,8 +1,10 @@
 # coding: utf-8
+import datetime
 import mimetypes
 import optparse
 import os
 import sys
+import time
 
 import requests
 
@@ -85,7 +87,7 @@ class AssetsTool(object):
     def import_file(self, server, options, import_root, filepath):
         """ Import single file """
         assert os.path.isfile(filepath)
-
+        t0 = time.time()
         lock_file = self._lock_file(filepath)
         if os.path.exists(lock_file):
             sys.stdout.write("{i}/{n} Skipping {path}\n".format(i=self.current_file, n=self.total_files, path=filepath))
@@ -109,9 +111,15 @@ class AssetsTool(object):
             log("Skipping creating dam path {}".format(dam_path))
 
         status = _post_file(server, filepath, dam_path, options.dry_run)
+        t1 = time.time()
         if status == OK:
-            sys.stdout.write("{i}/{n} {local} -> {dam}\n".format(i=self.current_file, n=self.total_files,
-                                                                 local=filepath, dam=dam_path))
+            benchmark = '{0:.3g}'.format(t1 - t0)
+            timestamp = datetime.datetime.fromtimestamp(t1).strftime('%Y-%m-%d %H:%M:%S')
+            sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=timestamp,
+                                                                                   i=self.current_file,
+                                                                                   n=self.total_files,
+                                                                                   local=filepath, dam=dam_path,
+                                                                                   benchmark=benchmark))
             _touch(lock_file)
 
         return status
