@@ -9,8 +9,6 @@ from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.tools.asset_import import *
 
-ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
-
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
@@ -30,13 +28,12 @@ class AssetsTool(object):
 
     def __init__(self):
         self.created_paths = set([])
-        self.lock_dir = ROOT_IMPORT_DIR
         self.total_files = 1
         self.current_file = 1
+        self.upload_registry = None
 
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        log("Cache dir is {}".format(self.lock_dir))
 
         action = get_command(args)
         actionarg = get_argument(args)
@@ -49,10 +46,8 @@ class AssetsTool(object):
 
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
-        if options.lock_dir is not None:
-            self.lock_dir = options.lock_dir
-        else:
-            self.lock_dir = ROOT_IMPORT_DIR + "/" + hash_job(server, path)
+        self.upload_registry = UploadRegistry(server, path, options.lock_dir)
+
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
         else:
@@ -84,18 +79,12 @@ class AssetsTool(object):
                     status = SERVER_ERROR
         return status
 
-    def _lock_file(self, filepath):
-        """ Return the filepath to the lock file for a given file """
-        if filepath.startswith('/'):
-            filepath = filepath[1:]
-        return os.path.join(self.lock_dir, filepath)
-
     def import_file(self, server, options, local_import_root, filepath):
         """ Import single file """
         assert os.path.isfile(filepath)
         t0 = time.time()
-        lock_file = self._lock_file(filepath)
-        if os.path.exists(lock_file):
+
+        if self.upload_registry.is_uploaded(filepath):
             msg = "{ts}\t{i}/{n}\tSkipping {local}\n".format(ts=format_timestamp(time.time()),
                                                              i=self.current_file,
                                                              n=self.total_files,
@@ -121,5 +110,5 @@ class AssetsTool(object):
                                                                                  n=self.total_files,
                                                                                  local=filepath, dam=dam_path,
                                                                                  benchmark=benchmark))
-        touch(lock_file)
+        self.upload_registry.mark_uploaded(filepath)
         return OK

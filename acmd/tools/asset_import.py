@@ -17,6 +17,44 @@ class AssetException(Exception):
     pass
 
 
+class UploadRegistry(object):
+    def __init__(self, server, path, force_root=None):
+        if force_root is not None:
+            self.lock_dir = force_root
+        else:
+            self.lock_dir = ROOT_IMPORT_DIR + "/" + self._hash_job(server, path)
+        log("Cache dir is {}".format(self.lock_dir))
+
+    @staticmethod
+    def _hash_job(server, path):
+        """ Produce unique folder for upload based on path and server """
+        return hashlib.sha1('{}:{}'.format(server.name, path)).hexdigest()[:8]
+
+    def is_uploaded(self, filepath):
+        lock_file = self._lock_file(filepath)
+        return os.path.exists(lock_file)
+
+    def _lock_file(self, filepath):
+        """ Return the filepath to the lock file for a given file """
+        if filepath.startswith('/'):
+            filepath = filepath[1:]
+        return os.path.join(self.lock_dir, filepath)
+
+    def mark_uploaded(self, filepath):
+        lock_file = self._lock_file(filepath)
+        self._touch(lock_file)
+
+    @staticmethod
+    def _touch(filename):
+        """ Create empty file """
+        par_dir = os.path.dirname(filename)
+        if not os.path.exists(par_dir):
+            log("Creating directory {}".format(par_dir))
+            os.makedirs(par_dir, mode=0755)
+        log("Creating lock file {}".format(filename))
+        open(filename, 'a').close()
+
+
 def get_dam_path(filepath, local_import_root, dam_import_root):
     local_dir = os.path.dirname(filepath)
     if dam_import_root is None:
@@ -98,16 +136,6 @@ def filter_unwanted(filename):
 def _ok(status_code):
     """ Returns true if http status code is considered success """
     return status_code == 200 or status_code == 201
-
-
-def touch(filename):
-    """ Create empty file """
-    par_dir = os.path.dirname(filename)
-    if not os.path.exists(par_dir):
-        log("Creating directory {}".format(par_dir))
-        os.makedirs(par_dir, mode=0755)
-    log("Creating lock file {}".format(filename))
-    open(filename, 'a').close()
 
 
 def count_files(dirpath):
