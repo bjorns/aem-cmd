@@ -1,15 +1,14 @@
 # coding: utf-8
-import json
-import tempfile
+import re
 import shutil
-import cgi
-
+import tempfile
 from StringIO import StringIO
+
 from httmock import urlmatch, HTTMock
 from mock import patch
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
-from acmd import get_tool, Server, OK
+from acmd import Server, OK
 from acmd.tools.assets import AssetsTool
 
 
@@ -48,7 +47,9 @@ def test_import_asset_file(stderr, stdout):
                                        'import', 'tests/test_data/assets/logo.jpg'])
 
     eq_('', stderr.getvalue())
-    eq_('1/1 tests/test_data/assets/logo.jpg -> /content/dam/assets\n', stdout.getvalue())
+    _is_valid_upload_line(stdout.getvalue(),
+                          ['2016-11-25 13:12:01', '1/1', 'tests/test_data/assets/logo.jpg -> /content/dam/assets',
+                           '0.0192'])
     eq_(OK, status)
 
     eq_(2, len(http_service.req_log))
@@ -73,9 +74,18 @@ def test_import_asset_directory(stderr, stdout):
 
     lines = stdout.getvalue().split('\n')
     eq_(4, len(lines))
-    eq_(lines[0], '1/3 tests/test_data/assets/logo.jpg -> /content/dam/assets')
-    eq_(lines[1], '2/3 tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir')
-    eq_(lines[2], '3/3 tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir')
+    _is_valid_upload_line(lines[0],
+                          ['2016-11-25 13:12:01', '1/3', 'tests/test_data/assets/logo.jpg -> /content/dam/assets',
+                           '0.0192'])
+    _is_valid_upload_line(lines[1],
+                          ['2016-11-25 13:12:01', '2/3',
+                           'tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir',
+                           '0.0192'])
+    _is_valid_upload_line(lines[2],
+                          ['2016-11-25 13:12:01', '3/3',
+                           'tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir',
+                           '0.0192'])
+
     eq_(OK, status)
 
     eq_(5, len(http_service.req_log))
@@ -93,24 +103,49 @@ def test_import_asset_directory(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_dry_run_import_asset_directory(stderr, stdout):
     http_service = MockHttpService()
-    eq_(0, len(http_service.req_log))
+    eq_([], http_service.req_log)
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
         tool = AssetsTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', '--dry-run', '--lock-dir={}'.format(lock_dir), 'import', 'tests/test_data/assets'])
+        status = tool.execute(server, ['assets', '--dry-run', '--lock-dir={}'.format(lock_dir), 'import',
+                                       'tests/test_data/assets'])
 
     eq_('', stderr.getvalue())
 
     lines = stdout.getvalue().split('\n')
     eq_(4, len(lines))
-    eq_(lines[0], '1/3 tests/test_data/assets/logo.jpg -> /content/dam/assets')
-    eq_(lines[1], '2/3 tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir')
-    eq_(lines[2], '3/3 tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir')
+    _is_valid_upload_line(lines[0],
+                          ['2016-11-25 13:12:01', '1/3', 'tests/test_data/assets/logo.jpg -> /content/dam/assets',
+                           '0.0192'])
+    _is_valid_upload_line(lines[1],
+                          ['2016-11-25 13:12:01', '2/3',
+                           'tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir',
+                           '0.0192'])
+    _is_valid_upload_line(lines[2],
+                          ['2016-11-25 13:12:01', '3/3',
+                           'tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir',
+                           '0.0192'])
+
     eq_(OK, status)
 
-    eq_(0, len(http_service.req_log))
+    eq_([], http_service.req_log)
     shutil.rmtree(lock_dir)
 
 
+def _is_valid_upload_line(line, template):
+    line_parts = line.split('\t')
+    _is_date(line_parts[0])
+    eq_(template[1:-1], line_parts[1:-1])
+    _is_upload_time(line_parts[-1])
+
+
+def _is_date(data):
+    pattern = re.compile('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')
+    ok_(pattern.match(data) is not None)
+
+
+def _is_upload_time(data):
+    pattern = re.compile('\d+\.\d+')
+    ok_(pattern.match(data) is not None)

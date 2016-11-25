@@ -46,8 +46,6 @@ class AssetsTool(object):
 
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        if options.lock_dir is not None:
-            self.lock_dir = options.lock_dir
         log("Cache dir is {}".format(self.lock_dir))
 
         action = get_command(args)
@@ -61,7 +59,10 @@ class AssetsTool(object):
 
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
-        self.lock_dir = ROOT_IMPORT_DIR + "/" + hash_job(server, path)
+        if options.lock_dir is not None:
+            self.lock_dir = options.lock_dir
+        else:
+            self.lock_dir = ROOT_IMPORT_DIR + "/" + hash_job(server, path)
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
         else:
@@ -131,6 +132,7 @@ class AssetsTool(object):
                                                                                  local=filepath, dam=dam_path,
                                                                                  benchmark=benchmark))
         _touch(lock_file)
+        return OK
 
 
 def get_dam_path(filepath, local_import_root, dam_import_root):
@@ -168,6 +170,10 @@ def _create_dir(server, path, dry_run):
     """ Create file in the DAM
         e.g. curl -s -u admin:admin -X POST -F "jcr:primaryType=sling:OrderedFolder" $HOST$dampath > /dev/null
     """
+    if dry_run:
+        log("SKipping creating folder, dry run")
+        return
+
     form_data = {'jcr:primaryType': 'sling:OrderedFolder'}
     url = server.url(path)
     log("POSTing to {}".format(url))
