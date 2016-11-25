@@ -1,18 +1,13 @@
 # coding: utf-8
-import datetime
-import hashlib
-import mimetypes
 import optparse
-import os
-import re
+
 import sys
 import time
 
-import requests
-
-from acmd import OK, USER_ERROR, SERVER_ERROR
-from acmd import tool, error, log
+from acmd import USER_ERROR, SERVER_ERROR
+from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
+from acmd.tools.asset_import import *
 
 ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
 
@@ -29,17 +24,12 @@ parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
 
 
-class AssetException(Exception):
-    pass
-
-
 @tool('assets')
 class AssetsTool(object):
     """ Manage AEM DAM assets """
 
     def __init__(self):
         self.created_paths = set([])
-        # TODO, separate per server
         self.lock_dir = ROOT_IMPORT_DIR
         self.total_files = 1
         self.current_file = 1
@@ -75,16 +65,16 @@ class AssetsTool(object):
         """ Import directory recursively """
         assert os.path.isdir(rootdir)
 
-        self.total_files = _count_files(rootdir)
+        self.total_files = count_files(rootdir)
         log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
 
         status = OK
         for subdir, dirs, files in os.walk(rootdir):
             # _create_dir(server, subdir)
             for filename in files:
+                filepath = os.path.join(subdir, filename)
                 try:
-                    filepath = os.path.join(subdir, filename)
-                    if _filter(filename):
+                    if filter_unwanted(filename):
                         log("Skipping {path}".format(path=filepath))
                         continue
                     self.import_file(server, options, rootdir, filepath)
@@ -118,12 +108,12 @@ class AssetsTool(object):
         log("Uplading {} to {}".format(filepath, dam_path))
 
         if dam_path not in self.created_paths:
-            _create_dir(server, dam_path, options.dry_run)
+            create_dir(server, dam_path, options.dry_run)
             self.created_paths.add(dam_path)
         else:
             log("Skipping creating dam path {}".format(dam_path))
 
-        _post_file(server, filepath, dam_path, options.dry_run)
+        post_file(server, filepath, dam_path, options.dry_run)
         t1 = time.time()
         benchmark = '{0:.3g}'.format(t1 - t0)
         sys.stdout.write("{ts}\t{i}/{n}\t{local} -> {dam}\t{benchmark}\n".format(ts=format_timestamp(t1),
@@ -131,108 +121,5 @@ class AssetsTool(object):
                                                                                  n=self.total_files,
                                                                                  local=filepath, dam=dam_path,
                                                                                  benchmark=benchmark))
-        _touch(lock_file)
+        touch(lock_file)
         return OK
-
-
-def get_dam_path(filepath, local_import_root, dam_import_root):
-    local_dir = os.path.dirname(filepath)
-    if dam_import_root is None:
-        dam_import_root = os.path.join('/content/dam', os.path.basename(local_import_root))
-    dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
-    return dam_path
-
-
-def create_dam_path(local_path, local_import_root, dam_import_root):
-    """ Returns <ok>, <path> """
-    return local_path.replace(local_import_root, dam_import_root)
-
-
-def clean_path(path):
-    """ Replace spaces in target path """
-    ret = path.replace(' ', '_')
-    pattern = re.compile("[a-zA-Z0-9_/-]+")
-    if pattern.match(ret) is None:
-        raise AssetException("File path {} contains unallowed characters".format(path))
-    return ret
-
-
-def format_timestamp(t):
-    return datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S')
-
-
-def hash_job(server, path):
-    """ Produce unique folder for upload based on path and server """
-    return hashlib.sha1('{}:{}'.format(server.name, path)).hexdigest()[:8]
-
-
-def _create_dir(server, path, dry_run):
-    """ Create file in the DAM
-        e.g. curl -s -u admin:admin -X POST -F "jcr:primaryType=sling:OrderedFolder" $HOST$dampath > /dev/null
-    """
-    if dry_run:
-        log("SKipping creating folder, dry run")
-        return
-
-    form_data = {'jcr:primaryType': 'sling:OrderedFolder'}
-    url = server.url(path)
-    log("POSTing to {}".format(url))
-    resp = requests.post(url, auth=server.auth, data=form_data)
-    if not _ok(resp.status_code):
-        raise AssetException("Failed to create directory {}\n{}".format(url, resp.content))
-
-
-def _post_file(server, filepath, dst_path, dry_run):
-    """ POST single file to DAM
-        curl -v -u admin:admin -X POST -i -F "file=@\"$FILENAME\"" $HOST$dampath.createasset.html &> $tempfile
-    """
-    assert os.path.isfile(filepath)
-
-    if dry_run:
-        return OK
-
-    filename = os.path.basename(filepath)
-    f = open(filepath, 'rb')
-    mime, enc = mimetypes.guess_type(filepath)
-    log("Uploading {} as {}, {}".format(f, mime, enc))
-    form_data = dict(
-        file=(filename, f, mime, dict()),
-        fileName=filename
-    )
-
-    url = server.url("{path}.createasset.html".format(path=dst_path, filename=os.path.basename(filepath)))
-    log("POSTing to {}".format(url))
-    resp = requests.post(url, auth=server.auth, files=form_data)
-    if not _ok(resp.status_code):
-        raise AssetException("Failed to upload file {}\n{}".format(filepath, resp.content))
-    return OK
-
-
-def _filter(filename):
-    """ Returns true for hidden or unwanted files """
-    return filename.startswith(".")
-
-
-def _ok(status_code):
-    """ Returns true if http status code is considered success """
-    return status_code == 200 or status_code == 201
-
-
-def _touch(filename):
-    """ Create empty file """
-    par_dir = os.path.dirname(filename)
-    if not os.path.exists(par_dir):
-        log("Creating directory {}".format(par_dir))
-        os.makedirs(par_dir, mode=0755)
-    log("Creating lock file {}".format(filename))
-    open(filename, 'a').close()
-
-
-def _count_files(dirpath):
-    """ Return the number of files in directory """
-    i = 0
-    for subdir, dirs, files in os.walk(dirpath):
-        for filename in files:
-            if not _filter(filename):
-                i += 1
-    return i

@@ -328,7 +328,7 @@ To import a single file into /content/dam
 
     $ acmd assets import ~/Pictures/selfie.jpg
 
-Send file to a separate directory
+Send file to a separate folder
 
     $ acmd assets import -d /content/dam/selfies ~/Pictures/selfie.jpg
 
@@ -337,7 +337,7 @@ will create the node /content/dam/selfies.
 
     $ acmd assets import ~/Images/selfies
 
-The tool maintains a directory of lockfiles under /tmp/acmd_assets_upload on the
+The tool maintains a set of lockfiles under /tmp/acmd_assets_ingest on the
 local filesystem where each uploaded file is marked so that aborted imports can
 be resumed without redoing previous imports. The lockfile directory can be overridden with the
 `--lock-dir` flag.
