@@ -1,5 +1,5 @@
 # coding: utf-8
-__version__ = '0.7.4'
+__version__ = '0.8.0'
 
 # Standard error codes that can be returned from any tool.
 OK = 0
