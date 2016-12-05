@@ -20,7 +20,7 @@ def test_matches():
 
 
 def test_file_filter():
-    file_filter = FileFilter('tests/test_data/test_filter_both.yml')
+    file_filter = FileFilter('tests/test_data/test_filter_both.json')
     eq_(True, file_filter.accept('foobar.png'))
     eq_(True, file_filter.accept('png'))
     eq_(True, file_filter.accept('foobar.jpg'))

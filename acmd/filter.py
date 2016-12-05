@@ -1,12 +1,11 @@
 # coding: utf-8
-
-import yaml
+import json
 
 
 class FileFilter(object):
     def __init__(self, filter_path):
         with open(filter_path, 'r') as stream:
-            self.data = yaml.load(stream)
+            self.data = json.load(stream)
 
     def accept(self, filename):
         reject_obj = self.data.get('reject')
