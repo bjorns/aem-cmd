@@ -8,6 +8,7 @@ from acmd import USER_ERROR, SERVER_ERROR
 from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.tools.asset_import import *
+from acmd.filter import FileFilter
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
@@ -20,6 +21,8 @@ parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
 parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
+parser.add_option("-f", "--filter", dest="filter_file",
+                  help="Read filtering config from json file")
 
 
 @tool('assets')
@@ -31,6 +34,7 @@ class AssetsTool(object):
         self.total_files = 1
         self.current_file = 1
         self.upload_registry = None
+        self.file_filter = None
 
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
@@ -47,6 +51,8 @@ class AssetsTool(object):
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
         self.upload_registry = UploadRegistry(server, path, options.lock_dir)
+        if options.filter_file:
+            self.file_filter = FileFilter(options.filter_file)
 
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
@@ -83,6 +89,14 @@ class AssetsTool(object):
         """ Import single file """
         assert os.path.isfile(filepath)
         t0 = time.time()
+
+        if self.file_filter and not self.file_filter.accept(filepath):
+            msg = "{ts}\t{i}/{n}\tFiltered {local}\n".format(ts=format_timestamp(time.time()),
+                                                             i=self.current_file,
+                                                             n=self.total_files,
+                                                             local=filepath)
+            sys.stdout.write(msg)
+            return OK
 
         if self.upload_registry.is_uploaded(filepath):
             msg = "{ts}\t{i}/{n}\tSkipping {local}\n".format(ts=format_timestamp(time.time()),

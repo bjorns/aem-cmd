@@ -10,7 +10,8 @@ import requests
 from acmd import OK
 from acmd import log
 
-ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
+TMP_ROOT = "/tmp" if os.name == 'posix' else 'C:\\tmp'
+ROOT_IMPORT_DIR = os.path.join(TMP_ROOT, "acmd_assets_ingest")
 
 
 class AssetException(Exception):
@@ -22,7 +23,7 @@ class UploadRegistry(object):
         if force_root is not None:
             self.lock_dir = force_root
         else:
-            self.lock_dir = ROOT_IMPORT_DIR + "/" + self._hash_job(server, path)
+            self.lock_dir = os.path.join(ROOT_IMPORT_DIR, self._hash_job(server, path))
         log("Cache dir is {}".format(self.lock_dir))
 
     @staticmethod
