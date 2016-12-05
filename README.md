@@ -344,6 +344,44 @@ be resumed without redoing previous imports. The lockfile directory can be overr
 
     $ acmd assets import -l ~/my_lock_dir ~/Images/selfies
 
+#### Filter config
+
+The import tool allows the user to filter imported files by path or file type. The following is an example filter config
+file.
+
+```javascript
+{
+    "accept": {
+        "filetypes": [
+            "png",
+            "jpg",
+            "jpeg",
+            "indd",
+            "ai"
+        ],
+        "paths": [
+            "Images/good_ones",
+            "Images/average_ones"
+        ]
+    },
+    "reject": {
+        "filetypes": ["DS_Store"],
+        "paths": [
+            "Images/good_ones/exception"
+        ]
+    }
+}
+```
+
+If the file is saved as filter_config.json it can be applied by
+
+    $ acmd assets import -f filter_config.json ~/Images/selfies
+
+The filtering process is simple:
+
+* If the 'rejected' entry is not defined, only accepted entries are imported
+* If the 'rejected' entry _is_ defined, all files are imported except the ones that match the rejected
+
 ### Remote Copy (rcp)
 
 Note: the rcp tool requires the JackRabbit
