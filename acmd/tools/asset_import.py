@@ -9,6 +9,8 @@ import requests
 
 from acmd import OK
 from acmd import log
+from acmd.tools.utils import aem
+
 
 TMP_ROOT = "/tmp" if os.name == 'posix' else 'C:\\tmp'
 ROOT_IMPORT_DIR = os.path.join(TMP_ROOT, "acmd_assets_ingest")
@@ -33,13 +35,19 @@ class UploadRegistry(object):
 
     def is_uploaded(self, filepath):
         lock_file = self._lock_file(filepath)
+        log("Checking lock file {}".format(lock_file))
         return os.path.exists(lock_file)
 
-    def _lock_file(self, filepath):
+    def _lock_file(self, filepath, os_name=os.name):
         """ Return the filepath to the lock file for a given file """
-        if filepath.startswith('/'):
-            filepath = filepath[1:]
-        return os.path.join(self.lock_dir, filepath)
+        if os_name == 'posix':
+            if filepath.startswith('/'):
+                filepath = filepath[1:]
+            return os.path.join(self.lock_dir, filepath)
+        else:
+            if filepath[1] == ':':
+                filepath = filepath[3:]
+            return os.path.join(self.lock_dir, filepath)
 
     def mark_uploaded(self, filepath):
         lock_file = self._lock_file(filepath)
@@ -59,14 +67,18 @@ class UploadRegistry(object):
 def get_dam_path(filepath, local_import_root, dam_import_root):
     local_dir = os.path.dirname(filepath)
     if dam_import_root is None:
-        dam_import_root = os.path.join('/content/dam', os.path.basename(local_import_root))
+        dam_import_root = aem.path.join('/content/dam', os.path.basename(local_import_root))
     dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
     return dam_path
 
 
 def create_dam_path(local_path, local_import_root, dam_import_root):
     """ Returns <ok>, <path> """
-    return local_path.replace(local_import_root, dam_import_root)
+    ret = local_path.replace(local_import_root, dam_import_root)
+    log("=== 1 {}".format(ret))
+    ret = ret.replace("\\", "/")
+    log("=== 2 {}".format(ret))
+    return ret
 
 
 def clean_path(path):
