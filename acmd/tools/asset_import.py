@@ -75,9 +75,7 @@ def get_dam_path(filepath, local_import_root, dam_import_root):
 def create_dam_path(local_path, local_import_root, dam_import_root):
     """ Returns <ok>, <path> """
     ret = local_path.replace(local_import_root, dam_import_root)
-    log("=== 1 {}".format(ret))
     ret = ret.replace("\\", "/")
-    log("=== 2 {}".format(ret))
     return ret
 
 

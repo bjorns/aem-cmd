@@ -1,11 +1,14 @@
 # coding: utf-8
 from StringIO import StringIO
-from acmd import tool_repo, Server, USER_ERROR, SERVER_ERROR
 
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
 
+from acmd import tool_repo, Server, USER_ERROR, SERVER_ERROR
+from acmd.tools import init_default_tools
+
+init_default_tools()
 
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(url, request):

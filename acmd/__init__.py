@@ -34,9 +34,7 @@ import acmd.props
 parse_properties = acmd.props.parse_properties
 
 
-from acmd.tool_repository import ToolRepo, tool, _repo
-tool_repo = _repo
-
-
-# Has to be last if tools init depend on this file.
-import acmd.tools
+import acmd.repo
+tool_repo = acmd.repo.tool_repo
+tool = acmd.repo.tool
+import_tools = acmd.repo.import_tools

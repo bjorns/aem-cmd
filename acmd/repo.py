@@ -3,6 +3,8 @@ import os
 import sys
 
 from acmd.logger import log
+from acmd.tools import init_default_tools
+
 
 class ToolRepo(object):
     def __init__(self):
@@ -43,8 +45,9 @@ class ToolRepo(object):
     def set_current_project(self, name):
         self._init_project = name
 
+# Global singleton, no use in passing the thing around
+tool_repo = ToolRepo()
 
-_repo = ToolRepo()
 
 def tool(tool_name, commands=None):
     """ Tool decorator.
@@ -58,14 +61,15 @@ def tool(tool_name, commands=None):
     """
 
     def class_rebuilder(cls):
-        global _repo
+        global tool_repo
         instance = cls()
 
         instance.name = tool_name
         if not hasattr(instance, 'commands'):
             instance.commands = commands if commands is not None else []
         _module = __import__(cls.__module__, locals(), globals(), '__main__', 0)
-        _repo.register_tool(instance, _module)
+
+        tool_repo.register_tool(instance, _module)
         return cls
 
     return class_rebuilder
@@ -87,31 +91,3 @@ def import_tools(path, package=None):
         else:
             __import__(module[:-3], locals(), globals())
     del module
-
-
-# def set_current_project(name):
-#     """ Set a project name context when initializing project tools. """
-#     global _repo
-#     _repo.set_current_project(name)
-#
-#
-# def register_tool(_tool, _module):
-#     global _repo
-#     _repo.register_tool(_tool, _module)
-#
-#
-# def get_tool(tool_name):
-#     global _repo
-#     return _repo.get_tool(tool_name)
-#
-#
-# def get_module(tool_name):
-#     global _repo
-#     return _repo.get_module(tool_name)
-#
-#
-# def list_tools():
-#     """ Returns list of all tool names."""
-#     global _repo
-#     return _repo.list_tools()
-#

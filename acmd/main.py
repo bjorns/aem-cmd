@@ -5,7 +5,7 @@ import sys
 import optparse
 
 import acmd
-import acmd.tool_repository
+import acmd.tools
 
 USAGE = """acmd [options] <tool> <args>
     Run 'acmd help' for list of available tools"""
@@ -31,7 +31,7 @@ def load_projects(projects):
         sys.path.insert(1, path)
         init_file = os.path.join(path, '__init__.py')
         acmd.tool_repo.set_current_project(name)
-        acmd.tool_repository.import_tools(init_file)
+        acmd.import_tools(init_file)
         ret[name] = path
     return ret
 
@@ -43,6 +43,7 @@ def run(options, config, args, cmdargs):
         sys.stderr.write("error: server '{srv}' not found.\n".format(srv=options.server))
         return acmd.USER_ERROR
     acmd.log("Using server {}".format(server))
+
     cmd = acmd.tool_repo.get_tool(tool_name)
     if cmd is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
@@ -72,6 +73,8 @@ def main(argv):
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)
     acmd.init_log(options.verbose)
+
+    acmd.tools.init_default_tools()
 
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))
