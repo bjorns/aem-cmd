@@ -6,7 +6,7 @@ from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 
 class MockWorkflowsService(object):
@@ -60,7 +60,7 @@ def test_list_workflows(stderr, stdout):
     service = MockHttpService(task_service)
 
     with HTTMock(service):
-        tool = get_tool('workflows')
+        tool = tool_repo.get_tool('workflows')
         server = Server('localhost')
         status = tool.execute(server, ['workflows', 'ls'])
         lines = [
@@ -81,7 +81,7 @@ def test_start_workflow(stderr, stdout):
     service = MockHttpService(wf_service)
 
     with HTTMock(service):
-        tool = get_tool('workflows')
+        tool = tool_repo.get_tool('workflows')
         server = Server('localhost')
         status = tool.execute(server, ['workflows', 'start', '/dam/update_asset', '/content/dam/something/image.png'])
         eq_('', stderr.getvalue())

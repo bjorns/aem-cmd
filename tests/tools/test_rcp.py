@@ -5,7 +5,7 @@ from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 
 class MockTaskService(object):
@@ -125,7 +125,7 @@ def test_rcp_ls(stderr, stdout):
     service = MockHttpService(task_service)
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server, ['ls'])
         eq_(0, status)
@@ -144,7 +144,7 @@ def test_rcp_create(stderr, stdout):
     service = MockHttpService()
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server,
                               ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '/content/dam/data'])
@@ -167,7 +167,7 @@ def test_rcp_create_flags(stderr, stdout):
     service = MockHttpService()
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server,
                               ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '--new-only', '/content/dam/data'])
@@ -181,7 +181,7 @@ def test_rcp_create_flags(stderr, stdout):
     service = MockHttpService()
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server,
                               ['rcp', 'create', '-s', 'other-host:4502', '-c', 'user:pass', '--ignore-modified',
@@ -201,7 +201,7 @@ def test_rcp_start(stderr, stdout):
     service = MockHttpService(task_service)
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         # TODO: Run tests without force flag
         status = tool.execute(server, ['rcp', 'start', 'rcp-0ed9f8', '--force'])
@@ -221,7 +221,7 @@ def test_rcp_stop(stderr, stdout):
     service = MockHttpService(task_service)
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         # TODO: Run tests without force flag
         status = tool.execute(server, ['rcp', 'stop', 'rcp-0ed9f8', '--force'])
@@ -240,7 +240,7 @@ def test_rcp_rm(stderr, stdout):
     service = MockHttpService(task_service)
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server, ['rcp', 'rm', 'rcp-0ed9f8'])
         eq_(0, status)
@@ -254,7 +254,7 @@ def test_rcp_fetch(stderr, stdout):
     service = MockHttpService()
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         # TODO: Run tests without force flag
         status = tool.execute(server, ['rcp', 'fetch', '-s', 'other-server:4502', '-c',
@@ -280,7 +280,7 @@ def test_rcp_clear(stderr, stdout):
     eq_(2, len(task_service.tasks))
 
     with HTTMock(service):
-        tool = get_tool('rcp')
+        tool = tool_repo.get_tool('rcp')
         server = Server('localhost')
         status = tool.execute(server, ['rcp', 'clear'])
         eq_(0, status)

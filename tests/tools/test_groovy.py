@@ -1,6 +1,6 @@
 # coding: utf-8
 from StringIO import StringIO
-from acmd import get_tool, Server, USER_ERROR, SERVER_ERROR
+from acmd import tool_repo, Server, USER_ERROR, SERVER_ERROR
 
 from mock import patch
 from httmock import urlmatch, HTTMock
@@ -17,7 +17,7 @@ def service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_missing_file_param(stderr, stdout):
-    tool = get_tool('groovy')
+    tool = tool_repo.get_tool('groovy')
     server = Server('localhost')
     status = tool.execute(server, ['groovy'])
     eq_(USER_ERROR, status)
@@ -29,7 +29,7 @@ def test_missing_file_param(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_execute(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('groovy')
+        tool = tool_repo.get_tool('groovy')
         server = Server('localhost')
         status = tool.execute(server, ['groovy', 'tests/test_data/script.groovy'])
         eq_(0, status)
@@ -44,7 +44,7 @@ EXPECTED_RAW_OUTPUT = '{\n    "outputText": "foo\\n", \n    "stacktraceText": ""
 @patch('sys.stderr', new_callable=StringIO)
 def test_execute_raw_output(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('groovy')
+        tool = tool_repo.get_tool('groovy')
         server = Server('localhost')
         status = tool.execute(server, ['groovy', '--raw', 'tests/test_data/script.groovy'])
         eq_(0, status)
@@ -63,7 +63,7 @@ def broken_service(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_error_response(stderr, stdout):
     with HTTMock(broken_service):
-        tool = get_tool('groovy')
+        tool = tool_repo.get_tool('groovy')
         server = Server('localhost')
         status = tool.execute(server, ['groovy', 'tests/test_data/script.groovy'])
         eq_(SERVER_ERROR, status)
@@ -83,7 +83,7 @@ def script_error_service(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_script_error(stderr, stdout):
     with HTTMock(script_error_service):
-        tool = get_tool('groovy')
+        tool = tool_repo.get_tool('groovy')
         server = Server('localhost')
         status = tool.execute(server, ['groovy', 'tests/test_data/script.groovy'])
         eq_(SERVER_ERROR, status)

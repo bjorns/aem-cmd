@@ -5,12 +5,12 @@ from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
 
-from acmd import get_tool, Server, USER_ERROR
+from acmd import tool_repo, Server, USER_ERROR
 from acmd.tools import packages
 
 
 def test_tool_registration():
-    tool = get_tool('packages')
+    tool = tool_repo.get_tool('packages')
     assert tool is not None
 
 
@@ -159,7 +159,7 @@ def test_install_package_raw(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_build_package(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = get_tool('packages')
+        tool = tool_repo.get_tool('packages')
         server = Server('localhost')
         status = tool.execute(server, ['packages', 'build', 'mock_package'])
         eq_(0, status)
@@ -174,7 +174,7 @@ def test_build_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_download(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = get_tool('packages')
+        tool = tool_repo.get_tool('packages')
         server = Server('localhost')
         status = tool.execute(server, ['packages', 'download', 'mock_package'])
     eq_(0, status)
@@ -187,7 +187,7 @@ def test_download(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_bad_command(stderr, stdout):
-    tool = get_tool('packages')
+    tool = tool_repo.get_tool('packages')
     server = Server('localhost')
     status = tool.execute(server, ['packages', 'nonexisting', 'mock_package'])
     eq_(USER_ERROR, status)

@@ -5,6 +5,5 @@ get_command = tool_utils.get_command
 get_argument = tool_utils.get_argument
 filter_system = tool_utils.filter_system
 
-
-import acmd.tool_repo
-acmd.tool_repo.import_tools(__file__, 'acmd.tools')
+import acmd.tool_repository
+acmd.tool_repository.import_tools(__file__, 'acmd.tools')

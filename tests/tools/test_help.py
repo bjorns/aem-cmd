@@ -4,14 +4,14 @@ from StringIO import StringIO
 from mock import patch
 from nose.tools import eq_, ok_
 
-from acmd import get_tool, Server, OK
+from acmd import tool_repo, Server, OK
 import acmd.config
 
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_tools(stderr, stdout):
-    tool = get_tool('help')
+    tool = tool_repo.get_tool('help')
     server = Server('localhost')
     status = tool.execute(server, ['help'])
 
@@ -45,7 +45,7 @@ def test_list_tools(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_tools(stderr, stdout):
-    tool = get_tool('help')
+    tool = tool_repo.get_tool('help')
     server = Server('localhost')
     status = tool.execute(server, ['help', '--compact'])
 
@@ -84,7 +84,7 @@ def test_list_servers(stderr, stdout):
     config.servers['server3'] = Server('server3')
     acmd.config._current_config = config
 
-    tool = get_tool('help')
+    tool = tool_repo.get_tool('help')
     server = Server('localhost')
     status = tool.execute(server, ['help', '_servers'])
     lines = [x.strip() for x in stdout.getvalue().split('\n')]

@@ -5,6 +5,7 @@ import sys
 import optparse
 
 import acmd
+import acmd.tool_repository
 
 USAGE = """acmd [options] <tool> <args>
     Run 'acmd help' for list of available tools"""
@@ -29,8 +30,8 @@ def load_projects(projects):
         path = os.path.expanduser(path)
         sys.path.insert(1, path)
         init_file = os.path.join(path, '__init__.py')
-        acmd.set_current_project(name)
-        acmd.import_tools(init_file)
+        acmd.tool_repo.set_current_project(name)
+        acmd.tool_repository.import_tools(init_file)
         ret[name] = path
     return ret
 
@@ -42,7 +43,7 @@ def run(options, config, args, cmdargs):
         sys.stderr.write("error: server '{srv}' not found.\n".format(srv=options.server))
         return acmd.USER_ERROR
     acmd.log("Using server {}".format(server))
-    cmd = acmd.get_tool(tool_name)
+    cmd = acmd.tool_repo.get_tool(tool_name)
     if cmd is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         return acmd.USER_ERROR
@@ -56,7 +57,7 @@ def split_argv(argv):
         ['foo', 'bar', 'inspect', 'bink', 'bonk']
             => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
     for i, arg in enumerate(argv):
-        if acmd.get_tool(arg) is not None:
+        if acmd.tool_repo.has_tool(arg):
             return argv[0:i + 1], argv[i:]
     return argv, []
 

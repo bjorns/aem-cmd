@@ -3,13 +3,13 @@ from StringIO import StringIO
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 from acmd.tools import search
 
 
 def test_tool_registration():
-    tool = get_tool('search')
+    tool = tool_repo.get_tool('search')
     assert tool is not None
 
 @urlmatch(netloc='localhost:4502', path="/bin/querybuilder.json", query="path=%2Fcontent&1_property.value=bar&p.limit=3&1_property=foo")
@@ -26,7 +26,7 @@ EXPECTED_LIST = """/content/paths/hit0
 @patch('sys.stdout', new_callable=StringIO)
 def test_list_bundles(stdout):
     with HTTMock(service_mock):
-        tool = get_tool('search')
+        tool = tool_repo.get_tool('search')
         server = Server('localhost')
 
         tool.execute(server, ['search', '--path=/content', '--limit=3', 'foo=bar'])

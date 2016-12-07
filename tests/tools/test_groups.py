@@ -2,7 +2,7 @@
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
-from acmd import get_tool, Server, USER_ERROR, OK
+from acmd import tool_repo, Server, USER_ERROR, OK
 from StringIO import StringIO
 
 
@@ -19,7 +19,7 @@ def service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_print_help(stderr, stdout):
-    tool = get_tool('groups')
+    tool = tool_repo.get_tool('groups')
     server = Server('localhost')
     try:
         status = tool.execute(server, ['groups', '--help'])
@@ -33,7 +33,7 @@ def test_print_help(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_create_group(stderr, stdout):
-    tool = get_tool('groups')
+    tool = tool_repo.get_tool('groups')
     server = Server('localhost')
     with HTTMock(service_mock):
         status = tool.execute(server, ['groups', 'create', 'mynewgroup1711'])
@@ -58,7 +58,7 @@ def adduser_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_add_user(stderr, stdout):
-    tool = get_tool('groups')
+    tool = tool_repo.get_tool('groups')
     server = Server('localhost')
     with HTTMock(adduser_mock):
         status = tool.execute(server, ['groups', 'adduser', 'mynewgroup1711', 'jdoe'])
@@ -96,7 +96,7 @@ EXPECTED_GROUPS = """Available groups:
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_groups_users(stderr, stdout):
-    tool = get_tool('groups')
+    tool = tool_repo.get_tool('groups')
     server = Server('localhost')
     with HTTMock(list_groups_mock):
         status = tool.execute(server, ['groups', 'list'])
@@ -121,7 +121,7 @@ tag-administrators
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_groups_users_compact(stderr, stdout):
-    tool = get_tool('groups')
+    tool = tool_repo.get_tool('groups')
     server = Server('localhost')
     with HTTMock(list_groups_mock):
         status = tool.execute(server, ['groups', 'list', '--compact'])

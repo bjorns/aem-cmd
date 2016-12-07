@@ -1,5 +1,5 @@
 # coding: utf-8
-from acmd import get_tool, Server, OK
+from acmd import tool_repo, Server, OK
 from StringIO import StringIO
 
 from mock import patch
@@ -20,7 +20,7 @@ def create_service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_print_help(stderr, stdout):
-    tool = get_tool('users')
+    tool = tool_repo.get_tool('users')
     server = Server('localhost')
     try:
         tool.execute(server, ['users', '--help'])
@@ -34,7 +34,7 @@ def test_print_help(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_create_user(stderr, stdout):
-    tool = get_tool('users')
+    tool = tool_repo.get_tool('users')
     server = Server('localhost')
     with HTTMock(create_service_mock):
         status = tool.execute(server, ['users', 'create', '--password=passwd', 'jdoe'])
@@ -57,7 +57,7 @@ def setprop_service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_set_property(stderr, stdout):
-    tool = get_tool('users')
+    tool = tool_repo.get_tool('users')
     server = Server('localhost')
     with HTTMock(setprop_service_mock):
         status = tool.execute(server, ['users', 'setprop', 'jdoe', 'prop0=val0,prop1="Quoted value"'])
@@ -89,7 +89,7 @@ EXPECTED_RESPONSE = """Available users:
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_users(stderr, stdout):
-    tool = get_tool('users')
+    tool = tool_repo.get_tool('users')
     server = Server('localhost')
     with HTTMock(list_users_mock):
         status = tool.execute(server, ['users', 'list'])
@@ -110,7 +110,7 @@ previewer
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_users_compact(stderr, stdout):
-    tool = get_tool('users')
+    tool = tool_repo.get_tool('users')
     server = Server('localhost')
     with HTTMock(list_users_mock):
         status = tool.execute(server, ['users', 'list', '--compact'])
