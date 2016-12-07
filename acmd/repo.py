@@ -31,8 +31,7 @@ class ToolRepo(object):
         return ret
 
     def has_tool(self, tool_name):
-        ret = self._tools.get(tool_name)
-        return ret is not None
+        return tool_name in self._tools
 
     def get_module(self, tool_name):
         return self._modules[tool_name]

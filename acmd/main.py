@@ -44,12 +44,12 @@ def run(options, config, args, cmdargs):
         return acmd.USER_ERROR
     acmd.log("Using server {}".format(server))
 
-    cmd = acmd.tool_repo.get_tool(tool_name)
-    if cmd is None:
+    _tool = acmd.tool_repo.get_tool(tool_name)
+    if _tool is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         return acmd.USER_ERROR
     else:
-        return cmd.execute(server, cmdargs)
+        return _tool.execute(server, cmdargs)
 
 
 def split_argv(argv):
@@ -57,9 +57,14 @@ def split_argv(argv):
         and tool arguments afterwards.
         ['foo', 'bar', 'inspect', 'bink', 'bonk']
             => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
+    acmd.log("Splitting {}".format(argv))
     for i, arg in enumerate(argv):
+        acmd.log("Checking for {}".format(arg))
         if acmd.tool_repo.has_tool(arg):
-            return argv[0:i + 1], argv[i:]
+            left = argv[0:i + 1]
+            right = argv[i:]
+            acmd.log("Splitting args in {} and {}".format(left, right))
+            return left, right
     return argv, []
 
 
