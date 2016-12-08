@@ -75,11 +75,11 @@ def main(argv):
     config = acmd.read_config(rcfilename)
     load_projects(config.projects)
 
+    acmd.tools.init_default_tools()
+
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)
     acmd.init_log(options.verbose)
-
-    acmd.tools.init_default_tools()
 
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))
