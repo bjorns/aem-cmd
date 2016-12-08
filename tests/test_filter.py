@@ -27,5 +27,5 @@ def test_file_filter():
     eq_(True, file_filter.accept('/Users/bjorn/Images/good_ones/test.png'))
     eq_(False, file_filter.accept('/Users/bjorn/Images/good_ones/exception/test.png'))
     eq_(False, file_filter.accept('/Users/bjorn/Images/.DS_Store'))
-
+    eq_(False, file_filter.accept('essay.docx'))
 

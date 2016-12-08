@@ -11,13 +11,17 @@ class FileFilter(object):
         reject_obj = self.data.get('reject')
         accept_obj = self.data.get('accept', dict())
 
-        if reject_obj is None:
-            return matches(accept_obj, filename)
-        else:
-            return not matches(reject_obj, filename)
+        ret = True
+
+        if accept_obj:
+            ret = ret and matches(accept_obj, filename)
+        if reject_obj:
+            ret = ret and not matches(reject_obj, filename)
+        return ret
 
 
 def matches(filter_obj, filename):
+    assert filter_obj is not None
     for filetype in filter_obj.get('filetypes', []):
         if filename.endswith(filetype):
             return True
