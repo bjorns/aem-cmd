@@ -332,6 +332,20 @@ Send file to a separate folder
 
     $ acmd assets import -d /content/dam/selfies ~/Pictures/selfie.jpg
 
+If a directory is given it will be recreated at /content/dam
+
+    $ acmd assets import ~/Images/selfies
+
+will create /content/dam/selfies.
+
+The maintains a directory of lockfiles under /tmp/acmd_assets_upload where each
+uploaded file is marked so that aborted imports can be resumed without redoing
+previous imports. The lockfile directory can be overridden with the
+`--lock-dir` flag.
+
+    $ acmd assets import -l ~/my_lock_dir ~/Images/selfies
+
+
 If a directory is given it will be recreated at /content/dam. The following
 will create the node /content/dam/selfies.
 

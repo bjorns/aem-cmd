@@ -9,7 +9,6 @@ from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.tools.asset_import import *
 from acmd.filter import FileFilter
-from acmd.tools.utils import aem
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
