@@ -18,8 +18,7 @@ A quick install script is provided for convenience:
 
     $ curl https://raw.githubusercontent.com/bjorns/aem-cmd/master/get-acmd.sh | bash
 
-Note: The install script requires sudo access. There is always a risk to
-running arbitrary code off the internet like this.
+Note: The install script requires sudo access.
 
 #### Manual install
 
@@ -45,7 +44,7 @@ be installed by pip so to install it use the install_bash_completion command.
     Password:
     Installed bash completion script in /etc/bash_completion.d
 
-Note 1: The bash completion works best in bash 4. Due to licensing issues Mac OS still
+Note 1: The bash completion works best in bash 4. Due to licensing issues macOS still
 comes with bash 3 by default but it is possible to upgrade. See
 [here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
 
