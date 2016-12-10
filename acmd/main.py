@@ -5,6 +5,7 @@ import sys
 import optparse
 
 import acmd
+import acmd.tools
 
 USAGE = """acmd [options] <tool> <args>
     Run 'acmd help' for list of available tools"""
@@ -29,7 +30,7 @@ def load_projects(projects):
         path = os.path.expanduser(path)
         sys.path.insert(1, path)
         init_file = os.path.join(path, '__init__.py')
-        acmd.set_current_project(name)
+        acmd.tool_repo.set_current_project(name)
         acmd.import_tools(init_file)
         ret[name] = path
     return ret
@@ -42,12 +43,13 @@ def run(options, config, args, cmdargs):
         sys.stderr.write("error: server '{srv}' not found.\n".format(srv=options.server))
         return acmd.USER_ERROR
     acmd.log("Using server {}".format(server))
-    cmd = acmd.get_tool(tool_name)
-    if cmd is None:
+
+    _tool = acmd.tool_repo.get_tool(tool_name)
+    if _tool is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         return acmd.USER_ERROR
     else:
-        return cmd.execute(server, cmdargs)
+        return _tool.execute(server, cmdargs)
 
 
 def split_argv(argv):
@@ -55,9 +57,14 @@ def split_argv(argv):
         and tool arguments afterwards.
         ['foo', 'bar', 'inspect', 'bink', 'bonk']
             => (['foo', 'bar', 'inspect'], ['inspect', 'bink', 'bonk'])"""
+    acmd.log("Splitting {}".format(argv))
     for i, arg in enumerate(argv):
-        if acmd.get_tool(arg) is not None:
-            return argv[0:i + 1], argv[i:]
+        acmd.log("Checking for {}".format(arg))
+        if acmd.tool_repo.has_tool(arg):
+            left = argv[0:i + 1]
+            right = argv[i:]
+            acmd.log("Splitting args in {} and {}".format(left, right))
+            return left, right
     return argv, []
 
 
@@ -67,6 +74,8 @@ def main(argv):
         acmd.setup_rcfile(rcfilename)
     config = acmd.read_config(rcfilename)
     load_projects(config.projects)
+
+    acmd.tools.init_default_tools()
 
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)

@@ -6,8 +6,9 @@ from httmock import urlmatch, HTTMock
 
 from nose.tools import eq_
 
+import acmd.tools
 from acmd.tools import bundles
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 BUNDLE_LIST = """{
     "data": [
@@ -54,7 +55,7 @@ BUNDLE_LIST = """{
 
 
 def test_tool_registration():
-    tool = get_tool('bundles')
+    tool = tool_repo.get_tool('bundles')
     assert tool is not None
 
 
@@ -94,7 +95,7 @@ def test_stop_bundle(stderr, stdout):
     global _expected_action
     _expected_action = 'stop'
     with HTTMock(mock_bundle):
-        tool = get_tool('bundles')
+        tool = tool_repo.get_tool('bundles')
         server = Server('localhost')
         ret = tool.execute(server, ['bundles', 'stop', 'mock_bundle'])
         eq_('', stdout.getvalue())
@@ -113,7 +114,7 @@ def test_start_bundle(stderr, stdout):
     global _expected_action
     _expected_action = 'start'
     with HTTMock(mock_bundle):
-        tool = get_tool('bundles')
+        tool = tool_repo.get_tool('bundles')
         server = Server('localhost')
         ret = tool.execute(server, ['bundles', 'start', 'mock_bundle'])
         eq_('', stdout.getvalue())
@@ -129,7 +130,7 @@ def test_start_bundle(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_bad_command(stderr, stdout):
-    tool = get_tool('bundles')
+    tool = tool_repo.get_tool('bundles')
     server = Server('localhost')
     ret = tool.execute(server, ['bundles', 'foobar'])
     eq_('', stdout.getvalue())

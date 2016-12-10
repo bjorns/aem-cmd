@@ -5,7 +5,7 @@ from nose.tools import eq_
 
 from mock import patch
 
-from acmd import tool, get_tool, __version__
+from acmd import tool, tool_repo, __version__
 from acmd.main import main
 
 
@@ -34,7 +34,7 @@ def test_show_version(stdout):
 @patch('acmd.main.load_projects')
 @patch('acmd.deploy.deploy_bash_completion')
 def test_run_tool(deploy_bash, load_proj):
-    _tool = get_tool('mock_tool')
+    _tool = tool_repo.get_tool('mock_tool')
     eq_(False, _tool.did_run)
 
     args = ['acmd', 'mock_tool']
@@ -47,5 +47,5 @@ def test_run_tool(deploy_bash, load_proj):
 
     eq_(True, load_proj.called)
     
-    _tool = get_tool('mock_tool')
+    _tool = tool_repo.get_tool('mock_tool')
     eq_(True, _tool.did_run)

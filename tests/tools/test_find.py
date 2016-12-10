@@ -5,7 +5,7 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
@@ -68,7 +68,7 @@ def service_mock(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_find(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('find')
+        tool = tool_repo.get_tool('find')
         server = Server('localhost')
         status = tool.execute(server, ['find', '/content'])
         eq_(0, status)
@@ -81,7 +81,7 @@ def test_find(stderr, stdout):
 @patch('sys.stdin', new=StringIO('/content\n'))
 def test_find_stdin(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('find')
+        tool = tool_repo.get_tool('find')
         server = Server('localhost')
         status = tool.execute(server, ['find'])
         eq_(0, status)

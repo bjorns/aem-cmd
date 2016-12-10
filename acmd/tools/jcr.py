@@ -26,14 +26,18 @@ class ListTool(object):
     """
 
     def execute(self, server, argv):
-        log("Executing {}".format(self.name))
+        log("Executing2 {}".format(self.name))
         options, args = parser.parse_args(argv)
+        log("Done {}".format(len(args)))
         if len(args) >= 2:
             path = args[1]
+            log("Listing {}".format(path))
             return list_node(server, options, path)
         else:
             ret = OK
+
             for path in sys.stdin:
+                log("Listing subpath {}".format(path))
                 ret = ret | list_node(server, options, path.strip())
             return ret
 

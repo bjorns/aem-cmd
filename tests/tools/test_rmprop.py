@@ -5,7 +5,7 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 
 @urlmatch(netloc='localhost:4502', method='POST')
@@ -18,7 +18,7 @@ def service_mock(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_rmprop(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('rmprop')
+        tool = tool_repo.get_tool('rmprop')
         server = Server('localhost')
         status = tool.execute(server, ['rmprop', 'prop0,prop1', '/content/path/node'])
         eq_(0, status)
@@ -30,7 +30,7 @@ def test_rmprop(stderr, stdout):
 @patch('sys.stdin', new=StringIO("/path0\n/path1\n"))
 def test_rmprop_stdin(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('rmprop')
+        tool = tool_repo.get_tool('rmprop')
         server = Server('localhost')
         status = tool.execute(server, ['rmprop', 'prop0,prop1'])
         eq_(0, status)

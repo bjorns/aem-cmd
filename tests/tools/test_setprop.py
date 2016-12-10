@@ -5,7 +5,7 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 from acmd.tools.jcr import parse_properties
 
 
@@ -57,7 +57,7 @@ def service_mock(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_setprop(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('setprop')
+        tool = tool_repo.get_tool('setprop')
         server = Server('localhost')
         status = tool.execute(server, ['setprop', 'prop0=value0,prop1=value1', '/content/path/node'])
         eq_(0, status)
@@ -69,7 +69,7 @@ def test_setprop(stderr, stdout):
 @patch('sys.stdin', new=StringIO("/path0\n/path1\n"))
 def test_setprop_stdin(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('setprop')
+        tool = tool_repo.get_tool('setprop')
         server = Server('localhost')
         status = tool.execute(server, ['setprop', 'prop0=value0,prop1=value1'])
         eq_(0, status)

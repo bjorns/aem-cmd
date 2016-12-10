@@ -5,7 +5,7 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 from acmd.tools.jcr import parse_properties
 
 
@@ -64,7 +64,7 @@ def service_mock(url, request):
 @patch('sys.stderr', new_callable=StringIO)
 def test_ls(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('ls')
+        tool = tool_repo.get_tool('ls')
         server = Server('localhost')
         status = tool.execute(server, ['ls', '/content/path'])
         eq_(0, status)
@@ -77,7 +77,7 @@ def test_ls(stderr, stdout):
 @patch('sys.stdin', new=StringIO("/content/path\n"))
 def test_ls_stdin(stderr, stdout):
     with HTTMock(service_mock):
-        tool = get_tool('ls')
+        tool = tool_repo.get_tool('ls')
         server = Server('localhost')
         status = tool.execute(server, ['ls'])
         eq_(0, status)

@@ -4,11 +4,9 @@ import optparse
 import sys
 
 from acmd import error, USER_ERROR
-from acmd import get_tool
-from acmd import list_tools
 from acmd import tool, get_current_config, OK
 from acmd.config import DEFAULT_SERVER_SETTING
-from acmd.tool_repo import get_module
+from acmd import tool_repo
 from acmd.tools import get_command
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
@@ -22,7 +20,7 @@ class IntrospectTool(object):
     @property
     def commands(self):
         """ Allow autocomplete of help tools. """
-        return list_tools()
+        return tool_repo.list_tools()
 
     @staticmethod
     def execute(_, argv):
@@ -34,8 +32,8 @@ class IntrospectTool(object):
         elif arg == '_servers':
             print_servers(sys.stdout)
         else:
-            _tool = get_tool(arg)
-            _module = get_module(arg)
+            _tool = tool_repo.get_tool(arg)
+            _module = tool_repo.get_module(arg)
             if _tool is None:
                 error("No tool named {} found".format(arg))
                 print_tools(sys.stderr, options.compact)
@@ -62,9 +60,9 @@ def print_servers(f):
 
 def print_tools(f, compact):
     if compact:
-        for arg in list_tools():
+        for arg in tool_repo.list_tools():
             f.write("{cmd}\n".format(cmd=arg))
     else:
         sys.stdout.write("Available tools:\n")
-        for arg in list_tools():
+        for arg in tool_repo.list_tools():
             f.write("    {cmd}\n".format(cmd=arg))

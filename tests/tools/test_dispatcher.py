@@ -1,6 +1,6 @@
 # coding: utf-8
 from StringIO import StringIO
-from acmd import get_tool, Server
+from acmd import tool_repo, Server
 
 from nose.tools import eq_
 from mock import patch
