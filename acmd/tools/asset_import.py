@@ -12,8 +12,7 @@ from acmd import log
 from acmd.tools.utils import aem
 
 
-TMP_ROOT = "/tmp" if os.name == 'posix' else 'C:\\tmp'
-ROOT_IMPORT_DIR = os.path.join(TMP_ROOT, "acmd_assets_ingest")
+ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
 
 
 class AssetException(Exception):
@@ -40,14 +39,9 @@ class UploadRegistry(object):
 
     def _lock_file(self, filepath, os_name=os.name):
         """ Return the filepath to the lock file for a given file """
-        if os_name == 'posix':
-            if filepath.startswith('/'):
-                filepath = filepath[1:]
-            return os.path.join(self.lock_dir, filepath)
-        else:
-            if filepath[1] == ':':
-                filepath = filepath[3:]
-            return os.path.join(self.lock_dir, filepath)
+        if filepath.startswith('/'):
+            filepath = filepath[1:]
+        return os.path.join(self.lock_dir, filepath)
 
     def mark_uploaded(self, filepath, dry_run=False):
         lock_file = self._lock_file(filepath, dry_run)
