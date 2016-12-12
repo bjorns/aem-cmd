@@ -2,6 +2,11 @@
 import sys
 from acmd.main import main
 
+import sys
+reload(sys)
+
+sys.setdefaultencoding('utf8')
+
 if __name__ == '__main__':
     try:
         main(sys.argv)

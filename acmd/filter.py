@@ -29,7 +29,6 @@ def matches(filter_obj, filename):
         try:
             if path in filename:
                 return True
-        except:
-            import pdb; pdb.set_trace()
-            error(u"Failed to decude {}".format(path))
+        except UnicodeDecodeError:
+            error(u"Failed to decode {}".format(path))
     return False
