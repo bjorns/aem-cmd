@@ -1,6 +1,6 @@
 # coding: utf-8
 import json
-
+from acmd import log, error
 
 class FileFilter(object):
     def __init__(self, filter_path):
@@ -26,6 +26,10 @@ def matches(filter_obj, filename):
         if filename.endswith(filetype):
             return True
     for path in filter_obj.get('paths', []):
-        if path in filename:
-            return True
+        try:
+            if path in filename:
+                return True
+        except:
+            import pdb; pdb.set_trace()
+            error(u"Failed to decude {}".format(path))
     return False
