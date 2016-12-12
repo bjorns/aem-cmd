@@ -29,3 +29,5 @@ def test_file_filter():
     eq_(False, file_filter.accept('/Users/bjorn/Images/.DS_Store'))
     eq_(False, file_filter.accept('essay.docx'))
 
+    eq_(True, file_filter.accept('/content/rejected_file/something.jpg'))
+    eq_(False, file_filter.accept('/content/something/rejected_file.jpg'))

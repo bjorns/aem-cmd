@@ -16,6 +16,9 @@
         "filetypes": ["DS_Store"],
         "paths": [
             "Images/good_ones/exception"
+        ],
+        "filenames": [
+            "rejected_file"
         ]
     }
 }

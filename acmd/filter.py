@@ -1,5 +1,7 @@
 # coding: utf-8
 import json
+import os
+
 from acmd import log, error
 
 class FileFilter(object):
@@ -20,14 +22,20 @@ class FileFilter(object):
         return ret
 
 
-def matches(filter_obj, filename):
+def matches(filter_obj, filepath):
     assert filter_obj is not None
     for filetype in filter_obj.get('filetypes', []):
-        if filename.endswith(filetype):
+        if filepath.endswith(filetype):
             return True
     for path in filter_obj.get('paths', []):
         try:
-            if path in filename:
+            if path in filepath:
+                return True
+        except UnicodeDecodeError:
+            error(u"Failed to decode {}".format(path))
+    for item in filter_obj.get('filenames', []):
+        try:
+            if item in os.path.basename(filepath):
                 return True
         except UnicodeDecodeError:
             error(u"Failed to decode {}".format(path))
