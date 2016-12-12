@@ -88,10 +88,10 @@ class AssetsTool(object):
                         log("Skipping {path}".format(path=filepath))
                         continue
                     self.import_file(server, options, local_root, filepath)
-                    self.current_file += 1
                 except AssetException as e:
                     error("Failed to import {}: {}".format(filepath, e.message))
                     status = SERVER_ERROR
+                self.current_file += 1
         return status
 
     def import_file(self, server, options, local_import_root, filepath):
