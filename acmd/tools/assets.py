@@ -113,6 +113,7 @@ class AssetsTool(object):
                                                              n=self.total_files,
                                                              local=filepath)
             sys.stdout.write(msg)
+            sys.stdout.flush()
             return OK
 
         dam_path = get_dam_path(filepath, local_import_root, options.destination_root)
@@ -133,5 +134,6 @@ class AssetsTool(object):
                                                                                  n=self.total_files,
                                                                                  local=filepath, dam=dam_path,
                                                                                  benchmark=benchmark))
+        sys.stdout.flush()
         self.upload_registry.mark_uploaded(filepath, options.dry_run)
         return OK
