@@ -19,6 +19,8 @@ parser.add_option("-D", "--dry-run",
                   help="Do not change repository")
 parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
+parser.add_option("-q", "--local-root", dest="local_root",
+                  help="The local root directory to map to the destination root")
 parser.add_option("-l", "--lock-dir", dest="lock_dir",
                   help="Directory to store information on uploaded files")
 parser.add_option("-f", "--filter", dest="filter_file",
@@ -53,6 +55,8 @@ class AssetsTool(object):
         self.upload_registry = UploadRegistry(server, path, options.lock_dir)
         if options.filter_file:
             self.file_filter = FileFilter(options.filter_file)
+        if options.dry_run:
+            log("Dry running import")
 
         if os.path.isdir(path):
             return self.import_directory(server, options, path)
@@ -62,18 +66,20 @@ class AssetsTool(object):
                 import_root = options.destination_root
             return self.import_file(server, options, import_root, path)
 
-    def import_directory(self, server, options, rootdir):
+    def import_directory(self, server, options, import_dir):
         """ Import directory recursively """
-        assert os.path.isdir(rootdir)
+        assert os.path.isdir(import_dir)
 
-        if rootdir.endswith("/"):
-            rootdir = rootdir[:-1]
+        if import_dir.endswith("/"):
+            import_dir = import_dir[:-1]
 
-        self.total_files = count_files(rootdir)
-        log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
+        local_root = options.local_root if options.local_root else import_dir
+        log("Local root set to {}".format(local_root))
+        self.total_files = count_files(import_dir)
+        log("Importing {n} files in {path}".format(n=self.total_files, path=import_dir))
 
         status = OK
-        for subdir, dirs, files in os.walk(rootdir):
+        for subdir, dirs, files in os.walk(import_dir):
             # _create_dir(server, subdir)
             for filename in files:
                 filepath = os.path.join(subdir, filename)
@@ -81,7 +87,7 @@ class AssetsTool(object):
                     if filter_unwanted(filename):
                         log("Skipping {path}".format(path=filepath))
                         continue
-                    self.import_file(server, options, rootdir, filepath)
+                    self.import_file(server, options, local_root, filepath)
                     self.current_file += 1
                 except AssetException as e:
                     error("Failed to import {}: {}".format(filepath, e.message))
