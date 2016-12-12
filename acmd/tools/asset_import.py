@@ -67,7 +67,7 @@ def get_dam_path(filepath, local_import_root, dam_import_root):
     if dam_import_root is None:
         dam_import_root = aem.path.join('/content/dam', os.path.basename(local_import_root))
     dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
-    return dam_path
+    return clean_path(dam_path)
 
 
 def create_dam_path(local_path, local_import_root, dam_import_root):
@@ -126,7 +126,7 @@ def post_file(server, filepath, dst_path, dry_run):
     log("Uploading {} as {}, {}".format(f, mime, enc))
     form_data = dict(
         file=(filename, f, mime, dict()),
-        fileName=filename
+        fileName=clean_path(filename)
     )
 
     url = server.url("{path}.createasset.html".format(path=dst_path, filename=os.path.basename(filepath)))
