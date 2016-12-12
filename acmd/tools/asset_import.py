@@ -51,7 +51,7 @@ class UploadRegistry(object):
 
     def mark_uploaded(self, filepath, dry_run=False):
         lock_file = self._lock_file(filepath, dry_run)
-        self._touch(lock_file)
+        self._touch(lock_file, dry_run)
 
     @staticmethod
     def _touch(filename, dry_run=False):
