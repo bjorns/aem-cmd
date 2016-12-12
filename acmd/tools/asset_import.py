@@ -154,6 +154,7 @@ def _ok(status_code):
 
 def count_files(dirpath):
     """ Return the number of files in directory """
+    log("Counting files...")
     i = 0
     for subdir, dirs, files in os.walk(dirpath):
         for filename in files:
