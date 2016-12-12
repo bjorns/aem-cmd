@@ -50,6 +50,7 @@ class UploadRegistry(object):
     @staticmethod
     def _touch(filename, dry_run=False):
         """ Create empty file """
+        assert filename.startswith("/tmp")
         par_dir = os.path.dirname(filename)
         if dry_run:
             log("Skipping creating dir {} because dry run".format(par_dir))
