@@ -49,14 +49,17 @@ class UploadRegistry(object):
                 filepath = filepath[3:]
             return os.path.join(self.lock_dir, filepath)
 
-    def mark_uploaded(self, filepath):
-        lock_file = self._lock_file(filepath)
+    def mark_uploaded(self, filepath, dry_run=False):
+        lock_file = self._lock_file(filepath, dry_run)
         self._touch(lock_file)
 
     @staticmethod
-    def _touch(filename):
+    def _touch(filename, dry_run=False):
         """ Create empty file """
         par_dir = os.path.dirname(filename)
+        if dry_run:
+            log("Skipping creating dir {} because dry run".format(par_dir))
+            return
         if not os.path.exists(par_dir):
             log("Creating directory {}".format(par_dir))
             os.makedirs(par_dir, mode=0755)

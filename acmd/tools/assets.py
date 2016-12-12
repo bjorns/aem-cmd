@@ -66,6 +66,9 @@ class AssetsTool(object):
         """ Import directory recursively """
         assert os.path.isdir(rootdir)
 
+        if rootdir.endswith("/"):
+            rootdir = rootdir[:-1]
+
         self.total_files = count_files(rootdir)
         log("Importing {n} files in {path}".format(n=self.total_files, path=rootdir))
 
@@ -124,5 +127,5 @@ class AssetsTool(object):
                                                                                  n=self.total_files,
                                                                                  local=filepath, dam=dam_path,
                                                                                  benchmark=benchmark))
-        self.upload_registry.mark_uploaded(filepath)
+        self.upload_registry.mark_uploaded(filepath, options.dry_run)
         return OK
