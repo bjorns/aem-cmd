@@ -100,11 +100,11 @@ class AssetsTool(object):
         t0 = time.time()
 
         if self.file_filter and not self.file_filter.accept(filepath):
-            msg = "{ts}\t{i}/{n}\tFiltered {local}\n".format(ts=format_timestamp(time.time()),
+            msg = "{ts}\t{i}/{n}\tFiltered {local}".format(ts=format_timestamp(time.time()),
                                                              i=self.current_file,
                                                              n=self.total_files,
                                                              local=filepath)
-            sys.stdout.write(msg)
+            log(msg)
             return OK
 
         if self.upload_registry.is_uploaded(filepath):
