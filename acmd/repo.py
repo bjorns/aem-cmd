@@ -14,6 +14,14 @@ class ToolRepo(object):
         # tool prefix automatically.
         self._init_project = None
 
+    def reset(self):
+        self._tools = dict()
+        self._modules = dict()
+        # This is a hack, couldn't come up with a nice way of setting the
+        # tool prefix automatically.
+        self._init_project = None
+
+
     def register_tool(self, _tool, _module):
         assert _tool.name not in self._tools
         if self._init_project is None:

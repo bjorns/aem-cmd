@@ -21,9 +21,11 @@ class MockTool(object):
 
 @patch('sys.stdout', new_callable=StringIO)
 def test_show_version(stdout):
-    args = ['acmd', '--version']
 
+
+    args = ['acmd', '--version']
     try:
+        tool_repo.reset()
         main(args)
     except SystemExit as e:
         pass
