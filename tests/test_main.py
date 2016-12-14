@@ -26,7 +26,7 @@ def test_show_version(stdout):
     args = ['acmd', '--version']
     try:
         tool_repo.reset()
-        main(args)
+        main(args, rcfile="tests/test_data/test_acmd.rc")
     except SystemExit as e:
         pass
 

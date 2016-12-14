@@ -68,11 +68,12 @@ def split_argv(argv):
     return argv, []
 
 
-def main(argv):
-    rcfilename = acmd.get_rcfilename()
-    if not os.path.isfile(rcfilename):
-        acmd.setup_rcfile(rcfilename)
-    config = acmd.read_config(rcfilename)
+def main(argv, rcfile=None):
+    if not rcfile:
+        rcfile = acmd.get_rcfilename()
+    if not os.path.isfile(rcfile):
+        acmd.setup_rcfile(rcfile)
+    config = acmd.read_config(rcfile)
     load_projects(config.projects)
 
     acmd.tools.init_default_tools()
