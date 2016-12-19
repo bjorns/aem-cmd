@@ -105,3 +105,17 @@ def import_tools(path, package=None, prefix=None):
 
         log("  Importing module {}\n".format(module))
         importlib.import_module(module)
+
+
+def import_projects(projects):
+    """ Load any user specified tools directories.
+        Expecting dict of {<prefix>: <path>} """
+    ret = {}
+    for name, path in projects.items():
+        log("Loading project {}".format(name))
+        path = os.path.expanduser(path)
+        sys.path.insert(1, path)
+        init_file = os.path.join(path, '__init__.py')
+        import_tools(init_file, prefix=name)
+        ret[name] = path
+    return ret

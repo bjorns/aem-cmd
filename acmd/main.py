@@ -21,20 +21,6 @@ parser.add_option("-V", "--version",
                   help="Show package version")
 
 
-def load_projects(projects):
-    """ Load any user specified tools directories.
-        Expecting dict of {<prefix>: <path>} """
-    ret = {}
-    for name, path in projects.items():
-        acmd.log("Loading project {}".format(name))
-        path = os.path.expanduser(path)
-        sys.path.insert(1, path)
-        init_file = os.path.join(path, '__init__.py')
-        acmd.import_tools(init_file, prefix=name)
-        ret[name] = path
-    return ret
-
-
 def run(options, config, args, cmdargs):
     tool_name, args = args[1], []
     server = config.get_server(options.server)
@@ -73,7 +59,7 @@ def main(argv, rcfile=None):
     if not os.path.isfile(rcfile):
         acmd.setup_rcfile(rcfile)
     config = acmd.read_config(rcfile)
-    load_projects(config.projects)
+    acmd.import_projects(config.projects)
 
     acmd.tools.init_default_tools()
 

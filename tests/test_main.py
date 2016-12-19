@@ -33,7 +33,7 @@ def test_show_version(stdout):
     eq_(__version__ + '\n', stdout.getvalue())
 
 
-@patch('acmd.main.load_projects')
+@patch('acmd.import_projects')
 @patch('acmd.deploy.deploy_bash_completion')
 def test_run_tool(deploy_bash, load_proj):
     _tool = tool_repo.get_tool('mock_tool')

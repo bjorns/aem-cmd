@@ -37,4 +37,4 @@ parse_properties = acmd.props.parse_properties
 import acmd.repo
 tool_repo = acmd.repo.tool_repo
 tool = acmd.repo.tool
-import_tools = acmd.repo.import_tools
+import_projects = acmd.repo.import_projects
