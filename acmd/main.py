@@ -30,8 +30,7 @@ def load_projects(projects):
         path = os.path.expanduser(path)
         sys.path.insert(1, path)
         init_file = os.path.join(path, '__init__.py')
-        acmd.tool_repo.set_current_project(name)
-        acmd.import_tools(init_file)
+        acmd.import_tools(init_file, prefix=name)
         ret[name] = path
     return ret
 

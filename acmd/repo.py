@@ -1,9 +1,9 @@
 # coding: utf-8
 import os
 import sys
+import importlib
 
 from acmd.logger import log
-from acmd.tools import init_default_tools
 
 
 class ToolRepo(object):
@@ -20,7 +20,6 @@ class ToolRepo(object):
         # This is a hack, couldn't come up with a nice way of setting the
         # tool prefix automatically.
         self._init_project = None
-
 
     def register_tool(self, _tool, _module):
         assert _tool.name not in self._tools
@@ -49,8 +48,9 @@ class ToolRepo(object):
         tool_names.sort()
         return tool_names
 
-    def set_current_project(self, name):
+    def set_prefix(self, name):
         self._init_project = name
+
 
 # Global singleton, no use in passing the thing around
 tool_repo = ToolRepo()
@@ -82,19 +82,26 @@ def tool(tool_name, commands=None):
     return class_rebuilder
 
 
-def import_tools(path, package=None):
-    module = None
+def _list_files(path):
     try:
-        modules = os.listdir(os.path.dirname(path))
+        return os.listdir(os.path.dirname(path))
     except OSError:
         sys.stderr.write("error: Failed to load modules in {}".format(path))
-        modules = []
-        pass
-    for module in modules:
-        if module == '__init__.py' or module[-3:] != '.py':
+        return []
+
+
+def import_tools(path, package=None, prefix=None):
+    log("Importing path {} : {}\n".format(path, package))
+    pyfiles = _list_files(path)
+
+    tool_repo.set_prefix(prefix)
+    for pyfile in pyfiles:
+        if pyfile == '__init__.py' or pyfile[-3:] != '.py':
             continue
+
+        module = pyfile[:-3]
         if package is not None:
-            __import__(package, locals(), globals(), [module[:-3]], 0)
-        else:
-            __import__(module[:-3], locals(), globals())
-    del module
+            module = "{}.{}".format(package, module)
+
+        log("  Importing module {}\n".format(module))
+        importlib.import_module(module)
