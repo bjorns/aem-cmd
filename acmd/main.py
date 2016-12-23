@@ -59,9 +59,8 @@ def main(argv, rcfile=None):
     if not os.path.isfile(rcfile):
         acmd.setup_rcfile(rcfile)
     config = acmd.read_config(rcfile)
-    acmd.import_projects(config.projects)
-
     acmd.tools.init_default_tools()
+    acmd.import_projects(config.projects)
 
     sysargs, cmdargs = split_argv(argv)
     (options, args) = parser.parse_args(sysargs)

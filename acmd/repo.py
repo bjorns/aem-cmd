@@ -55,7 +55,6 @@ class ToolRepo(object):
 # Global singleton, no use in passing the thing around
 tool_repo = ToolRepo()
 
-
 def tool(tool_name, commands=None):
     """ Tool decorator.
 
@@ -74,8 +73,11 @@ def tool(tool_name, commands=None):
         instance.name = tool_name
         if not hasattr(instance, 'commands'):
             instance.commands = commands if commands is not None else []
-        _module = __import__(cls.__module__, locals(), globals(), '__main__', 0)
 
+        if tool_repo.has_tool(tool_name):
+            raise Exception("Tool {} already loaded".format(tool_name))
+
+        _module = importlib.import_module(cls.__module__)
         tool_repo.register_tool(instance, _module)
         return cls
 
