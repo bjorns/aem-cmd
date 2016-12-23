@@ -54,6 +54,10 @@ def split_argv(argv):
 
 
 def main(argv, rcfile=None):
+    sysargs, cmdargs = split_argv(argv)
+    (options, args) = parser.parse_args(sysargs)
+    acmd.init_log(options.verbose)
+
     if not rcfile:
         rcfile = acmd.get_rcfilename()
     if not os.path.isfile(rcfile):
@@ -61,10 +65,6 @@ def main(argv, rcfile=None):
     config = acmd.read_config(rcfile)
     acmd.tools.init_default_tools()
     acmd.import_projects(config.projects)
-
-    sysargs, cmdargs = split_argv(argv)
-    (options, args) = parser.parse_args(sysargs)
-    acmd.init_log(options.verbose)
 
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))

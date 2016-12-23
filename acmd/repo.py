@@ -93,7 +93,7 @@ def _list_files(path):
 
 
 def import_tools(path, package=None, prefix=None):
-    log("Importing path {} : {}\n".format(path, package))
+    log("Importing path {} : {}".format(path, package))
     pyfiles = _list_files(path)
 
     tool_repo.set_prefix(prefix)
@@ -105,7 +105,6 @@ def import_tools(path, package=None, prefix=None):
         if package is not None:
             module = "{}.{}".format(package, module)
 
-        log("  Importing module {}\n".format(module))
         importlib.import_module(module)
 
 
