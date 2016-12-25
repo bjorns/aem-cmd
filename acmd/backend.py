@@ -4,10 +4,9 @@
 
     https://github.com/Citytechinc/cq-groovy-console
     """
-from acmd import OK, SERVER_ERROR
-
 import requests
 
+from acmd import OK, SERVER_ERROR
 from acmd.logger import log, warning
 
 STACKTRACE_FIELD = 'stacktrace'

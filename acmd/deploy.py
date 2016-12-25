@@ -6,9 +6,9 @@ import sys
 import os.path
 import platform
 import subprocess
-from distutils.version import LooseVersion
-
 import pkg_resources
+
+from distutils.version import LooseVersion
 
 import acmd
 

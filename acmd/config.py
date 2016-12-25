@@ -1,6 +1,5 @@
 # coding: utf-8
 import ConfigParser
-from os.path import expanduser
 import os.path
 
 import acmd.server
@@ -71,7 +70,7 @@ def parse_projects(parser):
     ret = dict()
     if parser.has_section('projects'):
         for name, path in parser.items('projects'):
-            path = expanduser(path)
+            path = os.path.expanduser(path)
             ret[name] = path
     return ret
 

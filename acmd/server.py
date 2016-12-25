@@ -7,12 +7,13 @@ DEFAULT_PASS = 'admin'
 
 class Server(object):
     """ Model of server configuration in .acmd.rc """
+
     def __init__(self, name, host=None, username=None, password=None, dispatcher=None):
         assert name is not None
         self.name = name
-        self.host = default(host, DEFAULT_HOST)
-        self.username = default(username, DEFAULT_USER)
-        self.password = default(password, DEFAULT_PASS)
+        self.host = _default(host, DEFAULT_HOST)
+        self.username = _default(username, DEFAULT_USER)
+        self.password = _default(password, DEFAULT_PASS)
         self.dispatcher = dispatcher
 
     @property
@@ -21,6 +22,7 @@ class Server(object):
         return self.username, self.password
 
     def __str__(self):
+        """ Support debug printing the object """
         return self.host
 
     def url(self, path):
@@ -30,7 +32,7 @@ class Server(object):
             path=path)
 
 
-def default(value, defval):
+def _default(value, defval):
     if value is None:
         return defval
     return value

@@ -3,10 +3,13 @@ import os
 import sys
 import importlib
 
-from acmd.logger import log
+from acmd.logger import log, error
 
 
 class ToolRepo(object):
+    """ Tool repository
+        Keeps track of all initialized tool objects and links them to a name
+    """
     def __init__(self):
         self._tools = dict()
         self._modules = dict()
@@ -88,11 +91,17 @@ def _list_files(path):
     try:
         return os.listdir(os.path.dirname(path))
     except OSError:
-        sys.stderr.write("error: Failed to load modules in {}".format(path))
+        error("Failed to load modules in {}".format(path))
         return []
 
 
 def import_tools(path, package=None, prefix=None):
+    """ Import tools in directory path
+
+        path    -- Path string to the directory to import e.g. /projects/foo/bar
+        package -- the package name of the imported path e.g. foo.bar
+        prefix  -- the name prefix to set to the tools in the directory
+    """
     log("Importing path {} : {}".format(path, package))
     pyfiles = _list_files(path)
 
