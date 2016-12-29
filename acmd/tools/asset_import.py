@@ -7,7 +7,7 @@ import requests
 
 from acmd import OK
 from acmd import log
-from acmd.tools.utils import aem
+import acmd.jcr
 
 
 ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
@@ -20,7 +20,7 @@ class AssetException(Exception):
 def get_dam_path(filepath, local_import_root, dam_import_root):
     local_dir = os.path.dirname(filepath)
     if dam_import_root is None:
-        dam_import_root = aem.path.join('/content/dam', os.path.basename(local_import_root))
+        dam_import_root = acmd.jcr.path.join('/content/dam', os.path.basename(local_import_root))
     dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
     return clean_path(dam_path)
 

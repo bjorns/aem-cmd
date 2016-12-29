@@ -3,7 +3,7 @@ import requests
 
 from acmd import OK, SERVER_ERROR
 from acmd import log, error
-import acmd.tools.utils.aem.path
+import acmd.jcr.path
 
 """ https://author-lbrands-assets-prod.adobecqms.net/api/assets/pink/INTIMATES_DESIGN/BRA/_BRA_SKETCHES/_JOCKTAG.ai.json
 """
@@ -42,7 +42,7 @@ class AssetsApi(object):
 
         while len(folder_queue) > 0:
             entity = folder_queue.pop()
-            path = acmd.tools.utils.aem.path.join(entity['properties']['path'], entity['properties']['name'])
+            path = acmd.jcr.path.join(entity['properties']['path'], entity['properties']['name'])
             status, data = self.list(path)
             if status != OK:
                 error("Failed to list contents of {}".format(path))
