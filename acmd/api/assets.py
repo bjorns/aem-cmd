@@ -33,7 +33,7 @@ class AssetsApi(object):
         status, root = self.list(path)
         if status != OK:
             error("Failed to find in {}".format(path))
-            return
+            return SERVER_ERROR, None
 
         assets = _filter_assets(root['entities'])
         log("Assets is {}".format(assets))
