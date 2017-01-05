@@ -14,6 +14,20 @@ class AssetsApi(object):
     def __init__(self, server):
         self.server = server
 
+    def get(self, path):
+
+        log("Fetching asset info {}".format(path))
+        req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
+        url = self.server.url(req_path)
+
+        resp = requests.get(url, auth=self.server.auth)
+
+        if resp.status_code != 200:
+            return SERVER_ERROR, None
+
+        data = resp.json()
+        return OK, data
+
     def list(self, path):
         log("Fetching asset list for {}".format(path))
         req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
