@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+import json
 import optparse
 
 from acmd import USER_ERROR, SERVER_ERROR
@@ -38,8 +39,16 @@ class AssetsTool(object):
             return self.import_path(server, options, actionarg)
         elif action == 'touch':
             api = AssetsApi(server)
-            api.touch(actionarg)
-            return OK
+            if len(args) >= 3:
+                status, data = api.touch(actionarg)
+                print actionarg
+                return status
+            else:
+                for line in sys.stdin:
+                    path = line.strip()
+                    status, data = api.touch(path)
+                    print path
+                return OK
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR

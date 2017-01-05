@@ -1,6 +1,6 @@
 # coding: utf-8
-import time
 import json
+import time
 
 import requests
 
@@ -39,7 +39,7 @@ class AssetsApi(object):
         if status != OK:
             return SERVER_ERROR, None
 
-        self.add_path(data, path)
+        _add_path(data, path)
 
         next_url = _get_next_url(data)
         while next_url is not None:
@@ -48,14 +48,10 @@ class AssetsApi(object):
                 error("Failed to fetch next listing {}".format(next_url))
                 next_url = None
             else:
-                self.add_path(next_data, path)
+                _add_path(next_data, path)
                 data['entities'].extend(next_data['entities'])
                 next_url = _get_next_url(next_data)
         return OK, data
-
-    def add_path(self, data, path):
-        for entity in data.get('entities', list()):
-            entity['properties']['path'] = path
 
     def fetch_json(self, url):
         log("Fetching url {}".format(url))
@@ -97,23 +93,26 @@ class AssetsApi(object):
             PUT /api/assets/myfolder/myAsset.png -H"Content-Type: application/json" \
                 -d '{"class":"asset", "properties":{"dc:title":"My Asset"}}'
         """
-
-        props = {'metadata/acmd_timestamp': str(time.time()) }
+        props = {'metadata/acmd_timestamp': str(time.time())}
         data = {
-            'class': 'asset', 'properties': props
+            'class': 'asset',
+            'properties': props
         }
-        #headers = { 'Content-Type': 'application/json' }
         req_path = API_ROOT + path
         url = self.server.url(req_path)
         log("Touching {}".format(url))
 
-        print json.dumps(data)
         r = requests.put(url, auth=self.server.auth, json=data)
         if r.status_code != 200:
             error("{} Failed to touch asset {}: {}".format(r.status_code, path, r.content))
-            return SERVER_ERROR
+            return SERVER_ERROR, None
+        else:
+            return OK, r.json()
 
-        return OK
+
+def _add_path(data, path):
+    for entity in data.get('entities', list()):
+        entity['properties']['path'] = path
 
 
 def _get_next_url(folder_listing):
