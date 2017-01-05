@@ -15,8 +15,7 @@ class AssetsApi(object):
         self.server = server
 
     def get(self, path):
-
-        log("Fetching asset info {}".format(path))
+        """ Fetching asset info """
         req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
         url = self.server.url(req_path)
 
