@@ -7,6 +7,8 @@ from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.tools.asset_import import *
 
+from acmd.api.assets import AssetsApi
+
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
@@ -34,6 +36,10 @@ class AssetsTool(object):
 
         if action == 'import':
             return self.import_path(server, options, actionarg)
+        elif action == 'touch':
+            api = AssetsApi(server)
+            api.touch(actionarg)
+            return OK
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR
