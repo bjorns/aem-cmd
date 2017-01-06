@@ -6,8 +6,8 @@ from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
 
-import acmd.api.assets
 from acmd import Server, OK
+import acmd.assets
 
 ROOT_DATA = {'links': [], 'entities': []}
 PROJECT_DATA = {}
@@ -40,7 +40,7 @@ class MockAssetsHttpService(object):
 
 def test_something():
     server = Server("local")
-    api = acmd.api.assets.AssetsApi(server)
+    api = acmd.assets.AssetsApi(server)
     eq_(3, 3)
 
 
@@ -51,7 +51,7 @@ def test_list_workflows(stderr, stdout):
 
     with HTTMock(service):
         server = Server('localhost')
-        api = acmd.api.assets.AssetsApi(server)
+        api = acmd.assets.AssetsApi(server)
 
         status, data = api.find("/")
 

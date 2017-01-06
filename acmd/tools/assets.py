@@ -1,5 +1,4 @@
 # coding: utf-8
-import json
 import sys
 import optparse
 
@@ -8,7 +7,7 @@ from acmd import tool, error
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.tools.asset_import import *
 
-from acmd.api.assets import AssetsApi
+from acmd.assets import AssetsApi
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
