@@ -314,22 +314,31 @@ For more documentation on how to write groovy scripts install the
 cq-groovy-console bundle and go to
 [http://localhost:4502/etc/groovyconsole.html](http://localhost:4502/etc/groovyconsole.html)
 
+
 ### Assets
 
 The assets tool controls interactions with the AEM dam.
+
+#### List assets
+
+    $ acmd assets ls /selfies
+
+lists assets and folders in /content/dam/selfies
+
+#### Find
+
+List all assets in the system
+
+    $ acmd assets find /
 
 #### Import assets
 
 The import command allows for importing single files and entire directories
 into the DAM.
 
-To import a single file into /content/dam
+To import a single file into /content/dam/selfie.jpg
 
     $ acmd assets import ~/Pictures/selfie.jpg
-
-Send file to a separate folder
-
-    $ acmd assets import -d /content/dam/selfies ~/Pictures/selfie.jpg
 
 If a directory is given it will be recreated at /content/dam
 
@@ -337,106 +346,16 @@ If a directory is given it will be recreated at /content/dam
 
 will create /content/dam/selfies.
 
-The maintains a directory of lockfiles under /tmp/acmd_assets_upload where each
-uploaded file is marked so that aborted imports can be resumed without redoing
-previous imports. The lockfile directory can be overridden with the
-`--lock-dir` flag.
+The -d flag allows for importing into a specific directory. 
 
-    $ acmd assets import -l ~/my_lock_dir ~/Images/selfies
+    $ acmd assets import -d /content/dam/another_directory ~/Images/selfies
 
+#### Touch
 
-If a directory is given it will be recreated at /content/dam. The following
-will create the node /content/dam/selfies.
+To trigger the Update Asset workflow for an asset
 
-    $ acmd assets import ~/Images/selfies
+    $ acmd assets touch /selfie.jpg
 
-The tool maintains a set of lockfiles under /tmp/acmd_assets_ingest on the
-local filesystem where each uploaded file is marked so that aborted imports can
-be resumed without redoing previous imports. The lockfile directory can be overridden with the
-`--lock-dir` flag.
-
-    $ acmd assets import -l ~/my_lock_dir ~/Images/selfies
-
-#### Filter config
-
-The import tool allows the user to filter imported files by path or file type.
-The following is an example filter config file:
-
-```javascript
-{
-    "accept": {
-        "filetypes": [
-            "png",
-            "jpg",
-            "jpeg",
-            "indd",
-            "ai"
-        ],
-        "paths": [
-            "Images/good_ones",
-            "Images/average_ones"
-        ]
-    },
-    "reject": {
-        "filetypes": ["DS_Store"],
-        "paths": [
-            "Images/good_ones/exception"
-        ]
-    }
-}
-```
-
-If the file is saved as filter_config.json it can be applied by
-
-    $ acmd assets import -f filter_config.json ~/Images/selfies
-
-The filtering process is simple:
-
-* By default everything is accepted
-* If the 'accepted' entry is defined, only files matching one of the lines are imported.
-* If the 'rejected' entry is defined, it taks priority over accepted, rejecting
-previously accepted files.
-
-### Remote Copy (rcp)
-
-Note: the rcp tool requires the JackRabbit
-[Vault rcp bundle](http://jackrabbit.apache.org/filevault/rcp.html)
-
-The rcp tool allows the user to copy large repositories of data between two
-aem instances without large packages or configuring replication.
-
-Rcp is implemented as a fetch operation. You call the destination server,
-give it the url to the source data and it will start a job to fetch the
-data.
-
-    $ acmd -s uat rcp fetch --source-host prod-author:4502 /content/dam/mysite
-
-An optional second argument defines the target path. If omitted, destination is
-the same as source
-
-    $ acmd -s uat rcp fetch --source-host prod-author:4502 /content/dam/mysite /content/dam/mysite_backup
-
-
-The fetch operation is a synchronous macro operation. For very large
-operations you can also utilize the async low level commands but creating a task
-and managing it on your own. The create operation prints the newly created
-task id. This id is then used as a reference when managing the task.
-
-    $ acmd rcp create --source-host prod-author:4502 /content/dam/mysite
-    rcp-45cfa2
-    $ acmd rcp ls
-    rcp-45cfa2  NEW     /content/dam/mysite
-    $ acmd rcp start rcp-45cfa2
-    $ acmd rcp ls
-    rcp-45cfa2  RUNNING     /content/dam/mysite
-    ...
-    $ acmd rcp ls
-    rcp-45cfa2  ENDED     /content/dam/mysite
-    $ acmd rcp rm rcp-45cfa2
-
-By default the task copies all nodes that don't already exist on the destination
-or have a lastModified date later on the source than on the destination. This can
-be controlled using the -i and the -n flags.
 
 ### Storage
 
