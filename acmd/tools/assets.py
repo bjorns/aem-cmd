@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import sys
 import optparse
 
@@ -46,6 +47,20 @@ class AssetsTool(object):
                 for line in sys.stdin:
                     self._touch(line.strip())
             return OK
+        elif action == 'list' or action == 'ls':
+            status, data = self.api.list(actionarg)
+            if status != OK:
+                return status
+            for item in data['entities']:
+                print item['properties']['name']
+        elif action == 'find':
+            status, data = self.api.find(actionarg)
+            if status != OK:
+                return status
+            for item in data:
+                props = item['properties']
+                path = acmd.jcr.path.join(props['path'], props['name'])
+                sys.stdout.write("{}\n".format(path))
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR
