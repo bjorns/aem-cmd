@@ -2,8 +2,9 @@
 import sys
 import optparse
 
-from acmd import OK, USER_ERROR, tool, error
+from acmd import OK, USER_ERROR, tool, error, log
 from acmd.tools.tool_utils import get_argument, get_command
+from acmd.workflows import WorkflowsApi
 
 import acmd.jcr.path
 from acmd.assets import AssetsApi, AssetsImportFunnel
@@ -17,6 +18,8 @@ parser.add_option("-D", "--dry-run",
                   help="Do not change repository")
 parser.add_option("-d", "--destination", dest="destination_root",
                   help="The root directory to import to")
+parser.add_option("-m", "--model", dest="model", default="dam/update_asset",
+                  help="Update assets model to use, defaults to dam/update_asset")
 
 
 @tool('assets')
@@ -40,11 +43,12 @@ class AssetsTool(object):
             funnel = AssetsImportFunnel(server, dry_run=options.dry_run, destination_root=options.destination_root)
             return funnel.import_path(actionarg)
         elif action == 'touch':
+            api = WorkflowsApi(server)
             if len(args) >= 3:
-                self._touch(actionarg)
+                self._touch(api, actionarg, options.model)
             else:
                 for line in sys.stdin:
-                    self._touch(line.strip())
+                    self._touch(api, line.strip(), options.model)
             return OK
         elif action == 'list' or action == 'ls':
             status, data = self.api.list(actionarg)
@@ -64,8 +68,9 @@ class AssetsTool(object):
             error("Unknown action {}".format(action))
             return USER_ERROR
 
-    def _touch(self, path):
-        status, _ = self.api.touch(path)
-        if status != OK:
-            error("Failed to touch {}".format(path))
-        sys.stdout.write("{}\n".format(path))
+    def _touch(self, api, path, model):
+        path = "/content/dam" + path + "/jcr:content/renditions/original"
+        log("Triggering workflow {} on {}".format(model, path))
+
+        api.start_workflow(model, path)
+        print path
