@@ -9,7 +9,7 @@ from nose.tools import eq_
 import acmd.api.assets
 from acmd import Server, OK
 
-ROOT_DATA = {}
+ROOT_DATA = {'links': [], 'entities': []}
 PROJECT_DATA = {}
 
 
@@ -56,4 +56,4 @@ def test_list_workflows(stderr, stdout):
         status, data = api.find("/")
 
         eq_(OK, status)
-        eq_({}, data)
+        eq_([], data)

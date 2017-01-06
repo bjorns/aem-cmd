@@ -1,6 +1,5 @@
 # coding: utf-8
 import sys
-import json
 import optparse
 
 from acmd import USER_ERROR, SERVER_ERROR
@@ -28,8 +27,11 @@ class AssetsTool(object):
     def __init__(self):
         self.created_paths = set([])
         self.current_file = 1
+        self.api = None
 
     def execute(self, server, argv):
+        self.api = AssetsApi(server)
+
         options, args = parser.parse_args(argv)
 
         action = get_command(args)
@@ -38,20 +40,21 @@ class AssetsTool(object):
         if action == 'import':
             return self.import_path(server, options, actionarg)
         elif action == 'touch':
-            api = AssetsApi(server)
             if len(args) >= 3:
-                status, data = api.touch(actionarg)
-                print actionarg
-                return status
+                self._touch(actionarg)
             else:
                 for line in sys.stdin:
-                    path = line.strip()
-                    status, data = api.touch(path)
-                    print path
-                return OK
+                    self._touch(line.strip())
+            return OK
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR
+
+    def _touch(self, path):
+        status, _ = self.api.touch(path)
+        if status != OK:
+            error("Failed to touch {}".format(path))
+        sys.stdout.write("{}\n".format(path))
 
     def import_path(self, server, options, path):
         """ Import generic file system path, could be file or dir """
