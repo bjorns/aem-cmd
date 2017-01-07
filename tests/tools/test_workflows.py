@@ -4,7 +4,7 @@ from StringIO import StringIO
 
 from httmock import urlmatch, HTTMock
 from mock import patch
-from nose.tools import eq_
+from nose.tools import eq_, ok_
 
 from acmd import tool_repo, Server
 
@@ -83,7 +83,8 @@ def test_start_workflow(stderr, stdout):
     with HTTMock(service):
         tool = tool_repo.get_tool('workflows')
         server = Server('localhost')
-        status = tool.execute(server, ['workflows', 'start', '/dam/update_asset', '/content/dam/something/image.png'])
+        status = tool.execute(server, ['workflows', 'start', '/dam/update_asset',
+                                       '/content/dam/something/image.png/jcr:content/renditions/original'])
         eq_('', stderr.getvalue())
-        eq_(stdout.getvalue().startswith('/dam/update_asset-'), True)
+        ok_(stdout.getvalue().startswith('/dam/update_asset-'))
         eq_(0, status)

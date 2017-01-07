@@ -40,12 +40,16 @@ class WorkflowsTool(object):
             model = actionarg
             if len(args) >= 4:
                 path = get_argument(args, i=3)
-                return api.start_workflow(server, options, model, path)
+                status, output = api.start_workflow(model, path)
+                sys.stdout.write("{}\n".format(output))
+                return status
             else:
                 ret = OK
                 for path in sys.stdin:
-                    ret = ret | api.start_workflow(server, options, model, path.strip())
-
+                    status, output = api.start_workflow(model, path.strip())
+                    if status == OK:
+                        sys.stdout.write("{}\n".format(output))
+                    ret = ret | status
                 return ret
         else:
             error('Unknown workflows action {a}\n'.format(a=action))
