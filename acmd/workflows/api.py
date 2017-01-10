@@ -1,14 +1,15 @@
 # coding: utf-8
-import sys
 
 import requests
 
-from acmd import log, error
-from acmd import SERVER_ERROR, OK
+from acmd import SERVER_ERROR, USER_ERROR, OK
+from acmd import error
 from acmd.tools.tool_utils import create_task_id
 
 MODELS_PATH = "/etc/workflow/models.json"
 INSTANCES_PATH = '/etc/workflow/instances'
+
+INSTANCE_MODES = {'ACTIVE', 'SUSPENDED', 'ABORTED', 'COMPLETED'}
 
 
 class WorkflowsApi(object):
@@ -39,3 +40,17 @@ class WorkflowsApi(object):
 
         output = resp.content if self.raw else task_id
         return OK, output
+
+    def get_instances(self, mode):
+        if mode not in INSTANCE_MODES:
+            return USER_ERROR, "Unknown instance mode {}".format(mode)
+
+        path = "/etc/workflow/instances.{mode}.json".format(mode=mode)
+        url = self.server.url(path)
+        resp = requests.get(url, auth=self.server.auth)
+        if resp.status_code != 200:
+            error("Unexpected error code {code}: {content}".format(
+                code=resp.status_code, content=resp.content))
+            return SERVER_ERROR
+
+        return OK, resp.json()

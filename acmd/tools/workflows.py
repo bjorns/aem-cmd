@@ -33,10 +33,13 @@ class WorkflowsTool(object):
         action = get_command(args)
         actionarg = get_argument(args)
 
-        if action == 'list' or action == 'ls':
-            return list_workflows(server, options)
+        api = WorkflowsApi(server)
+        if action == 'models' or action == 'md':
+            return list_workflow_models(server, options)
+        elif action == 'instances' or action == 'in':
+            return list_workflow_instances(api, 'COMPLETED')
         elif action == 'start':
-            api = WorkflowsApi(server)
+
             model = actionarg
             if len(args) >= 4:
                 path = get_argument(args, i=3)
@@ -62,7 +65,7 @@ def _get_name(model):
     return name
 
 
-def list_workflows(server, options):
+def list_workflow_models(server, options):
     url = server.url(MODELS_PATH)
     resp = requests.get(url, auth=server.auth)
     if resp.status_code != 200:
@@ -79,4 +82,12 @@ def list_workflows(server, options):
     return OK
 
 
+def list_workflow_instances(api, mode):
+    status, data = api.get_instances(mode)
+    if status != OK:
+        error(data)
+    else:
+        for instance in data:
+            sys.stdout.write("{}\n".format(instance['uri']))
+    return status
 
