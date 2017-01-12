@@ -471,5 +471,6 @@ specific class.
 ## Other tools, recommendations and shoutouts
 
 * The inspiration for acmd comes from the Polopoly CMS command line tools - https://github.com/polopolyps/pcmd
+* The CQ Unix Toolkit is a similar toolset written in bash - https://github.com/Cognifide/CQ-Unix-Toolkit
 * The AEM Curl command reference was incredibly helpful during the development of acmd - https://gist.github.com/sergeimuller/2916697
 * oak-run is a another great command line tool for maintaining AEM instances - https://github.com/apache/jackrabbit-oak/tree/trunk/oak-run
