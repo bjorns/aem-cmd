@@ -9,7 +9,7 @@ from acmd.tools.tool_utils import create_task_id
 MODELS_PATH = "/etc/workflow/models.json"
 INSTANCES_PATH = '/etc/workflow/instances'
 
-INSTANCE_MODES = {'ACTIVE', 'SUSPENDED', 'ABORTED', 'COMPLETED'}
+INSTANCE_MODES = {'RUNNING', 'ACTIVE', 'SUSPENDED', 'ABORTED', 'COMPLETED'}
 
 
 class WorkflowsApi(object):
