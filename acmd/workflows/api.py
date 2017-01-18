@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import requests
+from requests.exceptions import ConnectionError
 
 from acmd import SERVER_ERROR, USER_ERROR, OK
 from acmd import error
@@ -51,6 +52,6 @@ class WorkflowsApi(object):
         if resp.status_code != 200:
             error("Unexpected error code {code}: {content}".format(
                 code=resp.status_code, content=resp.content))
-            return SERVER_ERROR
+            return SERVER_ERROR, []
 
         return OK, resp.json()
