@@ -53,7 +53,7 @@ config = {
 
     # Build specs
     'install_requires': ['requests'],
-    'packages': ['acmd', 'acmd.tools', 'acmd.jcr', 'acmd.workflows'],
+    'packages': ['acmd', 'acmd.tools', 'acmd.jcr', 'acmd.workflows', 'acmd.assets'],
     'package_data': {'acmd': ['data/acmd.rc.template', 'data/acmd.bash_completion']},
     'scripts': ['bin/acmd']
 }

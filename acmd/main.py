@@ -54,7 +54,6 @@ def split_argv(argv):
 
 
 def main(argv, rcfile=None):
-
     if not rcfile:
         rcfile = acmd.get_rcfilename()
     if not os.path.isfile(rcfile):
@@ -64,6 +63,8 @@ def main(argv, rcfile=None):
     acmd.import_projects(config.projects)
 
     sysargs, cmdargs = split_argv(argv)
+
+
     (options, args) = parser.parse_args(sysargs)
     acmd.init_log(options.verbose)
 
