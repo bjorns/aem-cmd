@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 import shutil
 import tempfile
 from StringIO import StringIO
@@ -9,20 +10,11 @@ from nose.tools import eq_
 
 from acmd import Server, OK
 from acmd.tools.assets import AssetsTool, get_tags
+from tests.assets import MockAssetsHttpService, MockAssetsService
 
 
-class MockAssetService(object):
+class RecordingHttpService(object):
     def __init__(self):
-        self.files = dict()
-
-    def add_file(self, path, data):
-        assert path not in self.files
-        self.files[path] = data
-
-
-class MockHttpService(object):
-    def __init__(self, asset_service=None):
-        self.asset_service = asset_service if asset_service is not None else MockAssetService()
         self.req_log = []
 
     @urlmatch(netloc='localhost:4502', method='POST')
@@ -36,7 +28,7 @@ class MockHttpService(object):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_import_asset_file(stderr, stdout):
-    http_service = MockHttpService()
+    http_service = RecordingHttpService()
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
@@ -58,7 +50,7 @@ def test_import_asset_file(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_import_asset_directory(stderr, stdout):
-    http_service = MockHttpService()
+    http_service = RecordingHttpService()
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
@@ -89,7 +81,7 @@ def test_import_asset_directory(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_dry_run_import_asset_directory(stderr, stdout):
-    http_service = MockHttpService()
+    http_service = RecordingHttpService()
     eq_([], http_service.req_log)
 
     lock_dir = tempfile.mkdtemp()
@@ -140,3 +132,34 @@ def test_get_tags():
     eq_("robot.jpg", get_tags(PROPS, "name"))
     eq_("Bernard", get_tags(PROPS, "metadata/name"))
     eq_([], get_tags(PROPS, "metadata/doesntexist"))
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_tag_asset(stdout, stderr):
+    service = MockAssetsService()
+    service.add_folder('/', 'hosts')
+    service.add_asset('/hosts', 'bernard.jpg')
+
+    http_service = MockAssetsHttpService(service)
+    eq_([], http_service.request_log)
+
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', 'tag', 'type', 'westworld:type/secret',
+                                       '/hosts/bernard.jpg'])
+
+    eq_('', stderr.getvalue())
+    eq_('', stdout.getvalue())
+    eq_(OK, status)
+
+    eq_(2, len(http_service.request_log))
+    eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
+    eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+        json.loads(http_service.request_log[1].body))
+
+
+def typeof(request):
+    return request.method, request.path_url

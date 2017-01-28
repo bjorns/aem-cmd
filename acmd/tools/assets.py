@@ -75,7 +75,7 @@ class AssetsTool(object):
                 path = get_argument(args, i=4)
                 log("Tagging {}".format(path))
                 self.tag_asset(path, prop, tagval)
-            pass
+            return OK
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR
