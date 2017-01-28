@@ -5,10 +5,10 @@ from StringIO import StringIO
 
 from httmock import urlmatch, HTTMock
 from mock import patch
-from nose.tools import eq_, ok_
+from nose.tools import eq_
 
 from acmd import Server, OK
-from acmd.tools.assets import AssetsTool
+from acmd.tools.assets import AssetsTool, get_tags
 
 
 class MockAssetService(object):
@@ -112,3 +112,31 @@ def test_dry_run_import_asset_directory(stderr, stdout):
     eq_([], http_service.req_log)
     shutil.rmtree(lock_dir)
 
+
+PROPS = {
+    "cq:name": "robot.jpg",
+    "cq:parentPath": "/content/dam/pink",
+    "name": "robot.jpg",
+    "dc:title": "My Asset",
+    "related": {},
+    "srn:paging": {
+        "total": 0,
+        "limit": 20,
+        "offset": 0
+    },
+    "metadata": {
+        "name": "Bernard",
+        "roles": [
+            "Host",
+            "Management"
+        ],
+        "dc:modified": "2017-01-27T21:08:05.465Z",
+        "dc:format": "image/jpeg"
+    }
+}
+
+
+def test_get_tags():
+    eq_("robot.jpg", get_tags(PROPS, "name"))
+    eq_("Bernard", get_tags(PROPS, "metadata/name"))
+    eq_([], get_tags(PROPS, "metadata/doesntexist"))

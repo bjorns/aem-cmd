@@ -1,13 +1,12 @@
 # coding: utf-8
-import sys
 import optparse
-
-from acmd import OK, USER_ERROR, tool, error, log
-from acmd.tools.tool_utils import get_argument, get_command
-from acmd.workflows import WorkflowsApi
+import sys
 
 import acmd.jcr.path
+from acmd import OK, SERVER_ERROR, USER_ERROR, tool, error, log
 from acmd.assets import AssetsApi, AssetsImportFunnel
+from acmd.tools.tool_utils import get_argument, get_command
+from acmd.workflows import WorkflowsApi
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
@@ -64,6 +63,19 @@ class AssetsTool(object):
                 props = item['properties']
                 path = acmd.jcr.path.join(props['path'], props['name'])
                 sys.stdout.write("{}\n".format(path))
+        elif action == 'tag':
+            prop = get_argument(args)
+            tagval = get_argument(args, i=3)
+            if len(args) <= 4:
+                log("Reading files from input")
+                for path in sys.stdin:
+                    path = path.strip()
+                    self.tag_asset(path, prop, tagval)
+            else:
+                path = get_argument(args, i=4)
+                log("Tagging {}".format(path))
+                self.tag_asset(path, prop, tagval)
+            pass
         else:
             error("Unknown action {}".format(action))
             return USER_ERROR
@@ -74,3 +86,47 @@ class AssetsTool(object):
 
         api.start_workflow(model, path)
         print path
+
+    def tag_asset(self, assetpath, propname, value):
+        """
+        Function is lowlevel and does not look up values from titles.
+
+        assetpath: e.g. /my_robots/bernard.jpg
+        propname: e.g. metadata/project_state
+        tagname: e.g. westword:project_states/discontinued
+        """
+        if assetpath.startswith("/content/dam"):
+            assetpath = assetpath[len("/content/dam"):]
+
+        status, data = self.api.get(assetpath)
+        if status != OK:
+            error("Failed to get status for {}: {}".format(assetpath, data))
+            return SERVER_ERROR, None
+        props = data['properties']
+
+        tags = get_tags(props, propname)
+        if tags is not None and type(tags) != list:
+            error("Property {} is not a string array expected for tags".format(propname))
+            return USER_ERROR, None
+        if value in tags:
+            log("Tag {} already in asset")
+            return OK, assetpath
+
+        tags.append(value)
+
+        status, data = self.api.setprops(assetpath, {propname: tags})
+
+        if status != OK:
+            error("Failed to update metadata of {}".format(assetpath))
+            return status, None
+        return OK, data
+
+
+def get_tags(props, propname):
+    """ Fetch data data from api metadata properties """
+    s = props
+    for part in propname.split('/'):
+        if part not in s:
+            return list()
+        s = s[part]
+    return s

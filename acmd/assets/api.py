@@ -1,5 +1,4 @@
 # coding: utf-8
-import json
 import time
 
 import requests
@@ -102,6 +101,24 @@ class AssetsApi(object):
         url = self.server.url(req_path)
         log("Touching {}".format(url))
 
+        r = requests.put(url, auth=self.server.auth, json=data)
+        if r.status_code != 200:
+            error("{} Failed to touch asset {}: {}".format(r.status_code, path, r.content))
+            return SERVER_ERROR, None
+        else:
+            return OK, r.json()
+
+    def setprops(self, path, properties):
+        """
+        Update metadata properties:
+        path: /hosts/arnold.png
+        properties: {'dc:title': 'Arnold'}
+
+        PUT /api/assets/hosts/arnold.jpg -H"Content-Type: application/json" -d '{"class":"asset", \
+            "properties":{"dc:title":"Arnold"}}'
+        """
+        data = {'class': 'asset', 'properties': properties}
+        url = self.server.url("/api/assets{}".format(path))
         r = requests.put(url, auth=self.server.auth, json=data)
         if r.status_code != 200:
             error("{} Failed to touch asset {}: {}".format(r.status_code, path, r.content))
