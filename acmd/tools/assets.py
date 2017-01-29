@@ -75,7 +75,7 @@ class AssetsTool(object):
                     path = path.strip()
                     self.tag_asset(path, tags)
             else:
-                path = get_argument(args, i=4)
+                path = get_argument(args, i=3)
                 log("Tagging {}".format(path))
                 self.tag_asset(path, tags)
             return OK
