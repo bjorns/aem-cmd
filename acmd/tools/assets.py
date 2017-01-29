@@ -45,10 +45,10 @@ class AssetsTool(object):
         elif action == 'touch':
             api = WorkflowsApi(server)
             if len(args) >= 3:
-                self._touch(api, actionarg, options.model)
+                self.touch_asset(api, actionarg, options.model)
             else:
                 for line in sys.stdin:
-                    self._touch(api, line.strip(), options.model)
+                    self.touch_asset(api, line.strip(), options.model)
             return OK
         elif action == 'list' or action == 'ls':
             status, data = self.api.list(actionarg)
@@ -83,7 +83,7 @@ class AssetsTool(object):
             error("Unknown action {}".format(action))
             return USER_ERROR
 
-    def _touch(self, api, path, model):
+    def touch_asset(self, api, path, model):
         path = "/content/dam" + path + "/jcr:content/renditions/original"
         log("Triggering workflow {} on {}".format(model, path))
 
