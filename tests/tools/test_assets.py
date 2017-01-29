@@ -190,3 +190,27 @@ def test_tag_asset(stdout, stderr):
 
 def typeof(request):
     return request.method, request.path_url
+
+
+from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_touch_asset(stderr, stdout):
+    service = MockWorkflowsService()
+    http_service = MockWorkflowHttpService(service)
+    eq_([], http_service.request_log)
+
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', 'touch', '/hosts/bernard.jpg'])
+
+    eq_('', stderr.getvalue())
+    eq_('/content/dam/hosts/bernard.jpg/jcr:content/renditions/original\n', stdout.getvalue())
+    eq_(OK, status)
+
+    eq_(1, len(http_service.request_log))
+    eq_(('POST', '/etc/workflow/instances'), typeof(http_service.request_log[0]))
+    eq_([], service.instances)
