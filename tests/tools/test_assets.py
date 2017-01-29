@@ -12,6 +12,7 @@ from acmd import Server, OK
 from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags
 from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
 
+
 class RecordingHttpService(object):
     def __init__(self):
         self.req_log = []
@@ -159,6 +160,7 @@ def test_merge_tags():
     data = merge_tags({'key1': ['val1']}, {'key1': ['val2', 'val3']})
     eq_({'key1': ['val1', 'val2', 'val3']}, data)
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_tag_asset(stdout, stderr):
@@ -184,7 +186,6 @@ def test_tag_asset(stdout, stderr):
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
     eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
         json.loads(http_service.request_log[1].body))
-
 
 
 def typeof(request):
