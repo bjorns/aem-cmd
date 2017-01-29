@@ -14,6 +14,7 @@ __pycache__
 .coverage
 test_reports
 tests.log
+htmlcov
 
 mock_package-1.6.5.zip
 
