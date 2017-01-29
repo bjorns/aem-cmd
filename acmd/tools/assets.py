@@ -1,5 +1,6 @@
 # coding: utf-8
 import optparse
+import re
 import sys
 
 import acmd.jcr.path
@@ -64,17 +65,19 @@ class AssetsTool(object):
                 path = acmd.jcr.path.join(props['path'], props['name'])
                 sys.stdout.write("{}\n".format(path))
         elif action == 'tag':
-            prop = get_argument(args)
-            tagval = get_argument(args, i=3)
-            if len(args) <= 4:
+            tag_str = get_argument(args)
+            status, tags = parse_tags(tag_str)
+            if status != OK:
+                return status
+            if len(args) <= 3:
                 log("Reading files from input")
                 for path in sys.stdin:
                     path = path.strip()
-                    self.tag_asset(path, prop, tagval)
+                    self.tag_asset(path, tags)
             else:
                 path = get_argument(args, i=4)
                 log("Tagging {}".format(path))
-                self.tag_asset(path, prop, tagval)
+                self.tag_asset(path, tags)
             return OK
         else:
             error("Unknown action {}".format(action))
@@ -87,7 +90,7 @@ class AssetsTool(object):
         api.start_workflow(model, path)
         print path
 
-    def tag_asset(self, assetpath, propname, value):
+    def tag_asset(self, assetpath, tags):
         """
         Function is lowlevel and does not look up values from titles.
 
@@ -104,17 +107,10 @@ class AssetsTool(object):
             return SERVER_ERROR, None
         props = data['properties']
 
-        tags = get_tags(props, propname)
-        if tags is not None and type(tags) != list:
-            error("Property {} is not a string array expected for tags".format(propname))
-            return USER_ERROR, None
-        if value in tags:
-            log("Tag {} already in asset")
-            return OK, assetpath
+        existing_tags = flatten_properties(props)
+        tags = merge_tags(existing_tags, tags)
 
-        tags.append(value)
-
-        status, data = self.api.setprops(assetpath, {propname: tags})
+        status, data = self.api.setprops(assetpath, tags)
 
         if status != OK:
             error("Failed to update metadata of {}".format(assetpath))
@@ -122,11 +118,65 @@ class AssetsTool(object):
         return OK, data
 
 
-def get_tags(props, propname):
+def merge_tags(existing_tags, new_tags):
+    """ Expects two dicts, The first is existing tags {<str> -> <list>}
+        The second is new tags {<str> -> <str>}
+        Returns a merged dict with all keys and lists merged removing duplicates. {<str> -> <list>}
+    """
+    ret = existing_tags.copy()
+    for key, val in new_tags.items():
+        cur = ret.get(key, list())
+        if type(cur) != list:
+            error("Unexpected type {} for property {}".format(type(cur), key))
+            return None
+        if type(val) == str:
+            cur = add_new(cur, val)
+        elif type(val) == list:
+            [add_new(cur, v) for v in val]
+        ret[key] = cur
+    return ret
+
+
+def add_new(lst, val):
+    if val not in lst:
+        lst.append(val)
+    return lst
+
+
+def flatten_properties(props):
     """ Fetch data data from api metadata properties """
-    s = props
-    for part in propname.split('/'):
-        if part not in s:
-            return list()
-        s = s[part]
-    return s
+    ret = dict()
+    for key, val in props.items():
+        if type(val) == dict:
+            sub_props = flatten_properties(val)
+            for subkey, subval in sub_props.items():
+                ret[key + '/' + subkey] = subval
+        else:
+            ret[key] = val
+    return ret
+
+
+def parse_tags(tags_expr):
+    """ Expects key0=val0,key1=val1 """
+    tag_exprs = re.split('(?<!\\\\),', tags_expr)
+
+    ret = dict()
+    for tag_expr in tag_exprs:
+        status, key, tag = parse_tag(tag_expr)
+        if status != OK:
+            return status, None
+        ret[key] = tag
+    return OK, ret
+
+
+def parse_tag(tag_expr):
+    """ Expects key=val """
+    parts = re.split("(?<!\\\\)=", tag_expr)
+    if len(parts) != 2:
+        error("Failed to parse tag parameter string")
+        return USER_ERROR, None, None
+    return OK, decode(parts[0]), decode(parts[1])
+
+
+def decode(msg):
+    return msg.replace('\=', '=')

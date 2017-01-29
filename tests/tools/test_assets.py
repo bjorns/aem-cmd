@@ -1,5 +1,4 @@
 # coding: utf-8
-import json
 import shutil
 import tempfile
 from StringIO import StringIO
@@ -9,8 +8,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import Server, OK
-from acmd.tools.assets import AssetsTool, get_tags
-from tests.assets import MockAssetsHttpService, MockAssetsService
+from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags
 
 
 class RecordingHttpService(object):
@@ -128,38 +126,65 @@ PROPS = {
 }
 
 
-def test_get_tags():
-    eq_("robot.jpg", get_tags(PROPS, "name"))
-    eq_("Bernard", get_tags(PROPS, "metadata/name"))
-    eq_([], get_tags(PROPS, "metadata/doesntexist"))
+def test_flatten_properties():
+    eq_({}, flatten_properties({}))
+    eq_({'foobar': 3}, flatten_properties({'foobar': 3}))
+    eq_({'foobar/baz': 3, 'foobar/quiz': 4},
+        flatten_properties({'foobar': {'baz': 3, 'quiz': 4}}))
 
 
-@patch('sys.stdout', new_callable=StringIO)
-@patch('sys.stderr', new_callable=StringIO)
-def test_tag_asset(stdout, stderr):
-    service = MockAssetsService()
-    service.add_folder('/', 'hosts')
-    service.add_asset('/hosts', 'bernard.jpg')
-
-    http_service = MockAssetsHttpService(service)
-    eq_([], http_service.request_log)
-
-    with HTTMock(http_service):
-        tool = AssetsTool()
-        server = Server('localhost')
-        status = tool.execute(server, ['assets', 'tag', 'type', 'westworld:type/secret',
-                                       '/hosts/bernard.jpg'])
-
-    eq_('', stderr.getvalue())
-    eq_('', stdout.getvalue())
+def test_parse_tag():
+    status, key, val = parse_tag("key=value")
     eq_(OK, status)
+    eq_('key', key)
+    eq_('value', val)
+    status, key, val = parse_tag("key2=val\=ue")
+    eq_(OK, status)
+    eq_('key2', key)
+    eq_('val=ue', val)
 
-    eq_(2, len(http_service.request_log))
-    eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
-    eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
-    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
-        json.loads(http_service.request_log[1].body))
 
+def test_parse_tags():
+    status, data = parse_tags('key1=val1,key2=val2')
+    eq_(OK, status)
+    eq_({'key1': 'val1', 'key2': 'val2'}, data)
+
+
+def test_merge_tags():
+    data = merge_tags({'key1': ['val1']}, {'key2': 'val2'})
+    eq_({'key1': ['val1'], 'key2': ['val2']}, data)
+    data = merge_tags({'key1': ['val1']}, {'key1': 'val2'})
+    eq_({'key1': ['val1', 'val2']}, data)
+    data = merge_tags({'key1': ['val1']}, {'key1': ['val2', 'val3']})
+    eq_({'key1': ['val1', 'val2', 'val3']}, data)
+
+# @patch('sys.stdout', new_callable=StringIO)
+# @patch('sys.stderr', new_callable=StringIO)
+# def test_tag_asset(stdout, stderr):
+#     service = MockAssetsService()
+#     service.add_folder('/', 'hosts')
+#     service.add_asset('/hosts', 'bernard.jpg')
+#
+#     http_service = MockAssetsHttpService(service)
+#     eq_([], http_service.request_log)
+#
+#     with HTTMock(http_service):
+#         tool = AssetsTool()
+#         server = Server('localhost')
+#         status = tool.execute(server, ['assets', 'tag', 'type=westworld:type/secret',
+#                                        '/hosts/bernard.jpg'])
+#
+#     eq_('', stderr.getvalue())
+#     eq_('', stdout.getvalue())
+#     eq_(OK, status)
+#
+#     eq_(2, len(http_service.request_log))
+#     eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
+#     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
+#     eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+#         json.loads(http_service.request_log[1].body))
+#
+#
 
 def typeof(request):
     return request.method, request.path_url
