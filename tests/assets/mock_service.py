@@ -15,13 +15,15 @@ class MockAssetsService(object):
         self.repo['/'] = dict(
             type='assets/folder',
             name="/",
+            path="/",
             parent=None,
-            children=[],
+            folders=[],
             assets=[]
         )
 
-    def add_asset(self, parent, name):
-        path = acmd.jcr.path.join(parent, name)
+    def add_asset(self, parentpath, name):
+        parent = self.repo[parentpath]
+        path = acmd.jcr.path.join(parentpath, name)
         assert path not in self.repo
 
         asset = dict(
@@ -29,22 +31,26 @@ class MockAssetsService(object):
             name=name,
             parent=parent,
             path=path,
-            properties=dict()
+            properties=dict(),
+            assets=[],
+            folders=[],
         )
         test_log("Creating asset {}".format(path))
         self.repo[path] = asset
-        self.repo[parent]['assets'].append(asset)
+        parent['assets'].append(asset)
 
-    def add_folder(self, parent, name):
+    def add_folder(self, parentpath, name):
+        parent = self.repo[parentpath]
+        path = acmd.jcr.path.join(parentpath, name)
         folder = dict(
             type='assets/folder',
             name=name,
+            path=path,
             parent=parent,
-            children=[],
+            folders=[],
             assets=[]
         )
-        path = acmd.jcr.path.join(parent, name)
-        self.repo[parent]['children'].append(path)
+        parent['folders'].append(folder)
         test_log("Creating folder {}".format(path))
         self.repo[path] = folder
 
@@ -76,32 +82,41 @@ class MockAssetsHttpService(object):
 
     def _translate(self, data):
         if data['type'] == 'assets/asset':
-            return _translate_asset(data)
+            return _translate_resource(data)
         elif data['type'] == 'assets/folder':
-            return _translate_folder(data)
+            return _translate_resource(data)
         else:
             raise Exception()
 
 
-def _translate_folder(folder):
+def _translate_resource(resource):
     ret = {
-        'entities': [_translate_asset(a) for a in folder['assets']],
+        'entities': [_translate_entity(a) for a in resource['assets']],
         'links': [],
-        'class': [],
+        "class": [
+            ['type']
+        ],
         'actions': [],
-        'properties': []
+        'properties': {
+            'name': resource['name'],
+            'path': resource['path']
+        }
     }
+    for f in resource['folders']:
+        ret['entities'].append(_translate_entity(f))
     return ret
 
 
-def _translate_asset(asset):
+def _translate_entity(entity):
     ret = {
-        'entities': [],
+        #'rel': [],
         'links': [],
-        'class': [],
-        'actions': [],
+        "class": [
+            entity['type']
+        ],
         'properties': {
-            'name': asset['name']
+            'name': entity['name'],
+            'path': entity['path']
         }
     }
     return ret
