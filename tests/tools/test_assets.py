@@ -222,3 +222,27 @@ def test_touch_asset(stderr, stdout):
     eq_(1, len(http_service.request_log))
     eq_(('POST', '/etc/workflow/instances'), typeof(http_service.request_log[0]))
     eq_([], service.instances)
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+@patch('sys.stdin', StringIO("/hosts/bernard.jpg\n/hosts/abernathy.jpg\n"))
+def test_touch_assets_from_stdin(stderr, stdout):
+    service = MockWorkflowsService()
+    http_service = MockWorkflowHttpService(service)
+    eq_([], http_service.request_log)
+
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', 'touch'])
+
+    eq_(OK, status)
+    eq_('', stderr.getvalue())
+    lines = stdout.getvalue().split('\n')
+    eq_('/content/dam/hosts/bernard.jpg/jcr:content/renditions/original', lines[0])
+    eq_('/content/dam/hosts/abernathy.jpg/jcr:content/renditions/original', lines[1])
+
+    eq_(2, len(http_service.request_log))
+    eq_(('POST', '/etc/workflow/instances'), typeof(http_service.request_log[0]))
+    eq_([], service.instances)
