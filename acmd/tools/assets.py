@@ -83,7 +83,8 @@ class AssetsTool(object):
             error("Unknown action {}".format(action))
             return USER_ERROR
 
-    def touch_asset(self, api, path, model):
+    @staticmethod
+    def touch_asset(api, path, model):
         path = "/content/dam" + path + "/jcr:content/renditions/original"
         log("Triggering workflow {} on {}".format(model, path))
 
