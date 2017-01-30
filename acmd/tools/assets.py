@@ -114,7 +114,7 @@ class AssetsTool(object):
         tags = merge_tags(existing_tags, tags)
 
         status, data = self.api.setprops(assetpath, tags)
-
+        sys.stdout.write("{}\n".format(assetpath))
         if status != OK:
             error("Failed to update metadata of {}".format(assetpath))
             return status, None
