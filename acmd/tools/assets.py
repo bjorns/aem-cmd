@@ -112,6 +112,9 @@ class AssetsTool(object):
 
         existing_tags = flatten_properties(props)
         tags = merge_tags(existing_tags, tags)
+        if existing_tags == tags:
+            log("Skipping {}, no updates to make".format(assetpath))
+            return OK
 
         status, data = self.api.setprops(assetpath, tags)
         sys.stdout.write("{}\n".format(assetpath))
