@@ -6,6 +6,7 @@ import requests
 import acmd.jcr.path
 from acmd import OK, SERVER_ERROR
 from acmd import log, error
+from acmd.strings import remove_prefix
 
 """ https://author-lbrands-assets-prod.adobecqms.net/api/assets/pink/INTIMATES_DESIGN/BRA/_BRA_SKETCHES/_JOCKTAG.ai.json
 """
@@ -63,6 +64,9 @@ class AssetsApi(object):
         return OK, data
 
     def find(self, path):
+        if path.startswith("/content/dam"):
+            path = remove_prefix("/content/dam", path)
+
         status, root = self.list(path)
         if status != OK:
             error("Failed to find in {}".format(path))
