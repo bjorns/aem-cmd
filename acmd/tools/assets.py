@@ -65,6 +65,7 @@ class AssetsTool(object):
                 props = item['properties']
                 path = acmd.jcr.path.join(props['path'], props['name'])
                 sys.stdout.write("{}\n".format(path))
+            return OK
         elif action == 'tag':
             tag_str = get_argument(args)
             status, tags = parse_tags(tag_str)

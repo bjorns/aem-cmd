@@ -12,9 +12,10 @@ from mock_service import MockAssetsService, MockAssetsHttpService
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_list_workflows(stderr, stdout):
+def test_find_assets(stderr, stdout):
     asset_service = MockAssetsService()
     asset_service.add_folder("/", "myfolder")
+    asset_service.add_asset("/", "root_asset.jpg")
     asset_service.add_asset("/myfolder", "myasset.jpg")
     http_service = MockAssetsHttpService(asset_service)
 
@@ -23,10 +24,11 @@ def test_list_workflows(stderr, stdout):
         api = acmd.assets.AssetsApi(server)
 
         status, data = api.find("/")
-
         eq_(OK, status)
-        eq_([], data)
+        eq_(2, len(data))
 
+        eq_('/', data[0]['properties']['path'])
+        eq_('root_asset.jpg', data[0]['properties']['name'])
 
-def test_list_workflows2():
-    pass
+        eq_('/myfolder', data[1]['properties']['path'])
+        eq_('myasset.jpg', data[1]['properties']['name'])
