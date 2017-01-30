@@ -4,8 +4,8 @@ from StringIO import StringIO
 from mock import patch
 from nose.tools import eq_, ok_
 
-from acmd import tool_repo, Server, OK
 import acmd.config
+from acmd import tool_repo, Server, OK
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -15,6 +15,7 @@ def test_list_tools(stderr, stdout):
     server = Server('localhost')
     status = tool.execute(server, ['help'])
 
+    eq_('', stderr.getvalue())
     lines = [x.strip() for x in stdout.getvalue().split('\n')]
     eq_("Available tools:", lines[0])
     ok_(len(lines) > 5)
@@ -40,6 +41,7 @@ def test_list_tools(stderr, stdout):
     ok_('workflows' in lines)
     eq_(OK, status)
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_tools(stderr, stdout):
@@ -47,6 +49,7 @@ def test_list_tools(stderr, stdout):
     server = Server('localhost')
     status = tool.execute(server, ['help', '--compact'])
 
+    eq_('', stderr.getvalue())
     lines = [x for x in stdout.getvalue().split('\n')]
     ok_(len(lines) > 5)
     ok_('bundles' in lines)
@@ -70,10 +73,10 @@ def test_list_tools(stderr, stdout):
     ok_('workflows' in lines)
     eq_(OK, status)
 
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_servers(stderr, stdout):
-
     config = acmd.config.Config()
     config.servers['server1'] = Server('server1')
     config.servers['server2'] = Server('server2')
@@ -83,6 +86,8 @@ def test_list_servers(stderr, stdout):
     tool = tool_repo.get_tool('help')
     server = Server('localhost')
     status = tool.execute(server, ['help', '_servers'])
+
+    eq_('', stderr.getvalue())
     lines = [x.strip() for x in stdout.getvalue().split('\n')]
 
     eq_('server1', lines[0])
