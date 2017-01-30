@@ -132,20 +132,22 @@ def merge_tags(existing_tags, new_tags):
     ret = existing_tags.copy()
     for key, val in new_tags.items():
         if key.startswith('!'):
-            pass
+            key = key[1:]
+            ret[key] = val
         else:
             ret[key] = merge_tag_field(ret.get(key, list()), val)
     return ret
 
 
-def merge_tag_field(cur, val):
-    if type(cur) != list:
-        raise Exception("Unexpected type {} for property {}".format(type(cur), key))
-    if type(val) == str:
-        cur = add_new(cur, val)
-    elif type(val) == list:
-        [add_new(cur, v) for v in val]
-    return cur
+def merge_tag_field(existing_tags, new_tags):
+    ret = [t for t in existing_tags]
+    if type(existing_tags) != list:
+        raise Exception("Unexpected type {} for property {}".format(type(existing_tags), key))
+    if type(new_tags) == str:
+        ret = add_new(ret, new_tags)
+    elif type(new_tags) == list:
+        [add_new(ret, v) for v in new_tags]
+    return ret
 
 
 def add_new(lst, val):
