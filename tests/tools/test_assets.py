@@ -9,7 +9,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import Server, OK
-from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags
+from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
 from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
 from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
 
@@ -127,16 +127,21 @@ def test_parse_tag():
 def test_parse_tags():
     status, data = parse_tags('key1=val1,key2=val2')
     eq_(OK, status)
-    eq_({'key1': 'val1', 'key2': 'val2'}, data)
+    eq_({'key1': ['val1'], 'key2': ['val2']}, data)
 
 
 def test_merge_tags():
-    data = merge_tags({'key1': ['val1']}, {'key2': 'val2'})
+    data = merge_tags({'key1': ['val1']}, {'key2': ['val2']})
     eq_({'key1': ['val1'], 'key2': ['val2']}, data)
-    data = merge_tags({'key1': ['val1']}, {'key1': 'val2'})
+    data = merge_tags({'key1': ['val1']}, {'key1': ['val2']})
     eq_({'key1': ['val1', 'val2']}, data)
     data = merge_tags({'key1': ['val1']}, {'key1': ['val2', 'val3']})
     eq_({'key1': ['val1', 'val2', 'val3']}, data)
+
+
+def test_merge_tag_field():
+    eq_(['a', 'b', 'c'], merge_tag_field(['a', 'b'], ['c']))
+    eq_(['a', 'b'], merge_tag_field(['a', 'b'], ['b']))
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -163,7 +168,7 @@ def test_tag_asset(stderr, stdout):
     eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
     body_data = json.loads(http_service.request_log[1].body)
-    #eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], u'name': u'bernard.jpg'}},
+    # eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], u'name': u'bernard.jpg'}},
     #    json.loads(http_service.request_log[1].body))
 
 
@@ -198,7 +203,6 @@ def test_tag_asset_from_stdin(stderr, stdout):
     eq_(('PUT', '/api/assets/hosts/abernathy.jpg'), typeof(http_service.request_log[3]))
     body_data = json.loads(http_service.request_log[3].body)
     eq_([u'westworld:type/secret'], body_data['properties']['type'])
-
 
 
 def typeof(request):
@@ -310,4 +314,3 @@ def test_list_assets(stderr, stdout):
     eq_('/hosts/dolores.jpg', lines[3])
 
     eq_('', lines[4])
-
