@@ -6,7 +6,6 @@ from httmock import urlmatch
 import acmd.assets
 import acmd.jcr.path
 from acmd.strings import remove_suffix, remove_prefix
-
 from tests.test_utils.logging import test_log
 
 
@@ -30,11 +29,11 @@ class MockAssetsService(object):
             name=name,
             parent=parent,
             path=path,
-            properties={}
+            properties=dict()
         )
         test_log("Creating asset {}".format(path))
         self.repo[path] = asset
-        self.repo[parent]['assets'].append(name)
+        self.repo[parent]['assets'].append(asset)
 
     def add_folder(self, parent, name):
         folder = dict(
@@ -77,23 +76,32 @@ class MockAssetsHttpService(object):
 
     def _translate(self, data):
         if data['type'] == 'assets/asset':
-            return self._translate_asset(data)
+            return _translate_asset(data)
         elif data['type'] == 'assets/folder':
-            return self._translate_folder(data)
+            return _translate_folder(data)
         else:
             raise Exception()
 
-    @staticmethod
-    def _translate_asset(data):
-        return {
-            'entities': [],
-            'links': [],
-            'properties': data['properties']
-        }
 
-    @staticmethod
-    def _translate_folder(data):
-        return {
-            'entities': [],
-            'links': []
+def _translate_folder(folder):
+    ret = {
+        'entities': [_translate_asset(a) for a in folder['assets']],
+        'links': [],
+        'class': [],
+        'actions': [],
+        'properties': []
+    }
+    return ret
+
+
+def _translate_asset(asset):
+    ret = {
+        'entities': [],
+        'links': [],
+        'class': [],
+        'actions': [],
+        'properties': {
+            'name': asset['name']
         }
+    }
+    return ret
