@@ -56,6 +56,7 @@ class AssetsTool(object):
                 return status
             for item in data['entities']:
                 print item['properties']['name']
+            return OK
         elif action == 'find':
             status, data = self.api.find(actionarg)
             if status != OK:

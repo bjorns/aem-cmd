@@ -162,7 +162,7 @@ def test_tag_asset(stdout, stderr):
     eq_(2, len(http_service.request_log))
     eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
-    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], u'name': u'bernard.jpg'}},
         json.loads(http_service.request_log[1].body))
 
 
@@ -190,11 +190,11 @@ def test_tag_asset_from_stdin(stdout, stderr):
     eq_(4, len(http_service.request_log))
     eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
-    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], 'name': 'bernard.jpg'}},
         json.loads(http_service.request_log[1].body))
     eq_(('GET', '/api/assets/hosts/abernathy.jpg.json'), typeof(http_service.request_log[2]))
     eq_(('PUT', '/api/assets/hosts/abernathy.jpg'), typeof(http_service.request_log[3]))
-    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], 'name': 'abernathy.jpg'}},
         json.loads(http_service.request_log[3].body))
 
 
@@ -246,3 +246,30 @@ def test_touch_assets_from_stdin(stderr, stdout):
     eq_(2, len(http_service.request_log))
     eq_(('POST', '/etc/workflow/instances'), typeof(http_service.request_log[0]))
     eq_([], service.instances)
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_list_assets(stderr, stdout):
+    service = MockAssetsService()
+    service.add_folder('/', 'hosts')
+    service.add_asset('/hosts', 'bernard.jpg')
+    service.add_asset('/hosts', 'dolores.jpg')
+
+    http_service = MockAssetsHttpService(service)
+    eq_([], http_service.request_log)
+
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', 'ls', '/hosts'])
+
+    eq_(OK, status)
+    eq_('', stderr.getvalue())
+
+    lines = stdout.getvalue().split('\n')
+    eq_('bernard.jpg', lines[0])
+    eq_('dolores.jpg', lines[1])
+
+    eq_(1, len(http_service.request_log))
+    eq_(('GET', '/api/assets/hosts.json'), typeof(http_service.request_log[0]))
