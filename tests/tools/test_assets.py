@@ -106,29 +106,6 @@ def test_dry_run_import_asset_directory(stderr, stdout):
     shutil.rmtree(lock_dir)
 
 
-PROPS = {
-    "cq:name": "robot.jpg",
-    "cq:parentPath": "/content/dam/pink",
-    "name": "robot.jpg",
-    "dc:title": "My Asset",
-    "related": {},
-    "srn:paging": {
-        "total": 0,
-        "limit": 20,
-        "offset": 0
-    },
-    "metadata": {
-        "name": "Bernard",
-        "roles": [
-            "Host",
-            "Management"
-        ],
-        "dc:modified": "2017-01-27T21:08:05.465Z",
-        "dc:format": "image/jpeg"
-    }
-}
-
-
 def test_flatten_properties():
     eq_({}, flatten_properties({}))
     eq_({'foobar': 3}, flatten_properties({'foobar': 3}))
@@ -187,6 +164,39 @@ def test_tag_asset(stdout, stderr):
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
     eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
         json.loads(http_service.request_log[1].body))
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+@patch('sys.stdin', StringIO("/hosts/bernard.jpg\n/hosts/abernathy.jpg\n"))
+def test_tag_asset_from_stdin(stdout, stderr):
+    service = MockAssetsService()
+    service.add_folder('/', 'hosts')
+    service.add_asset('/hosts', 'bernard.jpg')
+    service.add_asset('/hosts', 'abernathy.jpg')
+
+    http_service = MockAssetsHttpService(service)
+    eq_([], http_service.request_log)
+
+    with HTTMock(http_service):
+        tool = AssetsTool()
+        server = Server('localhost')
+        status = tool.execute(server, ['assets', 'tag', 'type=westworld:type/secret'])
+
+    eq_('', stderr.getvalue())
+    eq_('', stdout.getvalue())
+    eq_(OK, status)
+
+    eq_(4, len(http_service.request_log))
+    eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
+    eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+        json.loads(http_service.request_log[1].body))
+    eq_(('GET', '/api/assets/hosts/abernathy.jpg.json'), typeof(http_service.request_log[2]))
+    eq_(('PUT', '/api/assets/hosts/abernathy.jpg'), typeof(http_service.request_log[3]))
+    eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret']}},
+        json.loads(http_service.request_log[3].body))
+
 
 
 def typeof(request):
