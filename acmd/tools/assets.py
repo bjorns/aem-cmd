@@ -8,6 +8,7 @@ from acmd import OK, SERVER_ERROR, USER_ERROR, tool, error, log
 from acmd.assets import AssetsApi, AssetsImportFunnel
 from acmd.tools.tool_utils import get_argument, get_command
 from acmd.workflows import WorkflowsApi
+from acmd.strings import remove_prefix
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",
@@ -98,11 +99,10 @@ class AssetsTool(object):
         Function is lowlevel and does not look up values from titles.
 
         assetpath: e.g. /my_robots/bernard.jpg
-        propname: e.g. metadata/project_state
-        tagname: e.g. westword:project_states/discontinued
+        tags: e.g. {name: ['bernard.jpg'], type: ['host']}
         """
         if assetpath.startswith("/content/dam"):
-            assetpath = assetpath[len("/content/dam"):]
+            assetpath = remove_prefix("/content/dam")
 
         status, data = self.api.get(assetpath)
         if status != OK:
@@ -130,23 +130,27 @@ def merge_tags(existing_tags, new_tags):
         Returns a merged dict with all keys and lists merged removing duplicates. {<str> -> <list>}
     """
     ret = existing_tags.copy()
-    for key, val in new_tags.items():
+    for key, tags in new_tags.items():
         if key.startswith('!'):
             key = key[1:]
-            ret[key] = val
+            assert len(new_tags) == 1
+            ret[key] = new_tags[0]
         else:
-            ret[key] = merge_tag_field(ret.get(key, list()), val)
+            ret[key] = merge_tag_field(ret.get(key, list()), tags)
     return ret
 
 
 def merge_tag_field(existing_tags, new_tags):
+    """ Expects two lists and merges all unique values from both into a new list
+        [str] + [str] -> [str]
+    """
     ret = [t for t in existing_tags]
     if type(existing_tags) != list:
-        raise Exception("Unexpected type {} for property {}".format(type(existing_tags), key))
-    if type(new_tags) == str:
-        ret = add_new(ret, new_tags)
-    elif type(new_tags) == list:
+        raise Exception("Unexpected type {} for property {}".format(type(existing_tags), new_tags))
+    if type(new_tags) == list:
         [add_new(ret, v) for v in new_tags]
+    else:
+        raise Exception("Unexpected type {} for new_tags".format(new_tags))
     return ret
 
 
@@ -178,7 +182,12 @@ def parse_tags(tags_expr):
         status, key, tag = parse_tag(tag_expr)
         if status != OK:
             return status, None
-        ret[key] = tag
+        if key in ret:
+            assert type(ret[key]) == list
+            lst = ret[key]
+            lst.append(tag)
+        else:
+            ret[key] = [tag]
     return OK, ret
 
 
