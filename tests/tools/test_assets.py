@@ -141,7 +141,7 @@ def test_merge_tags():
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_tag_asset(stdout, stderr):
+def test_tag_asset(stderr, stdout):
     service = MockAssetsService()
     service.add_folder('/', 'hosts')
     service.add_asset('/hosts', 'bernard.jpg')
@@ -156,7 +156,7 @@ def test_tag_asset(stdout, stderr):
                                        '/hosts/bernard.jpg'])
 
     eq_('', stderr.getvalue())
-    eq_('', stdout.getvalue())
+    eq_('/hosts/bernard.jpg\n', stdout.getvalue())
     eq_(OK, status)
 
     eq_(2, len(http_service.request_log))
@@ -170,7 +170,7 @@ def test_tag_asset(stdout, stderr):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 @patch('sys.stdin', StringIO("/hosts/bernard.jpg\n/hosts/abernathy.jpg\n"))
-def test_tag_asset_from_stdin(stdout, stderr):
+def test_tag_asset_from_stdin(stderr, stdout):
     service = MockAssetsService()
     service.add_folder('/', 'hosts')
     service.add_asset('/hosts', 'bernard.jpg')
@@ -185,7 +185,7 @@ def test_tag_asset_from_stdin(stdout, stderr):
         status = tool.execute(server, ['assets', 'tag', 'type=westworld:type/secret'])
 
     eq_('', stderr.getvalue())
-    eq_('', stdout.getvalue())
+    eq_('/hosts/bernard.jpg\n/hosts/abernathy.jpg\n', stdout.getvalue())
     eq_(OK, status)
 
     eq_(4, len(http_service.request_log))
