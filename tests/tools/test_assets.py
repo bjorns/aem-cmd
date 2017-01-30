@@ -11,6 +11,7 @@ from nose.tools import eq_
 from acmd import Server, OK
 from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags
 from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
+from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
 
 
 class RecordingHttpService(object):
@@ -18,7 +19,7 @@ class RecordingHttpService(object):
         self.req_log = []
 
     @urlmatch(netloc='localhost:4502', method='POST')
-    def __call__(self, url, request):
+    def __call__(self, _, request):
         self.req_log.append(request)
 
         return {'status_code': 200,
@@ -190,9 +191,6 @@ def test_tag_asset(stdout, stderr):
 
 def typeof(request):
     return request.method, request.path_url
-
-
-from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
 
 
 @patch('sys.stdout', new_callable=StringIO)

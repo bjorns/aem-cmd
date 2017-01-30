@@ -31,9 +31,9 @@ class MockWorkflowHttpService(object):
             elif 'instances' in url.path:
                 return json.dumps(self.wf_service.instances)
         elif request.method == 'POST':
-            return self._handle_post(url, request)
+            return self._handle_post()
 
-    def _handle_post(self, url, request):
+    def _handle_post(self):
         model = 'foo'
         self.wf_service.add_model(model)
 
