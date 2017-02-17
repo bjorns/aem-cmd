@@ -37,6 +37,21 @@ def test_parse_boolean():
     eq_('true', y['should_work'])
     eq_('Boolean', y['should_work@TypeHint'])
 
+    y = parse_properties("should_work={Boolean}true")
+    eq_(2, len(y))
+    eq_('true', y['should_work'])
+    eq_('Boolean', y['should_work@TypeHint'])
+
+    y = parse_properties("should_work={bool}true")
+    eq_(2, len(y))
+    eq_('true', y['should_work'])
+    eq_('Boolean', y['should_work@TypeHint'])
+
+    y = parse_properties("should_work={String}true")
+    eq_(2, len(y))
+    eq_('true', y['should_work'])
+    eq_('String', y['should_work@TypeHint'])
+
 
 def test_parse_integer():
     y = parse_properties("nbr_dwarves=7")
