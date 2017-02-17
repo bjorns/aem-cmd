@@ -15,7 +15,7 @@ def parse_properties(props_str):
         key, val, val_type, rest = _parse_property(rest)
         log("    setting {}={}".format(key, val))
         if val_type is not None:
-            ret[_typeof(key)] = val_type
+            ret[_typeof(key)] = _parse_typehint(val_type)
         ret[key] = val
     return ret
 
@@ -24,15 +24,38 @@ def _typeof(key):
     return key + "@TypeHint"
 
 
+TYPE_MAPPINGS = dict(bool='Boolean', str='String', int='Long', long='Long')
+STANDARD_TYPES = {'Boolean', 'Long', 'String'}
+
+
+def _parse_typehint(val_type):
+    if val_type in STANDARD_TYPES:
+        return val_type
+    if val_type in TYPE_MAPPINGS:
+        return TYPE_MAPPINGS[val_type]
+    raise Exception("Unknown value type {}".format(val_type))
+
+
 def _parse_property(prop_str):
     key, _, rest = prop_str.partition('=')
     if rest.startswith('"'):
         value, rest = _get_quoted_value(rest)
         val_type = 'String'
+    elif rest.startswith('{'):
+        val_type, value, rest = _get_typehint_value(rest)
     else:
         value, _, rest = rest.partition(',')
         val_type = _infer_type(value)
     return key, value, val_type, rest
+
+
+def _get_typehint_value(rest):
+    rest = rest.lstrip('{')
+    parts = re.split(r'(?<!\\)}', rest, maxsplit=1)
+    typehint = parts[0]
+    rest = parts[1] if len(parts) > 1 else ""
+    value, _, rest = rest.partition(',')
+    return typehint, value, rest
 
 
 def _get_quoted_value(rest):

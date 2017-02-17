@@ -1,13 +1,13 @@
 # coding: utf-8
-import sys
-import os.path
-import optparse
 import json
+import optparse
+import os.path
+import sys
 
 import requests
 
-from acmd import tool, log
 from acmd import OK, SERVER_ERROR, USER_ERROR
+from acmd import tool, log
 from acmd.props import parse_properties
 
 parser = optparse.OptionParser("acmd <ls|cat|find|mv|setprop|rmprop> [options] <jcr path>")
@@ -199,6 +199,7 @@ def set_node_properties(server, options, path, props):
             http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
     """
     url = server.url(path)
+    # resp = requests.post(url, auth=server.auth, files=_multipart(props))
     resp = requests.post(url, auth=server.auth, data=props)
     if resp.status_code != 200:
         sys.stderr.write(
@@ -209,6 +210,10 @@ def set_node_properties(server, options, path, props):
     else:
         sys.stdout.write("{}\n".format(path))
     return OK
+
+
+def _multipart(props):
+    return {k: ('', v) for k, v in props.items()}
 
 
 @tool('rmprop')
@@ -252,7 +257,6 @@ def rm_node_properties(server, options, prop_names, path):
 
 @tool('cp')
 class CopyTool(object):
-
     @staticmethod
     def execute(server, argv):
         parser.set_usage("%prog cp <src-path> <dst-path>")
