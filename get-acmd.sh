@@ -21,6 +21,7 @@ function install_pkg() {
 function install_acmd() {
     install_pip
     install_pkg requests
+    install_pkg requests_toolbelt
     install_pkg aem-cmd
 
     # Install bash completions
