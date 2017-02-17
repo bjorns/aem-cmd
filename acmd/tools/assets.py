@@ -79,7 +79,6 @@ class AssetsTool(object):
                     self.tag_asset(path, tags)
             else:
                 path = get_argument(args, i=3)
-                log("Tagging {}".format(path))
                 self.tag_asset(path, tags)
             return OK
         else:
@@ -104,6 +103,7 @@ class AssetsTool(object):
         if assetpath.startswith("/content/dam"):
             assetpath = remove_prefix("/content/dam")
 
+        log("Fetching status for {}".format(assetpath))
         status, data = self.api.get(assetpath)
         if status != OK:
             error("Failed to get status for {}: {}".format(assetpath, data))
@@ -116,6 +116,7 @@ class AssetsTool(object):
             log("Skipping {}, no updates to make".format(assetpath))
             return OK
 
+        log("Tagging {}".format(assetpath))
         status, data = self.api.setprops(assetpath, tags)
         sys.stdout.write("{}\n".format(assetpath))
         if status != OK:
@@ -133,8 +134,8 @@ def merge_tags(existing_tags, new_tags):
     for key, tags in new_tags.items():
         if key.startswith('!'):
             key = key[1:]
-            assert len(new_tags) == 1
-            ret[key] = new_tags[0]
+            assert len(tags) == 1
+            ret[key] = tags[0]
         else:
             ret[key] = merge_tag_field(ret.get(key, list()), tags)
     return ret

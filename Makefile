@@ -15,6 +15,6 @@ release: dist
 	twine upload -r pypi dist/*
 
 test:
-	nosetests --with-coverage --cover-package=acmd --cover-min-percentage=75 --cover-html --cover-html-dir=build/test_reports
+	nosetests --with-coverage --cover-package=acmd --cover-min-percentage=80 --cover-html --cover-html-dir=build/test_reports
 
 .PHONY: all clean dist test
