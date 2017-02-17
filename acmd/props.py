@@ -29,6 +29,8 @@ STANDARD_TYPES = {'Boolean', 'Long', 'String'}
 
 
 def _parse_typehint(val_type):
+    if val_type.endswith('[]'):
+        return _parse_typehint(val_type[:-2]) + "[]"
     if val_type in STANDARD_TYPES:
         return val_type
     if val_type in TYPE_MAPPINGS:
@@ -43,6 +45,9 @@ def _parse_property(prop_str):
         val_type = 'String'
     elif rest.startswith('{'):
         val_type, value, rest = _get_typehint_value(rest)
+    elif rest.startswith('['):
+        value, rest = _get_array_value(rest)
+        val_type = "String[]"
     else:
         value, _, rest = rest.partition(',')
         val_type = _infer_type(value)
@@ -56,6 +61,16 @@ def _get_typehint_value(rest):
     rest = parts[1] if len(parts) > 1 else ""
     value, _, rest = rest.partition(',')
     return typehint, value, rest
+
+
+def _get_array_value(rest):
+    rest = rest.lstrip('[')
+    parts = re.split(r'(?<!\\)]', rest, maxsplit=1)
+    raw_array = parts[0]
+    rest = parts[1] if len(parts) > 1 else ""
+    value = raw_array.split(',')
+
+    return value, rest
 
 
 def _get_quoted_value(rest):
