@@ -1,12 +1,12 @@
 # coding: utf-8
 from StringIO import StringIO
 
-from mock import patch
 from httmock import urlmatch, HTTMock
+from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
-from acmd.tools.jcr import parse_properties
+from acmd.tools.jcr import parse_properties, _flatten
 
 
 def test_parser_properties():
@@ -74,3 +74,11 @@ def test_setprop_stdin(stderr, stdout):
         status = tool.execute(server, ['setprop', 'prop0=value0,prop1=value1'])
         eq_(0, status)
         eq_('/path0\n/path1\n', stdout.getvalue())
+
+
+def test_flatten():
+    item0 = ('one', 1)
+    item1 = ('two', 2)
+    eq_((item1, item0), _flatten(dict(one=1, two=2)))
+
+    eq_((('array', 1), ('array', 2), ('array', 3)), _flatten(dict(array=[1, 2, 3])))

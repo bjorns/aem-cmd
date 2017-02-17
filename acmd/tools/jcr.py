@@ -5,6 +5,7 @@ import os.path
 import sys
 
 import requests
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from acmd import OK, SERVER_ERROR, USER_ERROR
 from acmd import tool, log
@@ -199,8 +200,12 @@ def set_node_properties(server, options, path, props):
             http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
     """
     url = server.url(path)
-    # resp = requests.post(url, auth=server.auth, files=_multipart(props))
-    resp = requests.post(url, auth=server.auth, data=props)
+
+    multipart_data = MultipartEncoder(
+        fields=_flatten(props)
+    )
+    resp = requests.post(url, auth=server.auth, data=multipart_data, headers={'Content-Type': multipart_data.content_type})
+
     if resp.status_code != 200:
         sys.stderr.write(
             "error: Failed to set property on path {}, request returned {}\n".format(path, resp.status_code))
@@ -212,8 +217,15 @@ def set_node_properties(server, options, path, props):
     return OK
 
 
-def _multipart(props):
-    return {k: ('', v) for k, v in props.items()}
+def _flatten(props):
+    ret = []
+    for k, v in props.items():
+        if type(v) == list:
+            for item in v:
+                ret.append((k, item))
+        else:
+            ret.append((k, v))
+    return tuple(ret)
 
 
 @tool('rmprop')
