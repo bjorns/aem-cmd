@@ -1,4 +1,6 @@
 # coding: utf-8
+""" aem-cmd main module. """
+
 __version__ = '0.9.3b0'
 
 # Standard error codes that can be returned from any tool.
