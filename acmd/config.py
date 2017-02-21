@@ -1,4 +1,6 @@
 # coding: utf-8
+""" Support for reading .acmd.rc config files. """
+
 import ConfigParser
 import os.path
 
@@ -75,18 +77,8 @@ def parse_projects(parser):
     return ret
 
 
-_current_config = None
-
-
-def get_current_config():
-    """ Return the loaded Config() object. """
-    global _current_config
-    return _current_config
-
-
 def read_config(filename):
     """ Read the config file filename. Return a Config() object. """
-    global _current_config
     parser = ConfigParser.ConfigParser()
     with open(filename) as f:
         parser.readfp(f, "utf-8")
@@ -94,5 +86,4 @@ def read_config(filename):
     config = Config()
     config.servers = parse_servers(parser)
     config.projects = parse_projects(parser)
-    _current_config = config
     return config
