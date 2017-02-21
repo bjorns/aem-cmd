@@ -1,5 +1,6 @@
 # coding: utf-8
-""" Support for running groovy scripts on the backend. Note that this module requires the aem-groovy-console bundle
+""" Support for running groovy scripts on the backend.
+    Note that this module requires the aem-groovy-console bundle
     to be installed on the instance.
 
     https://github.com/Citytechinc/cq-groovy-console
@@ -60,7 +61,7 @@ def _clean_output(data):
     return ret
 
 
-def _replace_vars(script, args):
+def _replace_vars(script, _):
     """ Replace instances of 'args[0], args[1] with the content of the args object by
         preprocessing the script contents.
     """
