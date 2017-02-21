@@ -342,13 +342,13 @@ To import a single file into /content/dam/selfie.jpg
 
 If a directory is given it will be recreated at /content/dam
 
-    $ acmd assets import ~/Images/selfies
+    $ acmd assets import ~/Pictures/selfies
 
-will create /content/dam/selfies.
+will create /content/dam/selfies and import all the contents
 
 The -d flag allows for importing into a specific directory. 
 
-    $ acmd assets import -d /content/dam/another_directory ~/Images/selfies
+    $ acmd assets import -d /content/dam/another_directory ~/Pictures/selfies
 
 #### Touch
 
