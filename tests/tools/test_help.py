@@ -81,9 +81,9 @@ def test_list_servers(stderr, stdout):
     config.servers['server1'] = Server('server1')
     config.servers['server2'] = Server('server2')
     config.servers['server3'] = Server('server3')
-    acmd.config._current_config = config
 
     tool = tool_repo.get_tool('help')
+    tool.config = config
     server = Server('localhost')
     status = tool.execute(server, ['help', '_servers'])
 

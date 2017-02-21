@@ -23,7 +23,6 @@ Server = acmd.server.Server
 
 import acmd.config
 read_config = acmd.config.read_config
-get_current_config = acmd.config.get_current_config
 get_rcfilename = acmd.config.get_rcfilename
 
 import acmd.deploy

@@ -1,7 +1,7 @@
 # coding: utf-8
+import importlib
 import os
 import sys
-import importlib
 
 from acmd.logger import log, error
 
@@ -10,12 +10,14 @@ class ToolRepo(object):
     """ Tool repository
         Keeps track of all initialized tool objects and links them to a name
     """
+
     def __init__(self):
         self._tools = dict()
         self._modules = dict()
         # This is a hack, couldn't come up with a nice way of setting the
         # tool prefix automatically.
         self._init_project = None
+        self.config = None
 
     def reset(self):
         self._tools = dict()
@@ -55,8 +57,10 @@ class ToolRepo(object):
         self._init_project = name
 
 
+
 # Global singleton, no use in passing the thing around
 tool_repo = ToolRepo()
+
 
 def tool(tool_name, commands=None):
     """ Tool decorator.
@@ -95,7 +99,7 @@ def _list_files(path):
         return []
 
 
-def import_tools(path, package=None, prefix=None):
+def import_tools(path, package=None, prefix=None, config=None):
     """ Import tools in directory path
 
         path    -- Path string to the directory to import e.g. /projects/foo/bar
@@ -106,6 +110,8 @@ def import_tools(path, package=None, prefix=None):
     pyfiles = _list_files(path)
 
     tool_repo.set_prefix(prefix)
+    tool_repo.config = config
+
     for pyfile in pyfiles:
         if pyfile == '__init__.py' or pyfile[-3:] != '.py':
             continue

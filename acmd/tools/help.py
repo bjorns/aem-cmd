@@ -4,7 +4,7 @@ import optparse
 import sys
 
 from acmd import error, USER_ERROR
-from acmd import tool, get_current_config, OK
+from acmd import tool, OK
 from acmd.config import DEFAULT_SERVER_SETTING
 from acmd import tool_repo
 from acmd.tools import get_command
@@ -17,20 +17,22 @@ parser.add_option("-c", "--compact",
 
 @tool('help')
 class IntrospectTool(object):
+    def __init__(self, config=None):
+        self.config = config
+
     @property
     def commands(self):
         """ Allow autocomplete of help tools. """
         return tool_repo.list_tools()
 
-    @staticmethod
-    def execute(_, argv):
+    def execute(self, _, argv):
         (options, args) = parser.parse_args(argv)
 
         arg = get_command(args, '_tools')
         if arg == '_tools':
             print_tools(sys.stdout, options.compact)
         elif arg == '_servers':
-            print_servers(sys.stdout)
+            print_servers(sys.stdout, self.config)
         else:
             _tool = tool_repo.get_tool(arg)
             _module = tool_repo.get_module(arg)
@@ -51,8 +53,9 @@ class IntrospectTool(object):
         return OK
 
 
-def print_servers(f):
-    config = get_current_config()
+def print_servers(f, config=None):
+    if config is None:
+        return
     for name, _ in config.servers.items():
         if name != DEFAULT_SERVER_SETTING:
             f.write("{}\n".format(name))
