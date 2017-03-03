@@ -1,12 +1,12 @@
 # coding: utf-8
 from StringIO import StringIO
 
-from mock import patch
 from httmock import urlmatch, HTTMock
+from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
-from acmd.tools.jcr import parse_properties
+from acmd.tools.jcr import parse_properties, _flatten
 
 
 def test_parser_properties():
@@ -46,31 +46,55 @@ def test_parser_properties():
     eq_('Sentence, with comma in it', props['key1'])
     eq_('String', props['key1@TypeHint'])
 
+    x = 'ary=[foo,bar,baz]'
+    props = parse_properties(x)
+    eq_(2, len(props))
+    eq_(['foo', 'bar', 'baz'], props['ary'])
+    eq_('String[]', props['ary@TypeHint'])
 
-@urlmatch(netloc='localhost:4502', method='POST')
-def service_mock(url, request):
-    eq_('prop0=value0&prop1=value1', request.body)
-    return ""
+
+class MockHttpService(object):
+    def __init__(self, asset_service=None):
+        self.req_log = []
+
+    @urlmatch(netloc='localhost:4502')
+    def __call__(self, url, request):
+        self.req_log.append(request)
+        return ""
 
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_setprop(stderr, stdout):
+    service_mock = MockHttpService()
     with HTTMock(service_mock):
         tool = tool_repo.get_tool('setprop')
         server = Server('localhost')
         status = tool.execute(server, ['setprop', 'prop0=value0,prop1=value1', '/content/path/node'])
         eq_(0, status)
         eq_('/content/path/node\n', stdout.getvalue())
+    eq_(1, len(service_mock.req_log))
+    eq_((('prop0', 'value0'), ('prop1', 'value1')), service_mock.req_log[0].body.fields)
 
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 @patch('sys.stdin', new=StringIO("/path0\n/path1\n"))
 def test_setprop_stdin(stderr, stdout):
+    service_mock = MockHttpService()
     with HTTMock(service_mock):
         tool = tool_repo.get_tool('setprop')
         server = Server('localhost')
         status = tool.execute(server, ['setprop', 'prop0=value0,prop1=value1'])
         eq_(0, status)
         eq_('/path0\n/path1\n', stdout.getvalue())
+    eq_(2, len(service_mock.req_log))
+    eq_((('prop0', 'value0'), ('prop1', 'value1')), service_mock.req_log[0].body.fields)
+
+
+def test_flatten():
+    item0 = ('one', 1)
+    item1 = ('two', 2)
+    eq_((item1, item0), _flatten(dict(one=1, two=2)))
+
+    eq_((('array', 1), ('array', 2), ('array', 3)), _flatten(dict(array=[1, 2, 3])))
