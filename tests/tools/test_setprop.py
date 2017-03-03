@@ -9,6 +9,16 @@ from acmd import tool_repo, Server
 from acmd.tools.jcr import parse_properties, _flatten
 
 
+class MockHttpService(object):
+    def __init__(self, asset_service=None):
+        self.req_log = []
+
+    @urlmatch(netloc='localhost:4502')
+    def __call__(self, url, request):
+        self.req_log.append(request)
+        return ""
+
+
 def test_parser_properties():
     x = 'key=value'
     props = parse_properties(x)
@@ -51,16 +61,6 @@ def test_parser_properties():
     eq_(2, len(props))
     eq_(['foo', 'bar', 'baz'], props['ary'])
     eq_('String[]', props['ary@TypeHint'])
-
-
-class MockHttpService(object):
-    def __init__(self, asset_service=None):
-        self.req_log = []
-
-    @urlmatch(netloc='localhost:4502')
-    def __call__(self, url, request):
-        self.req_log.append(request)
-        return ""
 
 
 @patch('sys.stdout', new_callable=StringIO)

@@ -279,7 +279,6 @@ class CopyTool(object):
             return USER_ERROR
         src_path = args[1]
         dst_path = args[2]
-
         data = {":operation": "copy", ":dest": dst_path}
 
         url = server.url(src_path)
@@ -308,8 +307,8 @@ class MoveTool(object):
         dst_path = args[2]
 
         data = {":operation": "move", ":dest": dst_path}
-        url = server.url(src_path)
 
+        url = server.url(src_path)
         resp = requests.post(url, auth=server.auth, data=data)
         if resp.status_code != 200 and resp.status_code != 201:
             error("Failed to copy, request returned {}".format(resp.status_code))
