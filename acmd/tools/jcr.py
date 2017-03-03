@@ -204,7 +204,8 @@ def set_node_properties(server, options, path, props):
     multipart_data = MultipartEncoder(
         fields=_flatten(props)
     )
-    resp = requests.post(url, auth=server.auth, data=multipart_data, headers={'Content-Type': multipart_data.content_type})
+    resp = requests.post(url, auth=server.auth, data=multipart_data,
+                         headers={'Content-Type': multipart_data.content_type})
 
     if resp.status_code != 200:
         sys.stderr.write(
@@ -269,7 +270,6 @@ def rm_node_properties(server, options, prop_names, path):
 
 @tool('cp')
 class CopyTool(object):
-
     @staticmethod
     def execute(server, argv):
         parser.set_usage("%prog cp <src-path> <dst-path>")
@@ -295,18 +295,8 @@ class CopyTool(object):
         return OK
 
 
-def _result_folder(src_path, dst_path):
-    if dst_path.endswith('/'):
-        last = src_path.split('/')[-1]
-        return dst_path + last
-    else:
-        return dst_path
-
-
-
 @tool('mv')
 class MoveTool(object):
-
     @staticmethod
     def execute(server, argv):
         options, args = parser.parse_args(argv)
@@ -319,15 +309,22 @@ class MoveTool(object):
 
         data = {":operation": "move", ":dest": dst_path}
         url = server.url(src_path)
-        data[":applyTo"] = list()
-        for i in args:
-            data[":applyTo"].append(i)
 
         resp = requests.post(url, auth=server.auth, data=data)
         if resp.status_code != 200 and resp.status_code != 201:
-            error("Failed to move, request returned {}".format(resp.status_code))
+            error("Failed to copy, request returned {}".format(resp.status_code))
+            if options.raw:
+                error(resp.content)
             return SERVER_ERROR
 
-        msg = dst_path if not options.raw else resp.content
+        msg = _result_folder(src_path, dst_path) if not options.raw else resp.content
         sys.stdout.write("{}\n".format(msg))
         return OK
+
+
+def _result_folder(src_path, dst_path):
+    if dst_path.endswith('/'):
+        last = src_path.split('/')[-1]
+        return dst_path + last
+    else:
+        return dst_path
