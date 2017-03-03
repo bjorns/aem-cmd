@@ -8,7 +8,7 @@ import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from acmd import OK, SERVER_ERROR, USER_ERROR
-from acmd import tool, log
+from acmd import tool, log, error
 from acmd.props import parse_properties
 
 parser = optparse.OptionParser("acmd <ls|cat|find|mv|setprop|rmprop> [options] <jcr path>")
@@ -269,6 +269,7 @@ def rm_node_properties(server, options, prop_names, path):
 
 @tool('cp')
 class CopyTool(object):
+
     @staticmethod
     def execute(server, argv):
         parser.set_usage("%prog cp <src-path> <dst-path>")
@@ -280,25 +281,32 @@ class CopyTool(object):
         dst_path = args[2]
 
         data = {":operation": "copy", ":dest": dst_path}
-        url = server.url(src_path)
-        data[":applyTo"] = list()
-        for i in args:
-            data[":applyTo"].append(i)
 
+        url = server.url(src_path)
         resp = requests.post(url, auth=server.auth, data=data)
         if resp.status_code != 200 and resp.status_code != 201:
-            log.error("Failed to copy, request returned {}".format(resp.status_code))
+            error("Failed to copy, request returned {}".format(resp.status_code))
+            if options.raw:
+                error(resp.content)
             return SERVER_ERROR
 
-        if options.raw:
-            sys.stdout.write("{}\n".format(resp.content))
-        else:
-            sys.stdout.write("{}\n".format(dst_path))
+        msg = _result_folder(src_path, dst_path) if not options.raw else resp.content
+        sys.stdout.write("{}\n".format(msg))
         return OK
+
+
+def _result_folder(src_path, dst_path):
+    if dst_path.endswith('/'):
+        last = src_path.split('/')[-1]
+        return dst_path + last
+    else:
+        return dst_path
+
 
 
 @tool('mv')
 class MoveTool(object):
+
     @staticmethod
     def execute(server, argv):
         options, args = parser.parse_args(argv)
@@ -317,11 +325,9 @@ class MoveTool(object):
 
         resp = requests.post(url, auth=server.auth, data=data)
         if resp.status_code != 200 and resp.status_code != 201:
-            log.error("Failed to move, request returned {}".format(resp.status_code))
+            error("Failed to move, request returned {}".format(resp.status_code))
             return SERVER_ERROR
 
-        if options.raw:
-            sys.stdout.write("{}\n".format(resp.content))
-        else:
-            sys.stdout.write("{}\n".format(dst_path))
+        msg = dst_path if not options.raw else resp.content
+        sys.stdout.write("{}\n".format(msg))
         return OK
