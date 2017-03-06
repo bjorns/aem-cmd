@@ -29,7 +29,8 @@ parser.add_option("-i", "--install",
 
 @tool('packages', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
 class PackagesTool(object):
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
 
         action = get_action(args)
@@ -202,17 +203,17 @@ def upload_package(server, options, filename):
 
     if resp.status_code != 200:
         error('Failed to upload paackage: {}: {}'.format(resp.status_code, resp.content))
-        return SERVER_ERROR
         if options.raw:
             sys.stdout.write("{}\n".format(resp.content))
+        return SERVER_ERROR
     else:
         try:
             tree = ElementTree.fromstring(resp.content)
             pkg_elem = tree.find('response').find('data').find('package')
             pkg = parse_package(pkg_elem)
             sys.stdout.write("{}\n".format(format_package(pkg)))
-        except:
-            sys.stderr.write('error: Failed to parse response\n')
+        except Exception as e:
+            sys.stderr.write('error: Failed to parse response: {}\n'.format(e))
             return SERVER_ERROR
     return OK
 
