@@ -30,6 +30,8 @@ def run(options, config, args, cmdargs):
     acmd.log("Using server {}".format(server))
 
     _tool = acmd.tool_repo.get_tool(tool_name)
+    _tool.config = config
+
     if _tool is None:
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         return acmd.USER_ERROR

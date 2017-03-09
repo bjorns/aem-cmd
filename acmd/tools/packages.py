@@ -1,17 +1,23 @@
 # coding: utf-8
-import sys
-import optparse
 from distutils.version import LooseVersion
+import optparse
+import os
+import sys
+import tempfile
 from xml.etree import ElementTree
+
 
 import requests
 
+
 from acmd import tool, error, log
 from acmd import OK, USER_ERROR, SERVER_ERROR
+from acmd.tools.tool_utils import get_command, get_argument
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
-parser = optparse.OptionParser("acmd packages [options] [list|build|install|upload|download] [<zip>|<package>]")
+parser = optparse.OptionParser("acmd packages [options] [list|build|install|upload|download|promote] \
+    [<zip>|<package>|<server>]")
 parser.add_option("-v", "--version",
                   dest="version", help="specify explicit version")
 parser.add_option("-g", "--group",
@@ -25,15 +31,19 @@ parser.add_option("-c", "--compact",
 parser.add_option("-i", "--install",
                   action="store_const", const=True, dest="install",
                   help="install package after upload")
+parser.add_option("-t", "--target",
+                  dest="target_server", help="specify target server")
 
 
 @tool('packages', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
 class PackagesTool(object):
-    @staticmethod
-    def execute(server, argv):
+    def __init__(self):
+        self.config = None
+
+    def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_action(args)
+        action = get_command(args)
         actionarg = get_argument(args)
 
         if action == 'list' or action == 'ls':
@@ -51,23 +61,16 @@ class PackagesTool(object):
             return download_package(server, options, actionarg)
         elif action == 'upload':
             return upload_package(server, options, actionarg)
+        elif action == 'promote':
+            target_server_name = options.target_server
+            if target_server_name is None:
+                error("Missing target server, use -t flag.")
+                return USER_ERROR
+            target_server = self.config.get_server(target_server_name)
+            return promote_package(server, target_server, options, actionarg)
         else:
             sys.stderr.write('error: Unknown packages action {a}\n'.format(a=action))
             return USER_ERROR
-
-
-def get_action(argv):
-    if len(argv) < 2:
-        return 'list'
-    else:
-        return argv[1]
-
-
-def get_argument(argv):
-    if len(argv) < 3:
-        return None
-    else:
-        return argv[2]
 
 
 def make_packages_request(server):
@@ -160,22 +163,26 @@ def _zip_suffix(version):
         return '-' + str(version) + '.zip'
 
 
-def download_package(server, options, package_name):
+def download_package(server, options, package_name, filename=None):
     group, zipfile = _get_package(package_name, server, options)
+
     path = '/etc/packages/{group}/{zip}'.format(group=group, zip=zipfile)
     url = server.url(path)
     response = requests.get(url, auth=(server.username, server.password))
-    f = open(zipfile, 'wb')
-    if response.status_code == 200:
-        f.write(response.content)
-        sys.stdout.write("{}\n".format(zipfile))
-        return OK
-    else:
-        sys.stderr.write("error: Failed to download " + url + " because " + str(response.status_code) + "\n")
-        if options.raw:
-            sys.stderr.write(response.content)
-            sys.stderr.write("\n")
-        return SERVER_ERROR
+
+    if filename is None:
+        filename = zipfile
+    with open(filename, 'wb') as f:
+        if response.status_code == 200:
+            f.write(response.content)
+            sys.stdout.write("{}\n".format(zipfile))
+            return OK
+        else:
+            error("Failed to download " + url + " because " + str(response.status_code) + "\n")
+            if options.raw:
+                sys.stderr.write(response.content)
+                sys.stderr.write("\n")
+            return SERVER_ERROR
 
 
 def json_bool(val):
@@ -271,3 +278,27 @@ def build_package(server, options, package_name):
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
     return OK
+
+
+def promote_package(server, target_server, options, package_name):
+    """ Download package from server, upload to target_server and install. """
+    if not package_name:
+        error("Missing package name argument")
+        return USER_ERROR
+
+    _, tmp_filepath = tempfile.mkstemp(".zip")
+    log("Download package from source server {} to {}".format(server, tmp_filepath))
+    status = download_package(server, options, package_name, filename=tmp_filepath)
+    if status != OK:
+        return status
+
+    log("Upload downloaded package file to target server".format(target_server))
+    status = upload_package(target_server, options, tmp_filepath)
+    os.remove(tmp_filepath)
+    if status != OK:
+        return status
+
+    log("Install uploaded package on target server")
+    install_package(target_server, options, package_name)
+    return status
+
