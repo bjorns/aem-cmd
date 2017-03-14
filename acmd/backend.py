@@ -5,12 +5,13 @@
 
     https://github.com/Citytechinc/cq-groovy-console
     """
+import json
 import requests
 
 from acmd import OK, SERVER_ERROR
 from acmd.logger import log, warning
 
-STACKTRACE_FIELD = 'stacktrace'
+STACKTRACE_FIELD = u'exceptionStackTrace'
 OUTPUT_FIELD = 'output'
 RESULT_FIELD = 'result'
 
@@ -52,12 +53,12 @@ def _clean_output(data):
     elif 'exceptionStackTrace' in data and data['exceptionStackTrace'] != '':
         ret[STACKTRACE_FIELD] = data['exceptionStackTrace']
 
-    if 'outputText' in data and data['outputText'] != '':
+    if 'outputText' in data:
         ret[OUTPUT_FIELD] = data['outputText']
-    elif 'output' in data and data['output'] != '':
+    elif 'output' in data:
         ret[OUTPUT_FIELD] = data['output']
     else:
-        warning("Unexpected format of return data from groovy console: {}".format(data))
+        warning("Unexpected format of return data from groovy console: {}".format(json.dumps(data, indent=4)))
     return ret
 
 
