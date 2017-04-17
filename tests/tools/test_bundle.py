@@ -7,7 +7,7 @@ from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
 import acmd.tools
-from acmd.tools import bundles
+from acmd.tools import bundle
 from acmd import tool_repo, Server
 
 BUNDLE_LIST = """{
@@ -73,7 +73,7 @@ org.apache.abdera.core\t1.0.0.R783018\tActive
 @patch('sys.stdout', new_callable=StringIO)
 def test_list_bundles(stdout):
     with HTTMock(bundles_mock):
-        tool = bundles.BundlesTool()
+        tool = bundle.BundleTool()
         server = Server('localhost')
 
         tool.execute(server, ['bundle', 'list'])

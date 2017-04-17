@@ -65,7 +65,7 @@ The help tool lists all installed tools
     $ acmd help
     Available tools:
       inspect
-      bundles
+      bundle
       help
       packages
 
@@ -94,7 +94,7 @@ as separate commands.
 
     $ acmd ls /
     index.servlet
-    bundles
+    bundle
     rep:policy
     services
     home
@@ -256,7 +256,7 @@ will suffice.
 
 ### Bundles
 
-The bundles tool can list, start and stop jackrabbit OSGi bundles. If you
+The bundle tool can list, start and stop jackrabbit OSGi bundles. If you
 install the bash completion script bundle names will be autocompleted. Like
 the packages tool, the group and version of the bundle will be inferred
 for all commands.
@@ -265,7 +265,7 @@ for all commands.
 
 List all bundles in the system.
 
-    $ acmd bundles list
+    $ acmd bundle list
     ...
     org.apache.sling.extensions.webconsolesecurityprovider  1.0.0   Active
     org.apache.sling.jcr.jcr-wrapper    2.0.0   Active
@@ -279,19 +279,19 @@ List all bundles in the system.
 The output is tab-separated to make it easy to read specific data.
 E.g. to get the version of the bndlib bundle:
 
-    $ acmd bundles list | grep bndlib | cut -f 2
+    $ acmd bundle list | grep bndlib | cut -f 2
     1.43.0
 
 #### Stop Bundle
 
-    $ acmd bundles stop biz.aQute.bndlib
+    $ acmd bundle stop biz.aQute.bndlib
     $
 
 #### Start bundle
 
-All bundles commands support the --raw flag which prints raw json output.
+All bundle-commands support the --raw flag which prints raw json output.
 
-    $ acmd bundles start biz.aQute.bndlib --raw
+    $ acmd bundle start biz.aQute.bndlib --raw
     {
         "fragment": false,
         "stateRaw": 32
@@ -409,7 +409,7 @@ author and publish instances in production.
 Once this is done you can easily run any command on any server via the ```-s```
 flag. Like for example
 
-    $ acmd -s prod-author bundles
+    $ acmd -s prod-author bundle
     ....
 
 ### Projects
@@ -459,7 +459,7 @@ can be omitted for simpler tools.
 
 The ```execute()``` method takes a server argument
 containing all info on the currently selected server and argv is a list of
-tool arguments starting with the tool name. See for example the bundles tool
+tool arguments starting with the tool name. See for example the bundle-tool
 for info on how to use the optparse package to add tool specific options.
 
 And that is pretty much it. The tool does not have to have any specific name
