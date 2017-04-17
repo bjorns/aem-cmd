@@ -17,7 +17,7 @@ parser.add_option("-c", "--compact",
                   help="output only package name")
 
 
-@tool('bundles', ['list', 'start', 'stop'])
+@tool('bundle', ['list', 'start', 'stop'])
 class BundlesTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)

@@ -20,7 +20,7 @@ def test_list_tools(stderr, stdout):
     eq_("Available tools:", lines[0])
     ok_(len(lines) > 5)
 
-    ok_('bundles' in lines)
+    ok_('bundle' in lines)
     ok_('cat' in lines)
     ok_('cp' in lines)
     ok_('dispatcher' in lines)
@@ -52,7 +52,7 @@ def test_list_tools(stderr, stdout):
     eq_('', stderr.getvalue())
     lines = [x for x in stdout.getvalue().split('\n')]
     ok_(len(lines) > 5)
-    ok_('bundles' in lines)
+    ok_('bundle' in lines)
     ok_('cat' in lines)
     ok_('cp' in lines)
     ok_('dispatcher' in lines)

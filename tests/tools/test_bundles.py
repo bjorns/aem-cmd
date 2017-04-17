@@ -55,7 +55,7 @@ BUNDLE_LIST = """{
 
 
 def test_tool_registration():
-    tool = tool_repo.get_tool('bundles')
+    tool = tool_repo.get_tool('bundle')
     assert tool is not None
 
 
@@ -76,7 +76,7 @@ def test_list_bundles(stdout):
         tool = bundles.BundlesTool()
         server = Server('localhost')
 
-        tool.execute(server, ['bundles', 'list'])
+        tool.execute(server, ['bundle', 'list'])
         eq_(EXPECTED_LIST, stdout.getvalue())
 
 
@@ -95,9 +95,9 @@ def test_stop_bundle(stderr, stdout):
     global _expected_action
     _expected_action = 'stop'
     with HTTMock(mock_bundle):
-        tool = tool_repo.get_tool('bundles')
+        tool = tool_repo.get_tool('bundle')
         server = Server('localhost')
-        ret = tool.execute(server, ['bundles', 'stop', 'mock_bundle'])
+        ret = tool.execute(server, ['bundle', 'stop', 'mock_bundle'])
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
         eq_(None, ret)
@@ -114,9 +114,9 @@ def test_start_bundle(stderr, stdout):
     global _expected_action
     _expected_action = 'start'
     with HTTMock(mock_bundle):
-        tool = tool_repo.get_tool('bundles')
+        tool = tool_repo.get_tool('bundle')
         server = Server('localhost')
-        ret = tool.execute(server, ['bundles', 'start', 'mock_bundle'])
+        ret = tool.execute(server, ['bundle', 'start', 'mock_bundle'])
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
         eq_(None, ret)
@@ -130,9 +130,9 @@ def test_start_bundle(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_bad_command(stderr, stdout):
-    tool = tool_repo.get_tool('bundles')
+    tool = tool_repo.get_tool('bundle')
     server = Server('localhost')
-    ret = tool.execute(server, ['bundles', 'foobar'])
+    ret = tool.execute(server, ['bundle', 'foobar'])
     eq_('', stdout.getvalue())
-    eq_('error: Unknown bundles action foobar\n', stderr.getvalue())
+    eq_('error: Unknown bundle action foobar\n', stderr.getvalue())
     eq_(-2, ret)
