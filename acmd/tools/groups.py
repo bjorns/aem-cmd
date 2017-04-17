@@ -19,8 +19,8 @@ parser.add_option("-c", "--compact",
                   help="output only package name")
 
 
-@tool('groups', ['list', 'create', 'adduser'])
-class GroupsTool(object):
+@tool('group', ['list', 'create', 'adduser'])
+class GroupTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
         action = get_command(args, 'list')
