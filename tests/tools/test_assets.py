@@ -9,7 +9,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import Server, OK
-from acmd.tools.assets import AssetsTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
+from acmd.tools.assets import AssetTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
 from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
 from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
 
@@ -33,9 +33,9 @@ def test_import_asset_file(stderr, stdout):
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'import', 'tests/test_data/assets/logo.jpg'])
+        status = tool.execute(server, ['asset', 'import', 'tests/test_data/assets/logo.jpg'])
 
     eq_('', stderr.getvalue())
     eq_(stdout.getvalue(), 'tests/test_data/assets/logo.jpg -> /content/dam/assets\n')
@@ -55,7 +55,7 @@ def test_import_asset_directory(stderr, stdout):
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
         status = tool.execute(server, ['assets', 'import', 'tests/test_data/assets'])
 
@@ -87,7 +87,7 @@ def test_dry_run_import_asset_directory(stderr, stdout):
 
     lock_dir = tempfile.mkdtemp()
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
         status = tool.execute(server, ['assets', '--dry-run', 'import',
                                        'tests/test_data/assets'])
@@ -155,9 +155,9 @@ def test_tag_asset(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'tag', 'type=westworld:type/secret',
+        status = tool.execute(server, ['asset', 'tag', 'type=westworld:type/secret',
                                        '/hosts/bernard.jpg'])
 
     eq_('', stderr.getvalue())
@@ -167,7 +167,7 @@ def test_tag_asset(stderr, stdout):
     eq_(2, len(http_service.request_log))
     eq_(('GET', '/api/assets/hosts/bernard.jpg.json'), typeof(http_service.request_log[0]))
     eq_(('PUT', '/api/assets/hosts/bernard.jpg'), typeof(http_service.request_log[1]))
-    body_data = json.loads(http_service.request_log[1].body)
+    # body_data = json.loads(http_service.request_log[1].body)
     # eq_({u'class': u'asset', u'properties': {u'type': [u'westworld:type/secret'], u'name': u'bernard.jpg'}},
     #    json.loads(http_service.request_log[1].body))
 
@@ -185,9 +185,9 @@ def test_tag_asset_from_stdin(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'tag', 'type=westworld:type/secret'])
+        status = tool.execute(server, ['asset', 'tag', 'type=westworld:type/secret'])
 
     eq_('', stderr.getvalue())
     eq_('/hosts/bernard.jpg\n/hosts/abernathy.jpg\n', stdout.getvalue())
@@ -217,9 +217,9 @@ def test_touch_asset(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'touch', '/hosts/bernard.jpg'])
+        status = tool.execute(server, ['asset', 'touch', '/hosts/bernard.jpg'])
 
     eq_('', stderr.getvalue())
     eq_('/content/dam/hosts/bernard.jpg/jcr:content/renditions/original\n', stdout.getvalue())
@@ -239,9 +239,9 @@ def test_touch_assets_from_stdin(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'touch'])
+        status = tool.execute(server, ['asset', 'touch'])
 
     eq_(OK, status)
     eq_('', stderr.getvalue())
@@ -266,9 +266,9 @@ def test_list_assets(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'ls', '/hosts'])
+        status = tool.execute(server, ['asset', 'ls', '/hosts'])
 
     eq_(OK, status)
     eq_('', stderr.getvalue())
@@ -296,9 +296,9 @@ def test_list_assets(stderr, stdout):
     eq_([], http_service.request_log)
 
     with HTTMock(http_service):
-        tool = AssetsTool()
+        tool = AssetTool()
         server = Server('localhost')
-        status = tool.execute(server, ['assets', 'find', '/'])
+        status = tool.execute(server, ['asset', 'find', '/'])
 
     eq_(OK, status)
 

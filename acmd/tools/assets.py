@@ -23,8 +23,8 @@ parser.add_option("-m", "--model", dest="model", default="dam/update_asset",
                   help="Update assets model to use, defaults to dam/update_asset")
 
 
-@tool('assets')
-class AssetsTool(object):
+@tool('asset')
+class AssetTool(object):
     """ Manage AEM DAM assets """
 
     def __init__(self):
