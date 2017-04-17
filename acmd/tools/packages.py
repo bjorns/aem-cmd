@@ -35,7 +35,7 @@ parser.add_option("-t", "--target",
                   dest="target_server", help="specify target server")
 
 
-@tool('packages', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
+@tool('package', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
 class PackagesTool(object):
     def __init__(self):
         self.config = None

@@ -10,7 +10,7 @@ from acmd.tools import packages
 
 
 def test_tool_registration():
-    tool = tool_repo.get_tool('packages')
+    tool = tool_repo.get_tool('package')
     assert tool is not None
 
 
@@ -69,7 +69,7 @@ def test_list_packages(stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        tool.execute(server, ['packages', 'list'])
+        tool.execute(server, ['package', 'list'])
 
         i = 0
         for line in EXPECTED_LIST:
@@ -84,7 +84,7 @@ def test_upload_package(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'upload', 'tests/test_data/mock_package.zip'])
+        status = tool.execute(server, ['package', 'upload', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
         eq_(["my_packages", "mock-package", "1.0", "Tue, 29 Sep 2015 16:20:59 -0400"], untab(stdout.getvalue())[0])
         eq_('', stderr.getvalue())
@@ -97,7 +97,7 @@ def test_upload_package_raw(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
+        status = tool.execute(server, ['package', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
         eq_('', stderr.getvalue())
         eq_(True, len(stdout.getvalue()) > 0)
@@ -110,7 +110,7 @@ def test_upload_package_and_install(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'upload', '--install', 'tests/test_data/mock_package.zip'])
+        status = tool.execute(server, ['package', 'upload', '--install', 'tests/test_data/mock_package.zip'])
         eq_(0, status)
         eq_('', stderr.getvalue())
         eq_(True, len(stdout.getvalue()) > 0)
@@ -123,7 +123,7 @@ def test_install_package(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'install', 'mock_package'])
+        status = tool.execute(server, ['package', 'install', 'mock_package'])
         eq_(0, status)
         eq_('Package Installed\n', stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -136,7 +136,7 @@ def test_uninstall_package(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'uninstall', 'mock_package'])
+        status = tool.execute(server, ['package', 'uninstall', 'mock_package'])
         eq_(0, status)
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -149,7 +149,7 @@ def test_install_package_raw(stderr, stdout):
         tool = packages.PackagesTool()
         server = Server('localhost')
 
-        status = tool.execute(server, ['packages', 'install', '--raw', 'mock_package'])
+        status = tool.execute(server, ['package', 'install', '--raw', 'mock_package'])
         eq_(0, status)
         eq_('{"success": true, "msg": "Package Installed"}\n', stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -159,9 +159,9 @@ def test_install_package_raw(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_build_package(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = tool_repo.get_tool('packages')
+        tool = tool_repo.get_tool('package')
         server = Server('localhost')
-        status = tool.execute(server, ['packages', 'build', 'mock_package'])
+        status = tool.execute(server, ['package', 'build', 'mock_package'])
         eq_(0, status)
         eq_('', stdout.getvalue())
         eq_('', stderr.getvalue())
@@ -174,9 +174,9 @@ def test_build_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_download(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = tool_repo.get_tool('packages')
+        tool = tool_repo.get_tool('package')
         server = Server('localhost')
-        status = tool.execute(server, ['packages', 'download', 'mock_package'])
+        status = tool.execute(server, ['package', 'download', 'mock_package'])
     eq_(0, status)
     eq_('mock_package-1.6.5.zip\n', stdout.getvalue())
     eq_('', stderr.getvalue())
@@ -187,7 +187,7 @@ def test_download(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_bad_command(stderr, stdout):
-    tool = tool_repo.get_tool('packages')
+    tool = tool_repo.get_tool('package')
     server = Server('localhost')
-    status = tool.execute(server, ['packages', 'nonexisting', 'mock_package'])
+    status = tool.execute(server, ['package', 'nonexisting', 'mock_package'])
     eq_(USER_ERROR, status)
