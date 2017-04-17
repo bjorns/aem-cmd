@@ -37,7 +37,7 @@ def test_list_tools(stderr, stdout):
     ok_('search' in lines)
     ok_('setprop' in lines)
     ok_('storage' in lines)
-    ok_('users' in lines)
+    ok_('user' in lines)
     ok_('workflows' in lines)
     eq_(OK, status)
 
@@ -69,7 +69,7 @@ def test_list_tools(stderr, stdout):
     ok_('search' in lines)
     ok_('setprop' in lines)
     ok_('storage' in lines)
-    ok_('users' in lines)
+    ok_('user' in lines)
     ok_('workflows' in lines)
     eq_(OK, status)
 

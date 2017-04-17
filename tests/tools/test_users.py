@@ -20,10 +20,10 @@ def create_service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_print_help(stderr, stdout):
-    tool = tool_repo.get_tool('users')
+    tool = tool_repo.get_tool('user')
     server = Server('localhost')
     try:
-        tool.execute(server, ['users', '--help'])
+        tool.execute(server, ['user', '--help'])
     except SystemExit as e:
         status = e.code
     eq_(0, status)
@@ -34,10 +34,10 @@ def test_print_help(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_create_user(stderr, stdout):
-    tool = tool_repo.get_tool('users')
+    tool = tool_repo.get_tool('user')
     server = Server('localhost')
     with HTTMock(create_service_mock):
-        status = tool.execute(server, ['users', 'create', '--password=passwd', 'jdoe'])
+        status = tool.execute(server, ['user', 'create', '--password=passwd', 'jdoe'])
     eq_(OK, status)
     eq_('/home/users/j/jdoe\n', stdout.getvalue())
     eq_('', stderr.getvalue())
@@ -57,10 +57,10 @@ def setprop_service_mock(url, request):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_set_property(stderr, stdout):
-    tool = tool_repo.get_tool('users')
+    tool = tool_repo.get_tool('user')
     server = Server('localhost')
     with HTTMock(setprop_service_mock):
-        status = tool.execute(server, ['users', 'setprop', 'jdoe', 'prop0=val0,prop1="Quoted value"'])
+        status = tool.execute(server, ['user', 'setprop', 'jdoe', 'prop0=val0,prop1="Quoted value"'])
     eq_(OK, status)
     eq_('/home/users/j/jdoe\n', stdout.getvalue())
     eq_('', stderr.getvalue())
@@ -89,10 +89,10 @@ EXPECTED_RESPONSE = """Available users:
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_users(stderr, stdout):
-    tool = tool_repo.get_tool('users')
+    tool = tool_repo.get_tool('user')
     server = Server('localhost')
     with HTTMock(list_users_mock):
-        status = tool.execute(server, ['users', 'list'])
+        status = tool.execute(server, ['user', 'list'])
     eq_(OK, status)
     eq_(EXPECTED_RESPONSE, stdout.getvalue())
     eq_('', stderr.getvalue())
@@ -110,10 +110,10 @@ previewer
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_list_users_compact(stderr, stdout):
-    tool = tool_repo.get_tool('users')
+    tool = tool_repo.get_tool('user')
     server = Server('localhost')
     with HTTMock(list_users_mock):
-        status = tool.execute(server, ['users', 'list', '--compact'])
+        status = tool.execute(server, ['user', 'list', '--compact'])
     eq_(OK, status)
     eq_(COMPACT_RESPONSE, stdout.getvalue())
     eq_('', stderr.getvalue())

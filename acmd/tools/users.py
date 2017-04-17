@@ -20,7 +20,7 @@ parser.add_option("-c", "--compact",
                   help="output only package name")
 
 
-@tool('users', ['list', 'create', 'setprop'])
+@tool('user', ['list', 'create', 'setprop'])
 class UserTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
