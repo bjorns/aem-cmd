@@ -19,7 +19,7 @@ MODELS_PATH = "/etc/workflow/models.json"
 INSTANCES_PATH = '/etc/workflow/instances'
 
 
-@tool('workflows', ['list', 'start'])
+@tool('workflow', ['list', 'start'])
 class WorkflowsTool(object):
     """
      See: https://docs.adobe.com/docs/en/cq/5-6-1/workflows/wf-extending/wf-rest-api.html

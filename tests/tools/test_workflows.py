@@ -25,9 +25,9 @@ def test_list_models(stderr, stdout):
     service = MockWorkflowHttpService(task_service)
 
     with HTTMock(service):
-        tool = tool_repo.get_tool('workflows')
+        tool = tool_repo.get_tool('workflow')
         server = Server('localhost')
-        status = tool.execute(server, ['workflows', 'models'])
+        status = tool.execute(server, ['workflow', 'models'])
         lines = [
             ['dam/update_asset'],
             ['dam/update_asset'],
@@ -49,9 +49,9 @@ def test_list_instances(stderr, stdout):
     service = MockWorkflowHttpService(task_service)
 
     with HTTMock(service):
-        tool = tool_repo.get_tool('workflows')
+        tool = tool_repo.get_tool('workflow')
         server = Server('localhost')
-        status = tool.execute(server, ['workflows', 'instances'])
+        status = tool.execute(server, ['workflow', 'instances'])
         lines = [
             ['/etc/workflow/instances/server0/2017-01-05/update_asset_907'],
             ['/etc/workflow/instances/server0/2017-01-05/update_asset_908'],
@@ -70,9 +70,9 @@ def test_start_workflow(stderr, stdout):
     service = MockWorkflowHttpService(wf_service)
 
     with HTTMock(service):
-        tool = tool_repo.get_tool('workflows')
+        tool = tool_repo.get_tool('workflow')
         server = Server('localhost')
-        status = tool.execute(server, ['workflows', 'start', '/dam/update_asset',
+        status = tool.execute(server, ['workflow', 'start', '/dam/update_asset',
                                        '/content/dam/something/image.png/jcr:content/renditions/original'])
         eq_('', stderr.getvalue())
         ok_(stdout.getvalue().startswith('/dam/update_asset-'))
