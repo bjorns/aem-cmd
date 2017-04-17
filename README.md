@@ -67,12 +67,12 @@ The help tool lists all installed tools
       inspect
       bundle
       help
-      packages
+      package
 
 To get more information on available actions call help on that tool:
 
-    $ acmd help packages
-    Usage: acmd packages [options] [list|build|install|upload|download] [<zip>|<package>]
+    $ acmd help package
+    Usage: acmd package [options] [list|build|install|upload|download] [<zip>|<package>]
 
     Options:
       -h, --help            show this help message and exit
@@ -174,7 +174,7 @@ The rm tool if given no argument will read node paths from standard input.
 
 ### Packages
 
-The packages tool supports up- and downloading, installing and uninstalling
+The package-tool supports up- and downloading, installing and uninstalling
 packages. If you install the bash completion script, package names will be
 autocompleted. In addition to autocomplete the tool also automatically finds
 group and version of the latest package so only the simple package name needs
@@ -182,9 +182,9 @@ to be supplied as argument.
 
 #### List packages
 
-By default the packages tool lists all installed packages.
+By default the package tool lists all installed packages.
 
-    $ acmd packages list
+    $ acmd package list
     ...
     day/cq540/product   cq-portlet-director 5.4.38
     day/cq550/product   cq-upgrade-acl  5.5.2
@@ -200,44 +200,44 @@ The group and the latest version will be located automatically. If there are
 overlaying grops or you want a specific version you may specify them using the
 -g and -v flags.
 
-    $ acmd packages build --raw cq-upgrade-acl
+    $ acmd package build --raw cq-upgrade-acl
     {"success":true,"msg":"Package built"}
 
 #### Install package
 
-    $ acmd packages install --raw cq-upgrade-acl
+    $ acmd package install --raw cq-upgrade-acl
     {"success":true,"msg":"Package installed"}
 
 #### Upload package
 
 You may install a properly generated package zip e.g. downloaded from another instance.
 
-    $ acmd packages upload new-catalog-1.0.zip
+    $ acmd package upload new-catalog-1.0.zip
 
 
-### Users tool
+### User tool
 
 #### List Users
 
-    $ acmd users list
+    $ acmd user list
     ...
 
 #### Create Users
 
-    $ acmd users create --password=foobar jdoe
+    $ acmd user create --password=foobar jdoe
     /home/users/j/jdoe
 
 #### Set profile properties
 
-    $ acmd users setprop age=29,name="John Doe" jdoe
+    $ acmd user setprop age=29,name="John Doe" jdoe
     /home/users/j/jdoe
 
 
-### Groups tool
+### Group tool
 
 #### List groups
 
-    $ acmd groups list
+    $ acmd group list
     ....
 
 The list action is the default action of the groups tool so ```acmd groups```
@@ -245,12 +245,12 @@ will suffice.
 
 #### Create group
 
-    $ acmd groups create editors
+    $ acmd group create editors
     /home/groups/e/editors
 
 #### Add user to group
 
-    $ acmd groups adduser editors jdoe
+    $ acmd group adduser editors jdoe
     /home/groups/e/editors
 
 
@@ -321,7 +321,7 @@ The assets tool controls interactions with the AEM dam.
 
 #### List assets
 
-    $ acmd assets ls /selfies
+    $ acmd asset ls /selfies
 
 lists assets and folders in /content/dam/selfies
 
@@ -329,7 +329,7 @@ lists assets and folders in /content/dam/selfies
 
 List all assets in the system
 
-    $ acmd assets find /
+    $ acmd asset find /
 
 #### Import assets
 
@@ -338,23 +338,23 @@ into the DAM.
 
 To import a single file into /content/dam/selfie.jpg
 
-    $ acmd assets import ~/Pictures/selfie.jpg
+    $ acmd asset import ~/Pictures/selfie.jpg
 
 If a directory is given it will be recreated at /content/dam
 
-    $ acmd assets import ~/Pictures/selfies
+    $ acmd asset import ~/Pictures/selfies
 
 will create /content/dam/selfies and import all the contents
 
 The -d flag allows for importing into a specific directory. 
 
-    $ acmd assets import -d /content/dam/another_directory ~/Pictures/selfies
+    $ acmd asset import -d /content/dam/another_directory ~/Pictures/selfies
 
 #### Touch
 
 To trigger the Update Asset workflow for an asset
 
-    $ acmd assets touch /selfie.jpg
+    $ acmd asset touch /selfie.jpg
 
 
 ### Storage
