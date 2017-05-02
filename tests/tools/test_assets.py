@@ -38,12 +38,12 @@ def test_import_asset_file(stderr, stdout):
         status = tool.execute(server, ['asset', 'import', 'tests/test_data/assets/logo.jpg'])
 
     eq_('', stderr.getvalue())
-    eq_(stdout.getvalue(), 'tests/test_data/assets/logo.jpg -> /content/dam/assets\n')
+    eq_(stdout.getvalue(), 'tests/test_data/assets/logo.jpg -> /assets\n')
     eq_(OK, status)
 
     eq_(2, len(http_service.req_log))
-    eq_(http_service.req_log[0].url, 'http://localhost:4502/content/dam/assets')
-    eq_(http_service.req_log[1].url, 'http://localhost:4502/content/dam/assets.createasset.html')
+    eq_(http_service.req_log[0].url, 'http://localhost:4502/api/assets/assets')
+    eq_(http_service.req_log[1].url, 'http://localhost:4502/api/assets/assets/logo.jpg')
 
     shutil.rmtree(lock_dir)
 
@@ -63,18 +63,18 @@ def test_import_asset_directory(stderr, stdout):
 
     lines = stdout.getvalue().split('\n')
     eq_(4, len(lines))
-    eq_(lines[0], 'tests/test_data/assets/logo.jpg -> /content/dam/assets')
-    eq_(lines[1], 'tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir')
-    eq_(lines[2], 'tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir')
+    eq_(lines[0], 'tests/test_data/assets/logo.jpg -> /assets')
+    eq_(lines[1], 'tests/test_data/assets/subdir/graph.jpg -> /assets/subdir')
+    eq_(lines[2], 'tests/test_data/assets/subdir/graph2.jpg -> /assets/subdir')
     eq_(OK, status)
 
     eq_(5, len(http_service.req_log))
-    eq_(http_service.req_log[0].url, 'http://localhost:4502/content/dam/assets')
-    eq_(http_service.req_log[1].url, 'http://localhost:4502/content/dam/assets.createasset.html')
-    eq_(http_service.req_log[2].url, 'http://localhost:4502/content/dam/assets/subdir')
-    eq_(http_service.req_log[3].url, 'http://localhost:4502/content/dam/assets/subdir.createasset.html')
+    eq_(http_service.req_log[0].url, 'http://localhost:4502/api/assets/assets')
+    eq_(http_service.req_log[1].url, 'http://localhost:4502/api/assets/assets/logo.jpg')
+    eq_(http_service.req_log[2].url, 'http://localhost:4502/api/assets/assets/subdir')
+    eq_(http_service.req_log[3].url, 'http://localhost:4502/api/assets/assets/subdir/graph.jpg')
     # Skipped creating subdir for the second file
-    eq_(http_service.req_log[4].url, 'http://localhost:4502/content/dam/assets/subdir.createasset.html')
+    eq_(http_service.req_log[4].url, 'http://localhost:4502/api/assets/assets/subdir/graph2.jpg')
 
     shutil.rmtree(lock_dir)
 
@@ -96,9 +96,9 @@ def test_dry_run_import_asset_directory(stderr, stdout):
 
     lines = stdout.getvalue().split('\n')
     eq_(4, len(lines))
-    eq_(lines[0], 'tests/test_data/assets/logo.jpg -> /content/dam/assets')
-    eq_(lines[1], 'tests/test_data/assets/subdir/graph.jpg -> /content/dam/assets/subdir')
-    eq_(lines[2], 'tests/test_data/assets/subdir/graph2.jpg -> /content/dam/assets/subdir')
+    eq_(lines[0], 'tests/test_data/assets/logo.jpg -> /assets')
+    eq_(lines[1], 'tests/test_data/assets/subdir/graph.jpg -> /assets/subdir')
+    eq_(lines[2], 'tests/test_data/assets/subdir/graph2.jpg -> /assets/subdir')
 
     eq_(OK, status)
 

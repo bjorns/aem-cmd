@@ -1,12 +1,15 @@
 # coding: utf-8
+import mimetypes
+import os
 import time
 
 import requests
 
 import acmd.jcr.path
-from acmd import OK, SERVER_ERROR
+from acmd import OK, UNCHANGED, SERVER_ERROR
 from acmd import log, error
 from acmd.strings import remove_prefix
+from utils import status_ok, AssetException
 
 """ https://author-lbrands-assets-prod.adobecqms.net/api/assets/pink/INTIMATES_DESIGN/BRA/_BRA_SKETCHES/_JOCKTAG.ai.json
 """
@@ -21,14 +24,69 @@ class AssetsApi(object):
         """ Fetching asset info """
         req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
         url = self.server.url(req_path)
-
         resp = requests.get(url, auth=self.server.auth)
-
         if resp.status_code != 200:
             return SERVER_ERROR, None
 
         data = resp.json()
         return OK, data
+
+    def create_asset(self, src_file, dst_path):
+        """ Upload <src_file> to folder <dst_path> in the dam
+          
+            src_file: an absolute or relative path on the local filesystem
+            dst_path: an absolute path within the DAM. 
+                Note: this does not include the '/content/dam' prefix of the JCR.
+        """
+        assert os.path.isfile(src_file)
+        if dst_path.startswith('/content/dam'):
+            return AssetException("Destination path is in DAM and should not include /content/dam")
+
+        filename = os.path.basename(src_file)
+        f = open(src_file, 'rb')
+        mime, enc = mimetypes.guess_type(src_file)
+        log("Uploading {} as {}, {}".format(f, mime, enc))
+
+        dam_path = "/api/assets{path}/{filename}".format(path=dst_path, filename=filename)
+        url = self.server.url(dam_path)
+        log("POSTing to {}".format(url))
+        form_data = dict(
+            file=(filename, f, mime, dict()),
+        )
+
+        resp = requests.post(url, auth=self.server.auth, files=form_data)
+        if resp.status_code == 409:
+            log("Asset {} already exists".format(url))
+            return UNCHANGED
+        if not status_ok(resp.status_code):
+            raise AssetException("Failed to upload file {}\n{}".format(src_file, resp.content))
+        return OK
+
+    def create_folder(self, path):
+        """ Create folder in the DAM
+            
+            POST /api/assets/myFolder -H"Content-Type: application/json" 
+                -d '{"class":"assetFolder","properties":{"title":"My Folder"}}'
+
+        """
+        log("Creating DAM folder {}".format(path))
+        if not path.startswith('/'):
+            raise AssetException("Can only create asset folder with absolute path")
+        if path.startswith('/content/dam'):
+            raise AssetException("Do not create folders with jcr path, please remove /content/dam-prefix.")
+
+        headers = {'Content-Type': 'application/json'}
+        json_data = {'class': 'assetFolder'}
+        url = self.server.url("/api/assets{path}".format(path=path))
+        log("POSTing to {}".format(url))
+        resp = requests.post(url, auth=self.server.auth, json=json_data, headers=headers)
+
+        if resp.status_code == 409:
+            log("Folder {} already exists".format(url))
+            return UNCHANGED
+        if not status_ok(resp.status_code):
+            raise AssetException("Failed to create directory {}\n{}".format(url, resp.content))
+        return OK
 
     def list(self, path):
         log("Fetching asset list for {}".format(path))

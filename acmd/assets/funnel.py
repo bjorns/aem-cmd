@@ -1,11 +1,12 @@
 # coding: utf-8
-import os.path
+import os
 import sys
 
 from acmd import SERVER_ERROR, OK, error, log
 
-from utils import filter_unwanted, post_file, create_dir, get_dam_path
+from utils import filter_unwanted, get_dam_path
 from utils import AssetException
+from acmd.assets.api import AssetsApi
 
 
 class AssetImportFunnel(object):
@@ -15,6 +16,7 @@ class AssetImportFunnel(object):
         self.destination_root = destination_root
         self.current_file = 0
         self.created_paths = set([])
+        self.api = AssetsApi(self.server)
 
     def import_path(self, path):
         """ Import generic file system path, could be file or dir """
@@ -61,12 +63,17 @@ class AssetImportFunnel(object):
         log("Uplading {} to {}".format(filepath, dam_path))
 
         if dam_path not in self.created_paths:
-            create_dir(self.server, dam_path, self.dry_run)
             self.created_paths.add(dam_path)
+            if not self.dry_run:
+                self.api.create_folder(dam_path)
         else:
             log("Skipping creating dam path {}".format(dam_path))
 
-        post_file(self.server, filepath, dam_path, self.dry_run)
-        sys.stdout.write("{local} -> {dam}\n".format(local=filepath, dam=dam_path))
-        sys.stdout.flush()
-        return OK
+        status = OK
+        if not self.dry_run:
+            status = self.api.create_asset(filepath, dam_path)
+
+        if status == OK:
+            sys.stdout.write("{local} -> {dam}\n".format(local=filepath, dam=dam_path))
+            sys.stdout.flush()
+        return status
