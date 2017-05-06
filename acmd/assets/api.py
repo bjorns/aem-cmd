@@ -5,7 +5,7 @@ import time
 
 import requests
 
-import acmd.jcr.path
+from acmd.jcr.path import join
 from acmd import OK, UNCHANGED, SERVER_ERROR
 from acmd import log, error
 from acmd.strings import remove_prefix
@@ -21,7 +21,7 @@ class AssetsApi(object):
         self.server = server
 
     def get(self, path):
-        """ Fetching asset info """
+        """ Fetch asset info """
         req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
         url = self.server.url(req_path)
         resp = requests.get(url, auth=self.server.auth)
@@ -88,12 +88,19 @@ class AssetsApi(object):
             raise AssetException("Failed to create directory {}\n{}".format(url, resp.content))
         return OK
 
-    def list(self, path):
+    def _list_assets(self, path):
+        """ List assets under path
+         
+            :return (<status>, <list>)
+            <status>: <OK|USER_ERROR|SERVER_ERROR>
+            <list> [{name: <name>, title: <title>}...]
+        """
+
         log("Fetching asset list for {}".format(path))
         req_path = "{root}{path}.json".format(root=API_ROOT, path=path)
         url = self.server.url(req_path)
 
-        status, data = self.fetch_json(url)
+        status, data = self._fetch_json(url)
         if status != OK:
             return SERVER_ERROR, None
 
@@ -101,7 +108,7 @@ class AssetsApi(object):
 
         next_url = _get_next_url(data)
         while next_url is not None:
-            status, next_data = self.fetch_json(next_url)
+            status, next_data = self._fetch_json(next_url)
             if status != OK:
                 error("Failed to fetch next listing {}".format(next_url))
                 next_url = None
@@ -111,7 +118,7 @@ class AssetsApi(object):
                 next_url = _get_next_url(next_data)
         return OK, data
 
-    def fetch_json(self, url):
+    def _fetch_json(self, url):
         log("Fetching url {}".format(url))
         resp = requests.get(url, auth=self.server.auth)
 
@@ -125,7 +132,7 @@ class AssetsApi(object):
         if path.startswith("/content/dam"):
             path = remove_prefix("/content/dam", path)
 
-        status, root = self.list(path)
+        status, root = self._list_assets(path)
         if status != OK:
             error("Failed to find in {}".format(path))
             return SERVER_ERROR, None
@@ -135,8 +142,8 @@ class AssetsApi(object):
 
         while len(folder_queue) > 0:
             entity = folder_queue.pop()
-            path = acmd.jcr.path.join(entity['properties']['path'], entity['properties']['name'])
-            status, data = self.list(path)
+            path = join(entity['properties']['path'], entity['properties']['name'])
+            status, data = self._list_assets(path)
             if status != OK:
                 error("Failed to list contents of {}".format(path))
             else:

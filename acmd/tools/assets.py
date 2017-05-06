@@ -52,7 +52,7 @@ class AssetTool(object):
                     self.touch_asset(api, line.strip(), options.model)
             return OK
         elif action == 'list' or action == 'ls':
-            status, data = self.api.list(actionarg)
+            status, data = self.api._list_assets(actionarg)
             if status != OK:
                 return status
             for item in data['entities']:
