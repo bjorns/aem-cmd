@@ -1,13 +1,8 @@
 # coding: utf-8
-import mimetypes
 import os
 import re
 
-import requests
-
-from acmd import OK
-from acmd import log
-import acmd.jcr
+from acmd.jcr.path import join
 
 
 ROOT_IMPORT_DIR = "/tmp/acmd_assets_ingest"
@@ -20,7 +15,7 @@ class AssetException(Exception):
 def get_dam_path(filepath, local_import_root, dam_import_root):
     local_dir = os.path.dirname(filepath)
     if dam_import_root is None:
-        dam_import_root = acmd.jcr.path.join('/', os.path.basename(local_import_root))
+        dam_import_root = join('/', os.path.basename(local_import_root))
     dam_path = create_dam_path(local_dir, local_import_root, dam_import_root)
     return clean_path(dam_path)
 

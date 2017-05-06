@@ -1,2 +1,2 @@
 # coding: utf-8
-import path
+import acmd.jcr.path

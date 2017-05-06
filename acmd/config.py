@@ -1,7 +1,7 @@
 # coding: utf-8
 """ Support for reading .acmd.rc config files. """
 
-import ConfigParser
+from configparser import ConfigParser
 import os.path
 
 import acmd.server
@@ -79,7 +79,7 @@ def parse_projects(parser):
 
 def read_config(filename):
     """ Read the config file filename. Return a Config() object. """
-    parser = ConfigParser.ConfigParser()
+    parser = ConfigParser()
     with open(filename) as f:
         parser.readfp(f, "utf-8")
 

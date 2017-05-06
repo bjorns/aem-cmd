@@ -17,7 +17,10 @@ release: dist
 lint:
 	pylint --rcfile=pylint.rc acmd
 
-test:
-	nosetests --with-coverage --cover-package=acmd --cover-min-percentage=80 --cover-html --cover-html-dir=build/test_reports
+test2:
+	nosetests-2.7 --with-coverage --cover-package=acmd --cover-min-percentage=80 --cover-html --cover-html-dir=build/test_reports
+
+test3:
+	nosetests-3.4
 
 .PHONY: all clean dist lint test

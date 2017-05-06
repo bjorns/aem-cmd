@@ -4,8 +4,8 @@ import sys
 
 from acmd import SERVER_ERROR, OK, error, log
 
-from utils import filter_unwanted, get_dam_path
-from utils import AssetException
+from .utils import filter_unwanted, get_dam_path
+from .utils import AssetException
 from acmd.assets.api import AssetsApi
 
 

@@ -1,7 +1,7 @@
 # coding: utf-8
-import api
-import funnel
-import utils
+from . import api
+from . import funnel
+from . import utils
 
 AssetsApi = api.AssetsApi
 AssetsImportFunnel = funnel.AssetImportFunnel

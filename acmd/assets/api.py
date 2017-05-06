@@ -9,7 +9,7 @@ from acmd.jcr.path import join
 from acmd import OK, UNCHANGED, SERVER_ERROR
 from acmd import log, error
 from acmd.strings import remove_prefix
-from utils import status_ok, AssetException
+from acmd.assets.utils import status_ok, AssetException
 
 """ https://author-lbrands-assets-prod.adobecqms.net/api/assets/pink/INTIMATES_DESIGN/BRA/_BRA_SKETCHES/_JOCKTAG.ai.json
 """

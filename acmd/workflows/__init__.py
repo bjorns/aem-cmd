@@ -1,5 +1,4 @@
 # coding: utf-8
-import api
+from . import api
 
 WorkflowsApi = api.WorkflowsApi
-

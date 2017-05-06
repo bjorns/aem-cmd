@@ -1,7 +1,8 @@
 # encoding: utf-8
 
-import tool_utils
-import acmd.repo
+from . import tool_utils
+
+from acmd.repo import import_tools
 
 get_command = tool_utils.get_command
 get_argument = tool_utils.get_argument
@@ -9,4 +10,4 @@ filter_system = tool_utils.filter_system
 
 
 def init_default_tools(config=None):
-    acmd.repo.import_tools(__file__, 'acmd.tools', prefix=None, config=config)
+    import_tools(__file__, 'acmd.tools', prefix=None, config=config)
