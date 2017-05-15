@@ -2,7 +2,7 @@
 import json
 import shutil
 import tempfile
-from StringIO import StringIO
+from io import StringIO
 
 from httmock import urlmatch, HTTMock
 from mock import patch

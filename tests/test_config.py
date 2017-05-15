@@ -7,7 +7,7 @@ from acmd.config import read_config
 def test_read_config():
     config = read_config('tests/test_data/test_acmd.rc')
     eq_(3, len(config.servers))
-    eq_(['extraserver', 'default_server', 'localhost'], config.servers.keys())
+    eq_(['extraserver', 'default_server', 'localhost'], list(config.servers.keys()))
     eq_(config.servers['default_server'], config.servers['extraserver'])
     eq_(None, config.get_server('non existing label'))
     eq_(config.servers['default_server'], config.get_server(None))

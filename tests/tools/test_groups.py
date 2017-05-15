@@ -3,7 +3,7 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
 from acmd import tool_repo, Server, USER_ERROR, OK
-from StringIO import StringIO
+from io import StringIO
 
 
 @urlmatch(netloc='localhost:4502', path='/libs/granite/security/post/authorizables')

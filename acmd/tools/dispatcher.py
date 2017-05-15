@@ -1,11 +1,7 @@
 # coding: utf-8
-import sys
 import optparse
-from urlparse import urlparse
 
-import requests
-
-from acmd import tool, log, SERVER_ERROR
+from acmd import tool
 from acmd.tools import get_command
 
 parser = optparse.OptionParser("acmd dispatcher [options] [clear]")
@@ -16,15 +12,16 @@ parser.add_option("-r", "--raw",
 
 @tool('dispatcher', ['clear'])
 class DispatcherTool(object):
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(_, argv):
         (options, args) = parser.parse_args(argv)
         action = get_command(args, 'help')
         if action == 'clear':
-            clear_cache(server, options)
+            clear_cache()
         else:
             parser.print_help()
 
 
-def clear_cache(server, options):
+def clear_cache():
     raise Exception("""The service for clearing dispatcher cache is not safe
         and therefor support has been removed""")

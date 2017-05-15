@@ -1,14 +1,14 @@
 # coding: utf-8
-from StringIO import StringIO
+from io import StringIO
 
 from httmock import HTTMock
 from mock import patch
 from nose.tools import eq_
 
-import acmd.assets
-import acmd.jcr.path
+from acmd.assets import AssetsApi
 from acmd import Server, OK
-from mock_service import MockAssetsService, MockAssetsHttpService
+from .mock_service import MockAssetsService, MockAssetsHttpService
+
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
@@ -21,7 +21,7 @@ def test_find_assets(stderr, stdout):
 
     with HTTMock(http_service):
         server = Server('localhost')
-        api = acmd.assets.AssetsApi(server)
+        api = AssetsApi(server)
 
         status, data = api.find("/")
         eq_(OK, status)
@@ -32,3 +32,6 @@ def test_find_assets(stderr, stdout):
 
         eq_('/myfolder', data[1]['properties']['path'])
         eq_('myasset.jpg', data[1]['properties']['name'])
+
+        eq_("", stdout.getvalue())
+        eq_("", stderr.getvalue())

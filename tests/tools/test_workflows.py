@@ -1,5 +1,5 @@
 # coding: utf-8
-from StringIO import StringIO
+from io import StringIO
 
 from httmock import HTTMock
 from mock import patch

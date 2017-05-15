@@ -1,5 +1,5 @@
 # coding: utf-8
-from StringIO import StringIO
+from io import StringIO
 from acmd import tool_repo, Server
 
 from nose.tools import eq_

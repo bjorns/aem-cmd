@@ -1,6 +1,6 @@
 # coding: utf-8
 import tempfile
-from StringIO import StringIO
+from io import StringIO
 from distutils.version import Version
 
 import pkg_resources

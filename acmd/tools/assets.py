@@ -56,7 +56,7 @@ class AssetTool(object):
             if status != OK:
                 return status
             for item in data['entities']:
-                print item['properties']['name']
+                sys.stdout.write("{}\n".format(item['properties']['name']))
             return OK
         elif action == 'find':
             status, data = self.api.find(actionarg)
@@ -91,7 +91,7 @@ class AssetTool(object):
         log("Triggering workflow {} on {}".format(model, path))
 
         api.start_workflow(model, path)
-        print path
+        sys.stdout.write("{}\n".format(path))
 
     def tag_asset(self, assetpath, tags):
         """

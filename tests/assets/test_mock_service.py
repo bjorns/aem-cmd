@@ -1,7 +1,7 @@
 # coding: utf-8
 from nose.tools import eq_
+from . import mock_service
 
-import mock_service
 
 def test_mock_assets_service():
     s = mock_service.MockAssetsService()
