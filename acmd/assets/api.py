@@ -2,7 +2,7 @@
 import mimetypes
 import os
 import time
-
+import json
 import requests
 
 from acmd.jcr.path import join
@@ -28,7 +28,7 @@ class AssetsApi(object):
         if resp.status_code != 200:
             return SERVER_ERROR, None
 
-        data = resp.json()
+        data = json.loads(resp.content)
         return OK, data
 
     def create_asset(self, src_file, dst_path):
@@ -125,7 +125,7 @@ class AssetsApi(object):
         if resp.status_code != 200:
             return SERVER_ERROR, None
 
-        data = resp.json()
+        data = json.loads(resp.content)
         return OK, data
 
     def find(self, path):
@@ -193,7 +193,7 @@ class AssetsApi(object):
             error("{} Failed to touch asset {}: {}".format(r.status_code, path, r.content))
             return SERVER_ERROR, None
         else:
-            return OK, r.json()
+            return OK, json.loads(r.content)
 
 
 def _add_path(data, path):

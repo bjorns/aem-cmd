@@ -50,7 +50,7 @@ def search(server, options, params):
     elif options.raw:
         sys.stdout.write(json.dumps(resp, indent=4))
     else:
-        data = resp.json()
+        data = json.loads(resp.content)
         assert data.get('success') is True
 
         assert options.limit == -1 or options.limit >= data.get('results')

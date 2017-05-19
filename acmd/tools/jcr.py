@@ -90,7 +90,7 @@ def cat_node(server, options, path):
     if resp.status_code != 200:
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
         return SERVER_ERROR
-    data = resp.json()
+    data = json.loads(resp.content)
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     else:
@@ -139,7 +139,7 @@ def _get_subnodes(server, path):
         sys.stderr.write("error: Failed to get path {}, request returned {}\n".format(path, resp.status_code))
         sys.exit(-1)
 
-    return resp.json()
+    return json.loads(resp.content)
 
 
 def is_property(_, data):

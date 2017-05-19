@@ -72,7 +72,7 @@ def list_workflow_models(server, options):
         error("Unexpected error code {code}: {content}".format(
             code=resp.status_code, content=resp.content))
         return SERVER_ERROR
-    data = resp.json()
+    data = json.loads(resp.content)
     if options.raw:
         sys.stdout.write(json.dumps(data, indent=4))
     else:

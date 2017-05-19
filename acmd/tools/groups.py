@@ -88,7 +88,7 @@ def list_groups(server, options):
     if resp.status_code != 200:
         error("Failed to get groups list:\n{}\n".format(resp.content))
         return SERVER_ERROR
-    data = resp.json()
+    data = json.loads(resp.content)
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     elif options.compact:

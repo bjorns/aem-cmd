@@ -36,7 +36,7 @@ def execute(server, script, args, raw_output=False):
     log("Posting groovy script to {}".format(url))
     resp = requests.post(url, auth=server.auth, data=form_data)
     if resp.status_code == 200:
-        data = resp.json()
+        data = json.loads(resp.content)
         output = _clean_output(data) if not raw_output else data
         return OK, output
     else:

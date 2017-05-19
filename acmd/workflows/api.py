@@ -54,4 +54,4 @@ class WorkflowsApi(object):
                 code=resp.status_code, content=resp.content))
             return SERVER_ERROR, []
 
-        return OK, resp.json()
+        return OK, json.loads(resp.content)

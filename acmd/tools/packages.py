@@ -242,7 +242,7 @@ def install_package(server, options, package_name):
     if resp.status_code != 200:
         error("Failed to install package: {}".format(resp.content))
         return SERVER_ERROR
-    data = resp.json()
+    data = json.loads(resp.content)
     assert data['success'] is True
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))

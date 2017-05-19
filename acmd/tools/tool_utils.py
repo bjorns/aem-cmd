@@ -23,7 +23,7 @@ def filter_system(items):
 
 
 def random_hex(num_chars):
-    lst = [random.choice("abcdef" + string.digits) for _ in xrange(num_chars)]
+    lst = [random.choice("abcdef" + string.digits) for _ in range(num_chars)]
     return ''.join(lst)
 
 

@@ -2,7 +2,7 @@
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
-from acmd import tool_repo, Server, USER_ERROR, OK
+from acmd import tool_repo, Server, OK
 from io import StringIO
 
 
@@ -73,10 +73,8 @@ def list_groups_mock(url, request):
         data = f.read()
     return {
         'status_code': 200,
-        'content': data
+        'content': data.decode("utf-8")
     }
-
-
 
 EXPECTED_GROUPS = """Available groups:
     administrators

@@ -44,7 +44,7 @@ def get_bundle_list(server):
     if response.status_code != 200:
         error("Failed to list bundles: {}".format(response.status_code))
         return []
-    bundles = response.json()['data']
+    bundles = json.loads(response.content)['data']
     return bundles
 
 
