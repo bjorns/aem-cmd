@@ -74,7 +74,7 @@ def test_setprop(stderr, stdout):
         eq_(0, status)
         eq_('/content/path/node\n', stdout.getvalue())
     eq_(1, len(service_mock.req_log))
-    eq_((('prop0', 'value0'), ('prop1', 'value1')), service_mock.req_log[0].body.fields)
+    eq_((('prop1', 'value1'), ('prop0', 'value0')), service_mock.req_log[0].body.fields)
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -89,12 +89,12 @@ def test_setprop_stdin(stderr, stdout):
         eq_(0, status)
         eq_('/path0\n/path1\n', stdout.getvalue())
     eq_(2, len(service_mock.req_log))
-    eq_((('prop0', 'value0'), ('prop1', 'value1')), service_mock.req_log[0].body.fields)
+    eq_({('prop1', 'value1'), ('prop0', 'value0')}, set(service_mock.req_log[0].body.fields))
 
 
 def test_flatten():
     item0 = ('one', 1)
     item1 = ('two', 2)
-    eq_((item1, item0), _flatten(dict(one=1, two=2)))
+    eq_({item1, item0}, set(_flatten(dict(one=1, two=2))))
 
     eq_((('array', 1), ('array', 2), ('array', 3)), _flatten(dict(array=[1, 2, 3])))

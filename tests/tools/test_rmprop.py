@@ -7,10 +7,23 @@ from nose.tools import eq_
 
 from acmd import tool_repo, Server
 
+def _parse(body):
+    lines = body.split('&')
+    ret = dict()
+    for line in lines:
+        parts = line.split('%40')
+        ret[parts[0]] = parts[1]
+    return ret
 
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(url, request):
-    eq_('prop1%40Delete=&prop0%40Delete=', request.body)
+
+    expected = {
+        'prop1': 'Delete=',
+        'prop0': 'Delete='
+    }
+
+    eq_(expected, _parse(request.body))
     return ""
 
 
