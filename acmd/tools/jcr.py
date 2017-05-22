@@ -96,9 +96,9 @@ def cat_node(server, options, path):
     else:
         for prop, data in data.items():
             if is_property(prop, data):
-                if type(data) == str:
-                    data = data.encode('utf-8')
-                sys.stdout.write(u"{key}:\t{value}\n".format(key=prop, value=data))
+                #if type(data) == str:
+                #    data = data.encode('utf-8')
+                sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
     return OK
 
 

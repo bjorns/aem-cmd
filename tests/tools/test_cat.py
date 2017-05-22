@@ -64,6 +64,15 @@ def service_mock(url, request):
         raise Exception(url.path)
 
 
+def parse_cat(data):
+    lines = data.split('\n')
+    ret = dict()
+    for line in lines:
+        parts = line.split(':\t')
+        ret[parts[0]] = parts[1]
+    return ret
+
+
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_cat(stderr, stdout):
@@ -72,8 +81,13 @@ def test_cat(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['cat', '/content/path/node'])
         eq_(0, status)
-        eq_('text:\tSomething something\njcr:primaryType:\tnt:unstructured\ntitle:\tTest Title\n',
-            stdout.getvalue())
+
+        exp = {'text': "Something something",
+               'jcr:primaryType': 'nt:unstructured',
+               'title':'Test Title'
+               }
+
+        eq_(exp, parse_cat(stdout.getvalue()))
         eq_('', stderr.getvalue())
 
 
@@ -86,6 +100,11 @@ def test_cat_stdin(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['cat'])
         eq_(0, status)
-        eq_('text:\tSomething something\njcr:primaryType:\tnt:unstructured\ntitle:\tTest Title\n',
-            stdout.getvalue())
+
+        exp = {'text': "Something something",
+               'jcr:primaryType': 'nt:unstructured',
+               'title':'Test Title'
+               }
+
+        eq_(exp, parse_cat(stdout.getvalue()))
         eq_('', stderr.getvalue())

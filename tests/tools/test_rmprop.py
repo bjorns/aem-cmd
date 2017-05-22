@@ -7,23 +7,17 @@ from nose.tools import eq_
 
 from acmd import tool_repo, Server
 
-def _parse(body):
-    lines = body.split('&')
-    ret = dict()
-    for line in lines:
-        parts = line.split('%40')
-        ret[parts[0]] = parts[1]
-    return ret
+from test_utils.http import parse_body
+
 
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(url, request):
-
     expected = {
         'prop1': 'Delete=',
         'prop0': 'Delete='
     }
 
-    eq_(expected, _parse(request.body))
+    eq_(expected, parse_body(request.body))
     return ""
 
 
@@ -48,4 +42,3 @@ def test_rmprop_stdin(stderr, stdout):
         status = tool.execute(server, ['rmprop', 'prop0,prop1'])
         eq_(0, status)
         eq_('/path0\n/path1\n', stdout.getvalue())
-

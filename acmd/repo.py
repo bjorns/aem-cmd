@@ -57,7 +57,6 @@ class ToolRepo(object):
         self._init_project = name
 
 
-
 # Global singleton, no use in passing the thing around
 tool_repo = ToolRepo()
 

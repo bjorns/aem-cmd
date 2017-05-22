@@ -81,6 +81,6 @@ def test_ls_stdin(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['ls'])
         eq_(0, status)
-        eq_('node\ndirectory\n', stdout.getvalue())
+        eq_({'node', 'directory', ''}, set(stdout.getvalue().split('\n')))
         eq_('', stderr.getvalue())
 

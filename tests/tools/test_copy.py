@@ -6,6 +6,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
+from test_utils.http import parse_body
 
 
 class MockHttpService(object):
@@ -47,4 +48,9 @@ def test_cp_to_parent(stderr, stdout):
         eq_('/backup/src_node\n', stdout.getvalue())
     eq_(1, len(service_mock.req_log))
     eq_('/content/src_node', service_mock.url_log[0].path)
-    eq_('%3Aoperation=copy&%3Adest=%2Fbackup%2F', service_mock.req_log[0].body)
+
+    exp = {
+        ':operation': 'copy',
+        ':dest': '/backup/'
+    }
+    eq_(exp, parse_body(service_mock.req_log[0].body))

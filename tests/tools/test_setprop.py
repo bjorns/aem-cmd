@@ -74,7 +74,7 @@ def test_setprop(stderr, stdout):
         eq_(0, status)
         eq_('/content/path/node\n', stdout.getvalue())
     eq_(1, len(service_mock.req_log))
-    eq_((('prop1', 'value1'), ('prop0', 'value0')), service_mock.req_log[0].body.fields)
+    eq_({('prop1', 'value1'), ('prop0', 'value0')}, set(service_mock.req_log[0].body.fields))
 
 
 @patch('sys.stdout', new_callable=StringIO)
