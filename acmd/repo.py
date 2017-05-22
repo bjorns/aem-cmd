@@ -78,7 +78,7 @@ def tool(tool_name, commands=None):
 
         instance.name = tool_name
         if not hasattr(instance, 'commands'):
-            instance.commands = commands if commands is not None else []
+            instance.commands = commands if commands is not None else list()
 
         if tool_repo.has_tool(tool_name):
             raise Exception("Tool {} already loaded".format(tool_name))

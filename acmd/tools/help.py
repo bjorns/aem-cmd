@@ -25,6 +25,11 @@ class IntrospectTool(object):
         """ Allow autocomplete of help tools. """
         return tool_repo.list_tools()
 
+    @commands.setter
+    def commands(self, commands):
+        """ Ignore trying to set commands for this tool """
+        pass
+
     def execute(self, _, argv):
         (options, args) = parser.parse_args(argv)
 
