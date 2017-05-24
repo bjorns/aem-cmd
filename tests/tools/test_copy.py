@@ -1,4 +1,6 @@
 # coding: utf-8
+import sys
+import os
 from io import StringIO
 
 from httmock import urlmatch, HTTMock
@@ -6,6 +8,10 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
+
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from test_utils.http import parse_body
 
 

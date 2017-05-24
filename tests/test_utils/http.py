@@ -1,9 +1,13 @@
 # coding: utf-8
-import urllib
+from future.standard_library import install_aliases
+install_aliases()
+
+from urllib.parse import urlparse
 
 
 def parse_body(body):
-    decoded_body = urllib.unquote(body).decode()
+
+    decoded_body = urlparse(body).decode()
 
     lines = decoded_body.split('&')
     ret = dict()

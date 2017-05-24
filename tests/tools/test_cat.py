@@ -69,7 +69,8 @@ def parse_cat(data):
     ret = dict()
     for line in lines:
         parts = line.split(':\t')
-        ret[parts[0]] = parts[1]
+        if len(parts) == 2:
+            ret[parts[0]] = parts[1]
     return ret
 
 
