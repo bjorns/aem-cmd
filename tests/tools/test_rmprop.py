@@ -12,10 +12,7 @@ from test_utils.http import parse_body
 
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(url, request):
-    expected = {
-        'prop1': 'Delete=',
-        'prop0': 'Delete='
-    }
+    expected = {'prop0@Delete': '', 'prop1@Delete': ''}
 
     eq_(expected, parse_body(request.body))
     return ""

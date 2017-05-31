@@ -26,7 +26,7 @@ def test_clean_output():
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(_, request):
     eq_('script=println+%22foo%22%0Areturn+0', request.body)
-    with open('tests/test_data/groovy_script_response.json', 'rb') as f:
+    with open('tests/test_data/groovy_script_response.json') as f:
         return f.read()
 
 

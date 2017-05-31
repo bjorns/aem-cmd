@@ -7,6 +7,8 @@ from nose.tools import eq_
 
 from acmd import tool_repo, Server
 
+from test_utils.console import unordered_list
+
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
     "path": {
@@ -51,7 +53,7 @@ NODE_RESPONSE = """{
 
 
 @urlmatch(netloc='localhost:4502', method='GET')
-def service_mock(url, request):
+def service_mock(url, _):
     if url.path == '/content.1.json':
         return CONTENT_RESPONSE
     elif url.path == '/content/path.1.json':
@@ -72,9 +74,10 @@ def test_find(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['find', '/content'])
         eq_(0, status)
-        eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
-            stdout.getvalue())
+        eq_({'/content', '/content/path', '/content/path/node', '/content/path/directory'},
+            unordered_list(stdout.getvalue()))
         eq_('', stderr.getvalue())
+
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
@@ -85,7 +88,6 @@ def test_find_stdin(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['find'])
         eq_(0, status)
-        eq_('/content\n/content/path\n/content/path/node\n/content/path/directory\n',
-            stdout.getvalue())
+        eq_({'/content', '/content/path', '/content/path/node', '/content/path/directory'},
+            unordered_list(stdout.getvalue()))
         eq_('', stderr.getvalue())
-

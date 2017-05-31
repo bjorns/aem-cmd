@@ -14,20 +14,18 @@ class MockTool(object):
     def __init__(self):
         self.did_run = False
 
-    def execute(self, server, argv):
+    def execute(self, *_):
         self.did_run = True
         return 1147
 
 
 @patch('sys.stdout', new_callable=StringIO)
 def test_show_version(stdout):
-
-
     args = ['acmd', '--version']
     try:
         tool_repo.reset()
         main(args, rcfile="tests/test_data/test_acmd.rc")
-    except SystemExit as e:
+    except SystemExit:
         pass
 
     eq_(__version__ + '\n', stdout.getvalue())
@@ -35,7 +33,7 @@ def test_show_version(stdout):
 
 @patch('acmd.import_projects')
 @patch('acmd.deploy.deploy_bash_completion')
-def test_run_tool(deploy_bash, load_proj):
+def test_run_tool(_, load_proj):
     _tool = tool_repo.get_tool('mock_tool')
     eq_(False, _tool.did_run)
 

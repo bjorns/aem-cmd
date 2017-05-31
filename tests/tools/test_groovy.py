@@ -10,11 +10,12 @@ from acmd.tools import init_default_tools
 
 init_default_tools()
 
+
 @urlmatch(netloc='localhost:4502', method='POST')
 def service_mock(url, request):
     eq_('script=println+%22foo%22%0Areturn+0', request.body)
     with open('tests/test_data/groovy_script_response.json', 'rb') as f:
-        return f.read()
+        return str(f.read())
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -42,6 +43,7 @@ def test_execute(stderr, stdout):
 
 
 EXPECTED_RAW_OUTPUT = '{\n    "outputText": "foo\\n", \n    "stacktraceText": "", \n    "executionResult": "0", \n    "runningTime": "00:00:00.001"\n}\n'
+
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
@@ -79,7 +81,7 @@ def test_error_response(stderr, stdout):
 def script_error_service(url, request):
     eq_('script=println+%22foo%22%0Areturn+0', request.body)
     with open('tests/test_data/groovy_script_error_response.json', 'rb') as f:
-        return f.read()
+        return str(f.read())
 
 
 @patch('sys.stdout', new_callable=StringIO)

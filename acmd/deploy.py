@@ -80,7 +80,7 @@ def _get_bash_version():
         major = LooseVersion(version_string).version[0]
         return major
     except Exception as e:
-        acmd.log("No bash was found: " + e.message)
+        acmd.log("No bash was found: {}".format(e))
         return 0
 
 

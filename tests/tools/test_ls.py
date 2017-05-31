@@ -8,6 +8,7 @@ from nose.tools import eq_
 from acmd import tool_repo, Server
 from acmd.tools.jcr import parse_properties
 
+from test_utils.console import unordered_list
 
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
@@ -68,7 +69,7 @@ def test_ls(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['ls', '/content/path'])
         eq_(0, status)
-        eq_('node\ndirectory\n', stdout.getvalue())
+        eq_({'node', 'directory', ''}, set(stdout.getvalue().split('\n')))
         eq_('', stderr.getvalue())
 
 
@@ -81,6 +82,5 @@ def test_ls_stdin(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['ls'])
         eq_(0, status)
-        eq_({'node', 'directory', ''}, set(stdout.getvalue().split('\n')))
+        eq_({'node', 'directory'}, unordered_list(stdout.getvalue()))
         eq_('', stderr.getvalue())
-

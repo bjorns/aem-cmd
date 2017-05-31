@@ -6,10 +6,12 @@ from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
 
+from test_utils.http import parse_body
+
 
 @urlmatch(netloc='localhost:4502', path='/libs/granite/security/post/authorizables')
 def create_service_mock(url, request):
-    with open('tests/test_data/create_user_response.html', 'rb') as f:
+    with open('tests/test_data/create_user_response.html') as f:
         data = f.read()
     return {
         'status_code': 201,
@@ -45,9 +47,11 @@ def test_create_user(stderr, stdout):
 
 @urlmatch(netloc='localhost:4502', path='/home/users/j/jdoe.rw.html')
 def setprop_service_mock(url, request):
-    with open('tests/test_data/create_user_response.html', 'rb') as f:
+    with open('tests/test_data/create_user_response.html') as f:
         data = f.read()
-    eq_('profile%2Fprop0=val0&profile%2Fprop1=Quoted+value&profile%2Fprop1%40TypeHint=String', request.body)
+
+    expected = {'profile/prop0': 'val0', 'profile/prop1@TypeHint': 'String', 'profile/prop1': 'Quoted+value'}
+    eq_(expected, parse_body(request.body))
     return {
         'status_code': 200,
         'content': data
@@ -68,7 +72,7 @@ def test_set_property(stderr, stdout):
 
 @urlmatch(netloc='localhost:4502')
 def list_users_mock(url, request):
-    with open('tests/test_data/list_users_response.json', 'rb') as f:
+    with open('tests/test_data/list_users_response.json') as f:
         data = f.read()
     return {
         'status_code': 200,

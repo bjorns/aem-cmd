@@ -1,7 +1,6 @@
 # coding: utf-8
-
 import requests
-from requests.exceptions import ConnectionError
+import json
 
 from acmd import SERVER_ERROR, USER_ERROR, OK
 from acmd import error
@@ -19,7 +18,11 @@ class WorkflowsApi(object):
         self.raw = raw
 
     def start_workflow(self, model, path):
-        """      curl -u admin:admin -d "model=/etc/workflow/models/request_for_activation/jcr:content/model&payload=/content/geometrixx/en/company&payloadType=JCR_PATH&workflowTitle=myWorkflowTitle" http://localhost:4502/etc/workflow/instances
+        """ curl -u admin:admin
+                -d "model=/etc/workflow/models/request_for_activation/jcr:content/model&
+                payload=/content/geometrixx/en/company&
+                payloadType=JCR_PATH&
+                workflowTitle=myWorkflowTitle" http://localhost:4502/etc/workflow/instances
 
         """
         task_id = create_task_id(model)

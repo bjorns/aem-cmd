@@ -8,7 +8,7 @@ from io import StringIO
 
 @urlmatch(netloc='localhost:4502', path='/libs/granite/security/post/authorizables')
 def service_mock(url, request):
-    with open('tests/test_data/create_group_response.html', 'rb') as f:
+    with open('tests/test_data/create_group_response.html') as f:
         data = f.read()
     return {
         'status_code': 201,
@@ -46,7 +46,7 @@ def test_create_group(stderr, stdout):
 @urlmatch(netloc='localhost:4502', path=r'/home/groups/.+')
 def adduser_mock(url, request):
     eq_('addMembers=jdoe', request.body)
-    with open('tests/test_data/create_group_response.html', 'rb') as f:
+    with open('tests/test_data/create_group_response.html') as f:
         data = f.read()
     return {
         'status_code': 200,
@@ -69,7 +69,7 @@ def test_add_user(stderr, stdout):
 
 @urlmatch(netloc='localhost:4502')
 def list_groups_mock(url, request):
-    with open('tests/test_data/list_groups_response.json', 'rb') as f:
+    with open('tests/test_data/list_groups_response.json') as f:
         data = f.read()
     return {
         'status_code': 200,
