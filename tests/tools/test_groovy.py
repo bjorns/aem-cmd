@@ -1,4 +1,5 @@
 # coding: utf-8
+import json
 from io import StringIO
 
 from mock import patch
@@ -42,7 +43,12 @@ def test_execute(stderr, stdout):
         eq_('', stderr.getvalue())
 
 
-EXPECTED_RAW_OUTPUT = '{\n    "outputText": "foo\\n", \n    "stacktraceText": "", \n    "executionResult": "0", \n    "runningTime": "00:00:00.001"\n}\n'
+EXPECTED_OUT = {
+    "outputText": "foo\n",
+    "stacktraceText": "",
+    "executionResult": "0",
+    "runningTime": "00:00:00.001"
+}
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -53,8 +59,8 @@ def test_execute_raw_output(stderr, stdout):
         server = Server('localhost')
         status = tool.execute(server, ['groovy', '--raw', 'tests/test_data/script.groovy'])
         eq_(0, status)
-        eq_(EXPECTED_RAW_OUTPUT,
-            stdout.getvalue())
+        eq_(EXPECTED_OUT,
+            json.loads(stdout.getvalue()))
         eq_('', stderr.getvalue())
 
 

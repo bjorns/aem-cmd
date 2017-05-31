@@ -19,7 +19,8 @@ SERVICE_PATH = "/bin/groovyconsole/post.json"
 class GroovyTool(object):
     """ http://localhost:4502/bin/groovyconsole/post.json """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         if len(argv) < 2:
             parser.print_help()
@@ -48,7 +49,8 @@ class GroovyTool(object):
                 return INTERNAL_ERROR
         return OK
 
-    def build_form_data(self, filename):
+    @staticmethod
+    def build_form_data(filename):
         f = open(filename, 'rb')
         form_data = dict(
             script=replace_vars(f.read())
