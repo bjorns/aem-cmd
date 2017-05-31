@@ -92,12 +92,12 @@ def list_groups(server, options):
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     elif options.compact:
-        for initial, group in filter_system(data.items()).items():
-            for groupname, userdata in filter_system(group.items()).items():
+        for initial, group in filter_system(data):
+            for groupname, userdata in filter_system(group):
                 sys.stdout.write("{}\n".format(groupname))
     else:
         sys.stdout.write("Available groups:\n")
-        for initial, group in filter_system(data.items()).items():
-            for username, userdata in filter_system(group.items()).items():
+        for initial, group in filter_system(data):
+            for username, userdata in filter_system(group):
                 sys.stdout.write("    {}\n".format(username))
     return OK

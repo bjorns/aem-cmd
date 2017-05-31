@@ -72,7 +72,7 @@ def test_set_property(stderr, stdout):
 
 @urlmatch(netloc='localhost:4502')
 def list_users_mock(url, request):
-    with open('tests/test_data/list_users_response.json') as f:
+    with open('tests/test_data/list_users_response.json', 'rb') as f:
         data = f.read()
     return {
         'status_code': 200,

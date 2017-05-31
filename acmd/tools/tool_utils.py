@@ -17,11 +17,13 @@ def get_argument(argv, i=2, default=""):
         return argv[i]
 
 
-def filter_system(items):
-    """ Filter properties that start with jcr: """
+def filter_system(dict_data):
+    """ Filter properties that start with jcr:
+        :return pair iterator
+     """
     # ret = filter(lambda key, data: not key.startswith('jcr:'), items)
-    ret = {key: data for key, data in items if not key.startswith('jcr:')}
-    return ret
+    ret = {key: data for key, data in dict_data.items() if not key.startswith('jcr:')}
+    return ret.items()
 
 
 def random_hex(num_chars):

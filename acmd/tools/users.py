@@ -50,14 +50,14 @@ def list_users(server, options):
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     if options.compact:
-        for item in filter_system(data.items()):
+        for item in filter_system(data):
             initial, group = item[0], item[1]
-            for username, userdata in filter_system(group.items()):
+            for username, userdata in filter_system(group):
                 sys.stdout.write("{}\n".format(username))
     else:
         sys.stdout.write("Available users:\n")
-        for initial, group in filter_system(data.items()):
-            for username, userdata in filter_system(group.items()):
+        for initial, group in filter_system(data):
+            for username, userdata in filter_system(group):
                 sys.stdout.write("    {}\n".format(username))
     return OK
 
