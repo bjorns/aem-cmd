@@ -60,7 +60,7 @@ EXPECTED_LIST = [["test_packages", "mock_package", "1.6.5", "Fri, 13 Jun 2014 14
 
 def untab(data):
     lines = data.split("\n")
-    return map(lambda x: x.split('\t'), lines)
+    return list(map(lambda x: x.split('\t'), lines))
 
 
 @patch('sys.stdout', new_callable=StringIO)

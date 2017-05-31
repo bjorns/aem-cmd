@@ -49,7 +49,7 @@ class ToolRepo(object):
         return self._modules[tool_name]
 
     def list_tools(self):
-        tool_names = self._tools.keys()
+        tool_names = list(self._tools.keys())
         tool_names.sort()
         return tool_names
 

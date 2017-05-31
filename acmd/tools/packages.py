@@ -1,10 +1,12 @@
 # coding: utf-8
-from distutils.version import LooseVersion
 import optparse
 import os
 import sys
 import tempfile
+import json
+
 from xml.etree import ElementTree
+from distutils.version import LooseVersion
 
 
 import requests
@@ -141,7 +143,7 @@ def get_group(options, pkg):
 
 def _get_package(package_name, server, options):
     packages = get_packages_list(server)
-    packages = filter(lambda x: x['name'] == package_name, packages)
+    packages = list(filter(lambda x: x['name'] == package_name, packages))
     if len(packages) == 0:
         raise Exception('No package named {} found'.format(package_name))
 
@@ -174,7 +176,7 @@ def download_package(server, options, package_name, filename=None):
         filename = zipfile
     with open(filename, 'wb') as f:
         if response.status_code == 200:
-            f.write(response.content)
+            f.write(response.content.encode('utf-8'))
             sys.stdout.write("{}\n".format(zipfile))
             return OK
         else:
@@ -301,4 +303,3 @@ def promote_package(server, target_server, options, package_name):
     log("Install uploaded package on target server")
     install_package(target_server, options, package_name)
     return status
-
