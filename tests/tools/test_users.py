@@ -11,7 +11,7 @@ from test_utils.http import parse_body
 
 @urlmatch(netloc='localhost:4502', path='/libs/granite/security/post/authorizables')
 def create_service_mock(url, request):
-    with open('tests/test_data/create_user_response.html') as f:
+    with open('tests/test_data/create_user_response.html', 'rb') as f:
         data = f.read()
     return {
         'status_code': 201,

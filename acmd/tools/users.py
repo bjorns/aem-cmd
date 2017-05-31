@@ -50,7 +50,8 @@ def list_users(server, options):
     if options.raw:
         sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
     if options.compact:
-        for initial, group in filter_system(data.items()):
+        for item in filter_system(data.items()):
+            initial, group = item[0], item[1]
             for username, userdata in filter_system(group.items()):
                 sys.stdout.write("{}\n".format(username))
     else:

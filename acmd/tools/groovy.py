@@ -43,7 +43,7 @@ class GroovyTool(object):
                 sys.stderr.write(data[backend.STACKTRACE_FIELD])
                 return SERVER_ERROR
             elif backend.OUTPUT_FIELD in data:
-                sys.stdout.write("{}".format(data[backend.OUTPUT_FIELD].encode('utf-8')))
+                sys.stdout.write("{}".format(data[backend.OUTPUT_FIELD]))
             else:
                 return INTERNAL_ERROR
         return OK

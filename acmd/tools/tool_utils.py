@@ -19,7 +19,9 @@ def get_argument(argv, i=2, default=""):
 
 def filter_system(items):
     """ Filter properties that start with jcr: """
-    return filter(lambda key, data: not key.startswith('jcr:'), items)
+    # ret = filter(lambda key, data: not key.startswith('jcr:'), items)
+    ret = {key: data for key, data in items if not key.startswith('jcr:')}
+    return ret
 
 
 def random_hex(num_chars):
