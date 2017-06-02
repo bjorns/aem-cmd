@@ -3,7 +3,7 @@
     hooks so we deploy necessary system files here.
 """
 import sys
-import os.path
+import os
 import platform
 import subprocess
 import pkg_resources
@@ -74,7 +74,7 @@ def install_script(path):
 def _get_bash_version():
     """ Find version of bash currently running. """
     try:
-        full_text = subprocess.check_output(['bash', '--version'])
+        full_text = subprocess.check_output(['bash', '--version']).decode('utf-8')
         first_line = full_text.split('\n')[0]
         version_string = first_line.lstrip("GNU bash, version ")
         major = LooseVersion(version_string).version[0]

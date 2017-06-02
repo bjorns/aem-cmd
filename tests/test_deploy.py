@@ -6,10 +6,9 @@ import pkg_resources
 from mock import patch
 from nose.tools import eq_, ok_
 
-from test_utils.compat import StringIO
-
 import acmd
 
+from test_utils.compat import StringIO
 
 
 def test_get_current_version():
@@ -29,7 +28,7 @@ def test_setup_rcfile(stderr, stdout):
         ok_(len(content) > 0)
         eq_(template, content)
     eq_('', stdout.getvalue())
-    eq_('', stderr.getvalue())
+    ok_("warning:" in stderr.getvalue())
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -50,4 +49,4 @@ def test_no_deploy_dirs(stderr, stdout):
     ret = acmd.deploy_bash_completion(paths=[path])
     eq_(None, ret)
     eq_('', stdout.getvalue())
-    eq_('', stderr.getvalue())
+    eq_('Could not find bash completion install dir.', stderr.getvalue())

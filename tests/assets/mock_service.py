@@ -6,7 +6,8 @@ from httmock import urlmatch
 import acmd.assets
 import acmd.jcr.path
 from acmd.strings import remove_suffix, remove_prefix
-from tests.test_utils.logging import test_log
+
+from test_utils.logging import test_log
 
 
 class MockAssetsService(object):
