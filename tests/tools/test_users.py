@@ -1,16 +1,17 @@
 # coding: utf-8
-from acmd import tool_repo, Server, OK
-from io import StringIO
-
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_, ok_
 
+from acmd import tool_repo, Server, OK
+
 from test_utils.http import parse_body
+from test_utils.compat import StringIO
+from test_utils.console import unordered_list
 
 
 @urlmatch(netloc='localhost:4502', path='/libs/granite/security/post/authorizables')
-def create_service_mock(url, request):
+def create_service_mock(*_):
     with open('tests/test_data/create_user_response.html', 'rb') as f:
         data = f.read()
     return {
@@ -25,7 +26,7 @@ def test_print_help(stderr, stdout):
     tool = tool_repo.get_tool('user')
     server = Server('localhost')
     try:
-        tool.execute(server, ['user', '--help'])
+        status = tool.execute(server, ['user', '--help'])
     except SystemExit as e:
         status = e.code
     eq_(0, status)
@@ -46,7 +47,7 @@ def test_create_user(stderr, stdout):
 
 
 @urlmatch(netloc='localhost:4502', path='/home/users/j/jdoe.rw.html')
-def setprop_service_mock(url, request):
+def setprop_service_mock(_, request):
     with open('tests/test_data/create_user_response.html') as f:
         data = f.read()
 
@@ -71,7 +72,7 @@ def test_set_property(stderr, stdout):
 
 
 @urlmatch(netloc='localhost:4502')
-def list_users_mock(url, request):
+def list_users_mock(*_):
     with open('tests/test_data/list_users_response.json', 'rb') as f:
         data = f.read()
     return {
@@ -80,14 +81,15 @@ def list_users_mock(url, request):
     }
 
 
-EXPECTED_RESPONSE = """Available users:
-    admin
-    anonymous
-    jdoe
-    rep:policy
-    replication-receiver
-    previewer
-"""
+EXPECTED_RESPONSE = {
+    "Available users:",
+    "    admin",
+    "    anonymous",
+    "    jdoe",
+    "    rep:policy",
+    "    replication-receiver",
+    "    previewer"
+}
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -98,17 +100,18 @@ def test_list_users(stderr, stdout):
     with HTTMock(list_users_mock):
         status = tool.execute(server, ['user', 'list'])
     eq_(OK, status)
-    eq_(EXPECTED_RESPONSE, stdout.getvalue())
+    eq_(EXPECTED_RESPONSE, unordered_list(stdout.getvalue()))
     eq_('', stderr.getvalue())
 
 
-COMPACT_RESPONSE = """admin
-anonymous
-jdoe
-rep:policy
-replication-receiver
-previewer
-"""
+COMPACT_RESPONSE = {
+    "admin",
+    "anonymous",
+    "jdoe",
+    "rep:policy",
+    "replication-receiver",
+    "previewer"
+}
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -119,5 +122,5 @@ def test_list_users_compact(stderr, stdout):
     with HTTMock(list_users_mock):
         status = tool.execute(server, ['user', 'list', '--compact'])
     eq_(OK, status)
-    eq_(COMPACT_RESPONSE, stdout.getvalue())
+    eq_(COMPACT_RESPONSE, unordered_list(stdout.getvalue()))
     eq_('', stderr.getvalue())

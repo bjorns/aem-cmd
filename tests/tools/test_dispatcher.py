@@ -1,10 +1,6 @@
 # coding: utf-8
-from io import StringIO
-from acmd import tool_repo, Server
-
 from nose.tools import eq_
-from mock import patch
-from httmock import urlmatch, HTTMock
+from httmock import urlmatch
 
 
 @urlmatch(netloc='localhost', path='/dispatcher/invalidate.cache', method='GET')
@@ -15,5 +11,5 @@ def service_mock(url, request):
 
 
 @urlmatch(netloc='localhost', path='/dispatcher/invalidate.cache', method='GET')
-def broken_service(url, request):
+def broken_service(*_):
     return "Something went wrong\n"

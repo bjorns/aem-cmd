@@ -1,6 +1,4 @@
 # coding: utf-8
-from io import StringIO
-
 from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
@@ -8,6 +6,8 @@ from nose.tools import eq_
 from acmd import tool_repo, Server
 
 from test_utils.http import parse_body
+from test_utils.compat import StringIO
+
 
 class MockHttpService(object):
     def __init__(self, asset_service=None):

@@ -1,12 +1,12 @@
 # coding: utf-8
-from io import StringIO
-
 from httmock import urlmatch, HTTMock
 from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server, USER_ERROR
 from acmd.tools import packages
+
+from test_utils.compat import StringIO
 
 
 def test_tool_registration():

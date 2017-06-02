@@ -2,7 +2,6 @@
 import json
 import shutil
 import tempfile
-from io import StringIO
 
 from httmock import urlmatch, HTTMock
 from mock import patch
@@ -12,6 +11,8 @@ from acmd import Server, OK
 from acmd.tools.assets import AssetTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
 from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
 from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
+
+from test_utils.compat import StringIO
 
 
 class RecordingHttpService(object):

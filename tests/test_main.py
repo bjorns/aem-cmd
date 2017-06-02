@@ -1,12 +1,12 @@
 # coding: utf-8
-from io import StringIO
-
 from nose.tools import eq_
 
 from mock import patch
 
 from acmd import tool, tool_repo, __version__
 from acmd.main import main
+
+from test_utils.compat import StringIO
 
 
 @tool('mock_tool')

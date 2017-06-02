@@ -1,11 +1,11 @@
 # coding: utf-8
-from io import StringIO
-
 from mock import patch
 from nose.tools import eq_, ok_
 
 import acmd.config
 from acmd import tool_repo, Server, OK
+
+from test_utils.compat import StringIO
 
 
 @patch('sys.stdout', new_callable=StringIO)

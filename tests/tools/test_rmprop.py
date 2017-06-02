@@ -1,6 +1,4 @@
 # coding: utf-8
-from io import StringIO
-
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
@@ -8,6 +6,7 @@ from nose.tools import eq_
 from acmd import tool_repo, Server
 
 from test_utils.http import parse_body
+from test_utils.compat import StringIO
 
 
 @urlmatch(netloc='localhost:4502', method='POST')

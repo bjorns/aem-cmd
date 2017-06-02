@@ -1,6 +1,5 @@
 # coding: utf-8
 import json
-from io import StringIO
 
 from mock import patch
 from httmock import urlmatch, HTTMock
@@ -8,6 +7,8 @@ from nose.tools import eq_, ok_
 
 from acmd import tool_repo, Server, USER_ERROR, SERVER_ERROR
 from acmd.tools import init_default_tools
+
+from test_utils.compat import StringIO
 
 init_default_tools()
 

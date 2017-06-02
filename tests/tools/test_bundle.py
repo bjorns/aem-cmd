@@ -1,14 +1,13 @@
 # coding: utf-8
-from io import StringIO
-
 from mock import patch
 from httmock import urlmatch, HTTMock
 
 from nose.tools import eq_
 
-import acmd.tools
 from acmd.tools import bundle
 from acmd import tool_repo, Server
+
+from test_utils.compat import StringIO
 
 BUNDLE_LIST = """{
     "data": [

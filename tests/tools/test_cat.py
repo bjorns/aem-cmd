@@ -1,11 +1,12 @@
 # coding: utf-8
-from io import StringIO
-
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
+
+from test_utils.compat import StringIO
+
 
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",

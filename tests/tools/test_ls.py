@@ -1,14 +1,12 @@
 # coding: utf-8
-from io import StringIO
-
 from mock import patch
 from httmock import urlmatch, HTTMock
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
-from acmd.tools.jcr import parse_properties
 
 from test_utils.console import unordered_list
+from test_utils.compat import StringIO
 
 CONTENT_RESPONSE = """{
     "jcr:primaryType": "nt:folder",
@@ -54,7 +52,7 @@ NODE_RESPONSE = """{
 
 
 @urlmatch(netloc='localhost:4502', method='GET')
-def service_mock(url, request):
+def service_mock(url, _):
     if url.path == '/content/path.1.json':
         return PATH_RESPONSE
     else:

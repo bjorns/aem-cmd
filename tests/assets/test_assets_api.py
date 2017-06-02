@@ -1,6 +1,4 @@
 # coding: utf-8
-from io import StringIO
-
 from httmock import HTTMock
 from mock import patch
 from nose.tools import eq_
@@ -8,6 +6,8 @@ from nose.tools import eq_
 from acmd.assets import AssetsApi
 from acmd import Server, OK
 from .mock_service import MockAssetsService, MockAssetsHttpService
+
+from test_utils.compat import StringIO
 
 
 @patch('sys.stdout', new_callable=StringIO)

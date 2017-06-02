@@ -1,12 +1,12 @@
 # coding: utf-8
-from io import StringIO
-
 from httmock import HTTMock
 from mock import patch
 from nose.tools import eq_, ok_
 
 from acmd import tool_repo, Server
 from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
+
+from test_utils.compat import StringIO
 
 
 def tabbed(lines):
