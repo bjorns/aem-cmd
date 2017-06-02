@@ -101,7 +101,7 @@ class AssetTool(object):
         tags: e.g. {name: ['bernard.jpg'], type: ['host']}
         """
         if assetpath.startswith("/content/dam"):
-            assetpath = remove_prefix("/content/dam")
+            assetpath = remove_prefix("/content/dam", assetpath)
 
         log("Fetching status for {}".format(assetpath))
         status, data = self.api.get(assetpath)
