@@ -23,4 +23,6 @@ test2:
 test3:
 	nosetests-3.4
 
+test: test3 test2
+
 .PHONY: all clean dist lint test
