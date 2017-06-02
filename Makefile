@@ -3,10 +3,10 @@ all: dist
 clean:
 	rm -rf dist build aem_cmd.egg-info test_reports .coverage
 	rm -f *.log
-	find . | grep \.pyc$ | xargs rm
+	find . | grep \.pyc$ | xargs rm -rf
 
 dist: clean
-	python setup.py bdist_wheel
+	python setup.py bdist_wheel --universal
 
 test_release: dist
 	twine upload -r pypitest dist/*
