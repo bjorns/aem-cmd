@@ -10,7 +10,7 @@ dependencies:
 test:
     override:
         - mkdir -p dist
-        - nosetests --with-coverage --cover-package=acmd --cover-min-percentage=75 --cover-html --cover-html-dir=dist/test_reports
+        - nosetests --with-coverage --cover-package=acmd --cover-min-percentage=84 --cover-html --cover-html-dir=dist/test_reports
 
     post:
         - python setup.py bdist_wheel
