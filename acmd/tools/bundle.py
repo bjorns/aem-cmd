@@ -19,7 +19,8 @@ parser.add_option("-c", "--compact",
 
 @tool('bundle', ['list', 'start', 'stop'])
 class BundleTool(object):
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         (options, args) = parser.parse_args(argv)
 
         action = get_action(args, 'list')
@@ -31,7 +32,7 @@ class BundleTool(object):
         elif action == 'stop':
             return stop_bundle(server, actionarg, options)
         else:
-            sys.stderr.write('error: Unknown {t} action {a}\n'.format(t=self.name, a=action))
+            sys.stderr.write('error: Unknown bundle action {}\n'.format(action))
             return -2
 
 

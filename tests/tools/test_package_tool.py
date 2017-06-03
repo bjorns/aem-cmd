@@ -4,7 +4,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server, USER_ERROR
-from acmd.tools import packages
+from acmd.tools.package_tool import PackageTool
 
 from test_utils.compat import StringIO
 
@@ -55,7 +55,8 @@ def upload_packages_mock(url, request):
 
 EXPECTED_LIST = [["test_packages", "mock_package", "1.6.5", "Fri, 13 Jun 2014 14:16:31 -0400"],
                  ["adobe/granite", "com.adobe.coralui.rte-cq5", "5.6.18", "Fri, 13 Jun 2014 14:18:11 -0400"],
-                 ["adobe/granite", "com.adobe.granite.activitystreams.content", "0.0.12", "Fri, 13 Jun 2014 14:16:32 -0400"]]
+                 ["adobe/granite", "com.adobe.granite.activitystreams.content", "0.0.12",
+                  "Fri, 13 Jun 2014 14:16:32 -0400"]]
 
 
 def untab(data):
@@ -66,7 +67,7 @@ def untab(data):
 @patch('sys.stdout', new_callable=StringIO)
 def test_list_packages(stdout):
     with HTTMock(packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         tool.execute(server, ['package', 'list'])
@@ -81,7 +82,7 @@ def test_list_packages(stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_upload_package(stderr, stdout):
     with HTTMock(upload_packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'upload', 'tests/test_data/mock_package.zip'])
@@ -94,7 +95,7 @@ def test_upload_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_upload_package_raw(stderr, stdout):
     with HTTMock(upload_packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'upload', '--raw', 'tests/test_data/mock_package.zip'])
@@ -107,7 +108,7 @@ def test_upload_package_raw(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_upload_package_and_install(stderr, stdout):
     with HTTMock(upload_packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'upload', '--install', 'tests/test_data/mock_package.zip'])
@@ -120,7 +121,7 @@ def test_upload_package_and_install(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_install_package(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'install', 'mock_package'])
@@ -133,7 +134,7 @@ def test_install_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_uninstall_package(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'uninstall', 'mock_package'])
@@ -146,7 +147,7 @@ def test_uninstall_package(stderr, stdout):
 @patch('sys.stderr', new_callable=StringIO)
 def test_install_package_raw(stderr, stdout):
     with HTTMock(packages_mock):
-        tool = packages.PackagesTool()
+        tool = PackageTool()
         server = Server('localhost')
 
         status = tool.execute(server, ['package', 'install', '--raw', 'mock_package'])
@@ -186,7 +187,7 @@ def test_download(stderr, stdout):
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_bad_command(stderr, stdout):
+def test_bad_command(*_):
     tool = tool_repo.get_tool('package')
     server = Server('localhost')
     status = tool.execute(server, ['package', 'nonexisting', 'mock_package'])

@@ -39,7 +39,7 @@ parser.add_option("-t", "--target",
 
 
 @tool('package', ['list', 'build', 'install', 'uninstall', 'download', 'upload'])
-class PackagesTool(object):
+class PackageTool(object):
     def __init__(self):
         self.config = None
 
@@ -72,7 +72,7 @@ class PackagesTool(object):
             target_server = self.config.get_server(target_server_name)
             return promote_package(server, target_server, options, actionarg)
         else:
-            sys.stderr.write('error: Unknown packages action {a}\n'.format(a=action))
+            sys.stderr.write('error: Unknown package action {a}\n'.format(a=action))
             return USER_ERROR
 
 
@@ -295,7 +295,7 @@ def promote_package(server, target_server, options, package_name):
     if status != OK:
         return status
 
-    log("Upload downloaded package file to target server".format(target_server))
+    log("Upload downloaded package file to target server {}".format(target_server))
     status = upload_package(target_server, options, tmp_filepath)
     os.remove(tmp_filepath)
     if status != OK:

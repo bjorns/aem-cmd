@@ -1,7 +1,7 @@
 # coding: utf-8
 import json
 import optparse
-import os.path
+import os
 import sys
 
 import requests
@@ -26,8 +26,8 @@ class ListTool(object):
         a jcr tool into separate smaller tools for ease of use.
     """
 
-    def execute(self, server, argv):
-        log("Executing2 {}".format(self.name))
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         log("Done {}".format(len(args)))
         if len(args) >= 2:
@@ -72,7 +72,9 @@ def _list_path(path):
 
 @tool('cat')
 class InspectTool(object):
-    def execute(self, server, argv):
+
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         if len(args) >= 2:
             path = args[1]
@@ -96,15 +98,15 @@ def cat_node(server, options, path):
     else:
         for prop, data in data.items():
             if is_property(prop, data):
-                #if type(data) == str:
-                #    data = data.encode('utf-8')
                 sys.stdout.write("{key}:\t{value}\n".format(key=prop, value=data))
     return OK
 
 
 @tool('find')
 class FindTool(object):
-    def execute(self, server, argv):
+
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
 
         try:
@@ -151,7 +153,8 @@ class RmTool(object):
     """ curl -X DELETE http://localhost:4505/path/to/node/jcr:content/nodeName -u admin:admin
     """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         if len(args) >= 2:
             path = args[1]
@@ -182,7 +185,8 @@ class SetPropertyTool(object):
             http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
     """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         props = parse_properties(args[1])
         if len(args) >= 3:
@@ -235,7 +239,8 @@ class DeletePropertyTool(object):
             http://localhost:4502/content/geometrixx/en/toolbar/jcr:content
     """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         if len(args) <= 1:
             parser.print_help()
