@@ -14,7 +14,8 @@ import requests
 
 from acmd import tool, error, log
 from acmd import OK, USER_ERROR, SERVER_ERROR
-from acmd.tools.tool_utils import get_command, get_argument
+from acmd.tools import get_action, get_argument
+
 
 SERVICE_PATH = '/crx/packmgr/service.jsp'
 
@@ -45,7 +46,7 @@ class PackagesTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_command(args, default='list')
+        action = get_action(args, default='list')
         actionarg = get_argument(args)
 
         if action == 'list' or action == 'ls':

@@ -3,7 +3,7 @@ import random
 import string
 
 
-def get_command(argv, default=None):
+def get_action(argv, default=None):
     if len(argv) < 2:
         return default
     else:

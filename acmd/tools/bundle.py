@@ -6,7 +6,7 @@ import json
 import requests
 
 from acmd import tool, log, error
-from acmd.tools import get_command, get_argument
+from acmd.tools import get_action, get_argument
 
 parser = optparse.OptionParser("acmd bundle [options] [list|start|stop] [<bundle>]")
 parser.add_option("-r", "--raw",
@@ -22,7 +22,7 @@ class BundleTool(object):
     def execute(self, server, argv):
         (options, args) = parser.parse_args(argv)
 
-        action = get_command(args, 'list')
+        action = get_action(args, 'list')
         actionarg = get_argument(args)
         if action == 'list' or action == 'ls':
             return list_bundles(server, options)

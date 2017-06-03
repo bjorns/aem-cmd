@@ -6,8 +6,8 @@ import sys
 import requests
 
 from acmd import USER_ERROR, SERVER_ERROR, OK
-from acmd import tool, error, log
-from acmd.tools.tool_utils import get_argument, get_command
+from acmd import tool, error
+from acmd.tools import get_argument, get_action
 from acmd.workflows import WorkflowsApi
 
 parser = optparse.OptionParser("acmd workflows [options] [list|start]")
@@ -30,7 +30,7 @@ class WorkflowsTool(object):
     @staticmethod
     def execute(server, argv):
         options, args = parser.parse_args(argv)
-        action = get_command(args)
+        action = get_action(args)
         actionarg = get_argument(args)
 
         api = WorkflowsApi(server)
@@ -90,4 +90,3 @@ def list_workflow_instances(api, mode):
         for instance in data:
             sys.stdout.write("{}\n".format(instance['uri']))
     return status
-

@@ -8,7 +8,7 @@ import requests
 
 from acmd import tool, html
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
-from acmd.tools import get_command, get_argument, filter_system
+from acmd.tools import get_action, get_argument, filter_system
 
 parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname> <username>")
 parser.add_option("-r", "--raw",
@@ -23,7 +23,7 @@ parser.add_option("-c", "--compact",
 class GroupTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
-        action = get_command(args, 'list')
+        action = get_action(args, 'list')
         groupname = get_argument(args)
         if action == 'list':
             return list_groups(server, options)

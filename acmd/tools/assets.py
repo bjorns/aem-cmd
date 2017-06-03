@@ -6,7 +6,7 @@ import sys
 import acmd.jcr.path
 from acmd import OK, SERVER_ERROR, USER_ERROR, tool, error, log
 from acmd.assets import AssetsApi, AssetsImportFunnel
-from acmd.tools.tool_utils import get_argument, get_command
+from acmd.tools import get_argument, get_action
 from acmd.workflows import WorkflowsApi
 from acmd.strings import remove_prefix
 
@@ -37,7 +37,7 @@ class AssetTool(object):
 
         options, args = parser.parse_args(argv)
 
-        action = get_command(args)
+        action = get_action(args)
         actionarg = get_argument(args)
 
         if action == 'import':

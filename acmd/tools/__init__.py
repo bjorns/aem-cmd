@@ -4,7 +4,7 @@ from . import tool_utils
 
 from acmd.repo import import_tools
 
-get_command = tool_utils.get_command
+get_action = tool_utils.get_action
 get_argument = tool_utils.get_argument
 filter_system = tool_utils.filter_system
 
