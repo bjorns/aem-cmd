@@ -45,7 +45,7 @@ class PackagesTool(object):
     def execute(self, server, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_command(args)
+        action = get_command(args, default='list')
         actionarg = get_argument(args)
 
         if action == 'list' or action == 'ls':
