@@ -1,10 +1,10 @@
 # coding: utf-8
 from nose.tools import eq_
-from . import mock_service
+from test_utils.mocks.dam import MockAssetsService
 
 
 def test_mock_assets_service():
-    s = mock_service.MockAssetsService()
+    s = MockAssetsService()
     eq_(1, len(s.repo))
     s.add_folder('/', 'my_folder')
     eq_(2, len(s.repo))

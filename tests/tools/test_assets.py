@@ -8,10 +8,10 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import Server, OK
-from acmd.tools.assets import AssetTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
-from tests.assets.mock_service import MockAssetsService, MockAssetsHttpService
-from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
+from acmd.tools.asset_tool import AssetTool, flatten_properties, parse_tag, parse_tags, merge_tags, merge_tag_field
 
+from test_utils.mocks.workflow import MockWorkflowHttpService, MockWorkflowsService
+from test_utils.mocks.dam import MockAssetsHttpService, MockAssetsService
 from test_utils.compat import StringIO
 
 

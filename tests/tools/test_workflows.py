@@ -4,8 +4,8 @@ from mock import patch
 from nose.tools import eq_, ok_
 
 from acmd import tool_repo, Server
-from tests.workflow.mock_service import MockWorkflowHttpService, MockWorkflowsService
 
+from test_utils.mocks.workflow import  MockWorkflowHttpService, MockWorkflowsService
 from test_utils.compat import StringIO
 
 

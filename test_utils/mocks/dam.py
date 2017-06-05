@@ -71,7 +71,7 @@ class MockAssetsHttpService(object):
         if request.method == 'GET':
             service_path = self._get_api_path(url.path)
             data = self.service.get(service_path)
-            return json.dumps(self._translate(data))
+            return json.dumps(_translate(data))
         if request.method == 'PUT':
             return json.dumps({})
         else:
@@ -81,13 +81,14 @@ class MockAssetsHttpService(object):
     def _get_api_path(path):
         return remove_suffix('.json', remove_prefix('/api/assets', path))
 
-    def _translate(self, data):
-        if data['type'] == 'assets/asset':
-            return _translate_resource(data)
-        elif data['type'] == 'assets/folder':
-            return _translate_resource(data)
-        else:
-            raise Exception()
+
+def _translate(data):
+    if data['type'] == 'assets/asset':
+        return _translate_resource(data)
+    elif data['type'] == 'assets/folder':
+        return _translate_resource(data)
+    else:
+        raise Exception()
 
 
 def _translate_resource(resource):
@@ -110,7 +111,6 @@ def _translate_resource(resource):
 
 def _translate_entity(entity):
     ret = {
-        #'rel': [],
         'links': [],
         "class": [
             entity['type']

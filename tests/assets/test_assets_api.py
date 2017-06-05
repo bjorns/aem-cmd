@@ -5,7 +5,7 @@ from nose.tools import eq_
 
 from acmd.assets import AssetsApi
 from acmd import Server, OK
-from .mock_service import MockAssetsService, MockAssetsHttpService
+from test_utils.mocks.dam import MockAssetsService, MockAssetsHttpService
 
 from test_utils.compat import StringIO
 
