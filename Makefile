@@ -14,9 +14,6 @@ test_release: dist
 release: dist
 	twine upload -r pypi dist/*
 
-lint:
-	pylint --rcfile=pylint.rc acmd
-
 test2:
 	nosetests-2.7 --with-coverage --cover-package=acmd --cover-min-percentage=80 --cover-html --cover-html-dir=build/test_reports
 
