@@ -25,4 +25,4 @@ test3:
 
 test: test3 test2
 
-.PHONY: all clean dist lint test
+.PHONY: all clean dist test_release release lint test2 test3 test
