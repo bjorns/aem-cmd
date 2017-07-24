@@ -1,3 +1,7 @@
+machine:
+  post:
+    - pyenv global 2.7.12 3.6.1
+
 general:
     artifacts:
         - "dist"
@@ -6,11 +10,13 @@ general:
 dependencies:
     pre:
         - pip install -r requirements.txt
+        - pip3 install -r requirements.txt
 
 test:
     override:
         - mkdir -p dist
         - nosetests --with-coverage --cover-package=acmd --cover-min-percentage=84 --cover-html --cover-html-dir=dist/test_reports
+        - nosetests-3.4 --with-coverage --cover-package=acmd --cover-min-percentage=84 --cover-html --cover-html-dir=dist/test_reports
 
     post:
         - python setup.py bdist_wheel
