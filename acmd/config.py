@@ -2,6 +2,7 @@
 """ Support for reading .acmd.rc config files. """
 
 from configparser import ConfigParser
+
 import os.path
 
 import acmd.server
