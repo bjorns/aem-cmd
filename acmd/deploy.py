@@ -28,6 +28,7 @@ def setup_rcfile(rcfilename):
         acmd.warning("Overwriting {}".format(rcfilename))
     target = open(rcfilename, 'wb')
     target.write(template)
+    target.close()
 
 
 def _read_config_template():

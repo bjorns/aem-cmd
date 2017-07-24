@@ -53,7 +53,7 @@ config = {
     'classifiers': classifiers,
 
     # Build specs
-    'install_requires': ['requests', 'requests-toolbelt'],
+    'install_requires': ['requests', 'requests-toolbelt', 'configparser'],
     'packages': ['acmd', 'acmd.tools', 'acmd.jcr', 'acmd.workflows', 'acmd.assets'],
     'package_data': {'acmd': ['data/acmd.rc.template', 'data/acmd.bash_completion']},
     'scripts': ['bin/acmd']

@@ -115,11 +115,11 @@ def import_tools(path, package=None, prefix=None, config=None):
         if pyfile == '__init__.py' or pyfile[-3:] != '.py':
             continue
 
-        module = pyfile[:-3]
+        module_name = pyfile[:-3]
         if package is not None:
-            module = "{}.{}".format(package, module)
+            module_name = "{}.{}".format(package, module_name)
 
-        importlib.import_module(module)
+        importlib.import_module(module_name)
 
 
 def import_projects(projects):
