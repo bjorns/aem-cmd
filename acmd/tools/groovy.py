@@ -5,7 +5,7 @@ import sys
 
 from acmd import tool, error
 from acmd import OK, USER_ERROR, SERVER_ERROR, INTERNAL_ERROR
-from acmd import backend
+from acmd.util import groovyconsole
 
 parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname> <username>")
 parser.add_option("-r", "--raw",
@@ -28,7 +28,7 @@ class GroovyTool(object):
 
         filename = args[1]
         f = open(filename, 'r')
-        status, data = backend.execute(server, f.read(), [], raw_output=options.raw)
+        status, data = groovyconsole.execute(server, f.read(), [], raw_output=options.raw)
 
         if status != OK:
             error("Failed to run script {filename}: {content}".format(
@@ -40,11 +40,11 @@ class GroovyTool(object):
             sys.stdout.write("{}\n".format(json.dumps(data, indent=4)))
         else:
             # The stacktrace prop changed name with newer versions.
-            if backend.STACKTRACE_FIELD in data:
-                sys.stderr.write(data[backend.STACKTRACE_FIELD])
+            if groovyconsole.STACKTRACE_FIELD in data:
+                sys.stderr.write(data[groovyconsole.STACKTRACE_FIELD])
                 return SERVER_ERROR
-            elif backend.OUTPUT_FIELD in data:
-                sys.stdout.write("{}".format(data[backend.OUTPUT_FIELD]))
+            elif groovyconsole.OUTPUT_FIELD in data:
+                sys.stdout.write("{}".format(data[groovyconsole.OUTPUT_FIELD]))
             else:
                 return INTERNAL_ERROR
         return OK

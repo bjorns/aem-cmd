@@ -8,7 +8,8 @@ from acmd import OK, SERVER_ERROR, USER_ERROR, tool, error, log
 from acmd.assets import AssetsApi, AssetsImportFunnel
 from acmd.tools import get_argument, get_action
 from acmd.workflows import WorkflowsApi
-from acmd.strings import remove_prefix
+
+from acmd.util.strings import remove_prefix
 
 parser = optparse.OptionParser("acmd assets <import|touch> [options] <file>")
 parser.add_option("-r", "--raw",

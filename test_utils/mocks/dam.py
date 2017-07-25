@@ -5,7 +5,8 @@ from httmock import urlmatch
 
 import acmd.assets
 import acmd.jcr.path
-from acmd.strings import remove_suffix, remove_prefix
+
+from acmd.util.strings import remove_suffix, remove_prefix
 
 from test_utils.logging import test_log
 
