@@ -1,7 +1,7 @@
 # coding: utf-8
 from nose.tools import eq_
 
-from acmd.strings import remove_prefix, remove_suffix
+from acmd.util.strings import remove_prefix, remove_suffix
 
 
 def test_remove_prefix():
