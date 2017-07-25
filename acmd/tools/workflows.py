@@ -7,8 +7,10 @@ import requests
 
 from acmd import USER_ERROR, SERVER_ERROR, OK
 from acmd import tool, error
-from acmd.tools import get_argument, get_action
 from acmd.workflows import WorkflowsApi
+
+from .tool_utils import get_argument, get_action
+
 
 parser = optparse.OptionParser("acmd workflows [options] [list|start]")
 parser.add_option("-r", "--raw",
