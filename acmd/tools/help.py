@@ -41,10 +41,6 @@ class IntrospectTool(object):
         else:
             _tool = tool_repo.get_tool(arg)
             _module = tool_repo.get_module(arg)
-            if _tool is None:
-                error("No tool named {} found".format(arg))
-                print_tools(sys.stderr, options.compact)
-                return USER_ERROR
             if options.compact:
                 for cmd in _tool.commands:
                     sys.stdout.write("{}\n".format(cmd))

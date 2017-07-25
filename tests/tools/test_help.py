@@ -92,3 +92,52 @@ def test_list_servers(stderr, stdout):
     eq_('server2', lines[1])
     eq_('server3', lines[2])
     eq_(OK, status)
+
+
+EXPECTED_BUNDLE_HELP_MESSAGE = """Usage: acmd bundle [options] [list|start|stop] [<bundle>]
+
+Options:
+  -h, --help     show this help message and exit
+  -r, --raw      output raw response data
+  -c, --compact  output only package name
+"""
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_tool_help(stderr, stdout):
+    config = acmd.config.Config()
+    config.servers['server1'] = Server('server1')
+    config.servers['server2'] = Server('server2')
+    config.servers['server3'] = Server('server3')
+
+    tool = tool_repo.get_tool('help')
+
+    tool.config = config
+    server = Server('localhost')
+    status = tool.execute(server, ['help', 'bundle'])
+    eq_(OK, status)
+    eq_('', stderr.getvalue())
+    eq_(EXPECTED_BUNDLE_HELP_MESSAGE, stdout.getvalue())
+
+
+@patch('sys.stdout', new_callable=StringIO)
+@patch('sys.stderr', new_callable=StringIO)
+def test_help_for_non_existing_tool(stderr, stdout):
+    config = acmd.config.Config()
+    config.servers['server1'] = Server('server1')
+    config.servers['server2'] = Server('server2')
+    config.servers['server3'] = Server('server3')
+
+    tool = tool_repo.get_tool('help')
+
+    tool.config = config
+    server = Server('localhost')
+
+    try:
+        tool.execute(server, ['help', 'doesnt-exist'])
+        assert False
+    except Exception as e:
+        eq_('Tool doesnt-exist is missing', str(e))
+
+
