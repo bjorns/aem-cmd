@@ -4,7 +4,7 @@ from mock import patch
 from nose.tools import eq_
 
 from acmd import tool_repo, Server
-from acmd.tools.jcr import parse_properties, _flatten
+from acmd.util.props import parse_properties, format_multipart
 
 from test_utils.compat import StringIO
 
@@ -12,6 +12,7 @@ from test_utils.compat import StringIO
 class MockHttpService(object):
     def __init__(self, asset_service=None):
         self.req_log = []
+        self.asset_service = asset_service
 
     @urlmatch(netloc='localhost:4502')
     def __call__(self, url, request):
@@ -65,7 +66,7 @@ def test_parser_properties():
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_setprop(stderr, stdout):
+def test_setprop(_, stdout):
     service_mock = MockHttpService()
     with HTTMock(service_mock):
         tool = tool_repo.get_tool('setprop')
@@ -80,7 +81,7 @@ def test_setprop(stderr, stdout):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 @patch('sys.stdin', new=StringIO("/path0\n/path1\n"))
-def test_setprop_stdin(stderr, stdout):
+def test_setprop_stdin(_, stdout):
     service_mock = MockHttpService()
     with HTTMock(service_mock):
         tool = tool_repo.get_tool('setprop')
@@ -95,6 +96,6 @@ def test_setprop_stdin(stderr, stdout):
 def test_flatten():
     item0 = ('one', 1)
     item1 = ('two', 2)
-    eq_({item1, item0}, set(_flatten(dict(one=1, two=2))))
+    eq_({item1, item0}, set(format_multipart(dict(one=1, two=2))))
 
-    eq_((('array', 1), ('array', 2), ('array', 3)), _flatten(dict(array=[1, 2, 3])))
+    eq_((('array', 1), ('array', 2), ('array', 3)), format_multipart(dict(array=[1, 2, 3])))

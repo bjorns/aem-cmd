@@ -37,13 +37,13 @@ def execute(server, script, args, raw_output=False):
     resp = requests.post(url, auth=server.auth, data=form_data)
     if resp.status_code == 200:
         data = json.loads(resp.content)
-        output = _clean_output(data) if not raw_output else data
+        output = clean_output(data) if not raw_output else data
         return OK, output
     else:
         return SERVER_ERROR, resp.content
 
 
-def _clean_output(data):
+def clean_output(data):
     """ Older versions of the groovy console had different field names so we try and unify it: """
     ret = dict()
     ret[RESULT_FIELD] = data['result'] if 'result' in data else data['executionResult']

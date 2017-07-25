@@ -1,5 +1,5 @@
 # coding: utf-8
-from acmd import parse_properties
+from acmd.util.props import parse_properties
 
 from nose.tools import eq_
 
@@ -65,4 +65,3 @@ def test_parse_quoted_number():
     eq_(2, len(y))
     eq_('42', y['answer'])
     eq_('String', y['answer@TypeHint'])
-

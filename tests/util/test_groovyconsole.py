@@ -5,9 +5,10 @@ from nose.tools import eq_, ok_
 
 from httmock import urlmatch, HTTMock
 
-from acmd.backend import RESULT_FIELD, OUTPUT_FIELD, STACKTRACE_FIELD
-from acmd.backend import _clean_output, execute
 from acmd.server import Server
+
+from acmd.util.groovyconsole import clean_output, execute
+from acmd.util.groovyconsole import RESULT_FIELD, OUTPUT_FIELD, STACKTRACE_FIELD
 
 
 def test_clean_output():
@@ -17,7 +18,7 @@ def test_clean_output():
         'output': 'output data'
     }
 
-    clean_data = _clean_output(data)
+    clean_data = clean_output(data)
     eq_(0, clean_data[RESULT_FIELD])
     eq_('output data', clean_data[OUTPUT_FIELD])
     eq_('stacktrace data', clean_data[STACKTRACE_FIELD])

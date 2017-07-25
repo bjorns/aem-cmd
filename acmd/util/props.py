@@ -4,6 +4,18 @@ import re
 from acmd import log
 
 
+def format_multipart(props):
+    """ Flatten lists to fit the requrests multipart form data format """
+    ret = []
+    for k, v in props.items():
+        if type(v) == list:
+            for item in v:
+                ret.append((k, item))
+        else:
+            ret.append((k, v))
+    return tuple(ret)
+
+
 def parse_properties(props_str):
     """ Translate command line properties string to dictionary.
             example: prop0=value,prop1="Quoted value"

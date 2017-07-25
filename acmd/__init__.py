@@ -32,10 +32,6 @@ deploy_bash_completion = acmd.deploy.deploy_bash_completion
 
 get_current_version = acmd.deploy.get_current_version
 
-import acmd.props
-parse_properties = acmd.props.parse_properties
-
-
 import acmd.repo
 tool_repo = acmd.repo.tool_repo
 tool = acmd.repo.tool
