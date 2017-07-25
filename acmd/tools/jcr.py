@@ -9,7 +9,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from acmd import OK, SERVER_ERROR, USER_ERROR
 from acmd import tool, log, error
-from acmd.props import parse_properties
+from acmd.util.props import parse_properties, format_multipart
 
 parser = optparse.OptionParser("acmd <ls|cat|find|mv|setprop|rmprop> [options] <jcr path>")
 parser.add_option("-r", "--raw",
@@ -206,7 +206,7 @@ def set_node_properties(server, options, path, props):
     url = server.url(path)
 
     multipart_data = MultipartEncoder(
-        fields=_flatten(props)
+        fields=format_multipart(props)
     )
     resp = requests.post(url, auth=server.auth, data=multipart_data,
                          headers={'Content-Type': multipart_data.content_type})
@@ -220,17 +220,6 @@ def set_node_properties(server, options, path, props):
     else:
         sys.stdout.write("{}\n".format(path))
     return OK
-
-
-def _flatten(props):
-    ret = []
-    for k, v in props.items():
-        if type(v) == list:
-            for item in v:
-                ret.append((k, item))
-        else:
-            ret.append((k, v))
-    return tuple(ret)
 
 
 @tool('rmprop')

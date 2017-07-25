@@ -6,7 +6,8 @@ import optparse
 import requests
 
 
-from acmd import tool, html
+from acmd import tool
+from acmd.util import html
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
 from acmd.tools import get_action, get_argument, filter_system
 
@@ -21,7 +22,8 @@ parser.add_option("-c", "--compact",
 
 @tool('group', ['list', 'create', 'adduser'])
 class GroupTool(object):
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         action = get_action(args, 'list')
         groupname = get_argument(args)

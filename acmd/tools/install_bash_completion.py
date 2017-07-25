@@ -16,7 +16,8 @@ class InstallBashCompletionTool(object):
         in sudo mode we put this in a separate tool.
     """
 
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         install_path = deploy_bash_completion()
         sys.stdout.write("Installed bash completion script in {}\n".format(install_path))
         return OK

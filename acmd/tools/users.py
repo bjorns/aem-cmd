@@ -1,13 +1,16 @@
 # coding: utf-8
-import sys
-import optparse
 import json
+import optparse
+import sys
 
 import requests
 
-from acmd import tool, html, parse_properties
 from acmd import USER_ERROR, SERVER_ERROR, OK, error
+from acmd import tool
 from acmd.tools import get_argument, get_action, filter_system
+
+from acmd.util import html
+from acmd.util.props import parse_properties
 
 parser = optparse.OptionParser("acmd users <list|create|setprop> [options] <username> [arguments]")
 parser.add_option("-r", "--raw",
@@ -22,7 +25,8 @@ parser.add_option("-c", "--compact",
 
 @tool('user', ['list', 'create', 'setprop'])
 class UserTool(object):
-    def execute(self, server, argv):
+    @staticmethod
+    def execute(server, argv):
         options, args = parser.parse_args(argv)
         action = get_action(args, 'list')
         actionarg = get_argument(args)
@@ -97,7 +101,8 @@ def set_profile_properties(server, options, username, props):
     props = {'profile/' + k: v for k, v in props.items()}
     resp = requests.post(url, auth=server.auth, data=props)
     if resp.status_code != 200:
-        sys.stderr.write("error: Failed to set profile property on path {}, request returned {}\n".format(path, resp.status_code))
+        error("Failed to set profile property on path {}, request returned {}\n".format(
+            path, resp.status_code))
         return SERVER_ERROR
     if options.raw:
         sys.stdout.write("{}\n".format(resp.content))
