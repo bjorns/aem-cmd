@@ -4,7 +4,7 @@
 from xml.dom import minidom
 
 
-def _split(attr):
+def split(attr):
     """ Split <key>=<val> into tuple (<key>,<val>),
         if only string is passed, return ('id', <val>)"""
     if '=' in attr:
@@ -17,7 +17,7 @@ def _split(attr):
 def parse_value(src, node_name, attr):
     """ Parse src, if element of type node_name with id=<attr> is found,
         return it's text content. """
-    attr_name, attr_val = _split(attr)
+    attr_name, attr_val = split(attr)
 
     doc = minidom.parseString(src)
     for elem in doc.getElementsByTagName(node_name):
