@@ -7,7 +7,7 @@ from acmd import tool, error
 from acmd import OK, USER_ERROR, SERVER_ERROR, INTERNAL_ERROR
 from acmd.util import groovyconsole
 
-parser = optparse.OptionParser("acmd groups <list|create|adduser> [options] <groupname> <username>")
+parser = optparse.OptionParser("acmd groovy [options] <filename>")
 parser.add_option("-r", "--raw",
                   action="store_const", const=True, dest="raw",
                   help="output raw response data")
