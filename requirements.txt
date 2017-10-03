@@ -8,3 +8,6 @@ httmock==1.2.3
 coverage==3.7.1
 twine
 pylint
+Crypto==1.4.1
+
+
