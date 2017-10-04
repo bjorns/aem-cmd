@@ -27,7 +27,7 @@ def test_missing_file_param(stderr, stdout):
     server = Server('localhost')
     status = tool.execute(server, ['groovy'])
     eq_(USER_ERROR, status)
-    ok_(stdout.getvalue().startswith('Usage: acmd groups'))
+    ok_(stdout.getvalue().startswith('Usage: acmd groovy'))
     eq_('', stderr.getvalue())
 
 
