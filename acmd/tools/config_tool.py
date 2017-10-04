@@ -67,13 +67,6 @@ class AssetTool(object):
 
 
 def rebuild_config(filename):
-    ok = False
-    while ok is False:
-        input_var = input("Rebuild config file {}? any commented out lines will be lost. [yN]: ".format(filename))
-        if input_var == 'n' or input_var == '':
-            return OK
-        ok = (input_var == 'y')
-
     config = read_config(filename)
 
     with open(filename, 'w') as f:

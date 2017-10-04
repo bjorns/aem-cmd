@@ -31,6 +31,20 @@ password_iv = MDEyMzQ1Njc4OWFiY2RlZg==
 """
 
 
+def test_rebuild_config():
+    _, tmp_filepath = tempfile.mkstemp(".rc")
+    with open(tmp_filepath, 'w') as f:
+        f.write(PLAINTEXT_CONFIG)
+    tool = tool_repo.get_tool('config')
+    server = Server('localhost')
+    ret = tool.execute(server, ['config', 'rebuild', tmp_filepath])
+    eq_(OK, ret)
+    with open(tmp_filepath, 'r') as f:
+        data = f.read()
+    eq_(PLAINTEXT_CONFIG, data)
+    os.remove(tmp_filepath)
+
+
 @patch('getpass.getpass')
 @patch('acmd.tools.config_tool.get_iv')
 def test_encrypt_password(get_iv, getpass):
