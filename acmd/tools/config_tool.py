@@ -4,6 +4,7 @@ import getpass
 import hashlib
 import optparse
 import os
+import sys
 
 try:
     from Crypto import Random
@@ -19,8 +20,9 @@ from acmd import OK, USER_ERROR, tool, error
 from .tool_utils import get_argument, get_action
 
 IV_BLOCK_SIZE = 16
-PASSWORD_PROP = 'password'
-PASSWORD_IV_PROP = 'password_iv'
+PASSWORD_PROP = "password"
+PASSWORD_IV_PROP = "password_iv"
+PYTHON_3 = 3
 
 parser = optparse.OptionParser("acmd config <rebuild|encrypt|decrypt> [options] <file>")
 
@@ -92,13 +94,24 @@ def decrypt_config(server, filename):
     config = read_config(filename)
     section_name = 'server {}'.format(server.name)
     password = config.get(section_name, PASSWORD_PROP)
+    iv = base64.b64decode(config.get(section_name, PASSWORD_IV_PROP))
+
     if not is_encrypted(password):
         error("Password for server {} is not encrypted".format(server.name))
         return USER_ERROR
     key = get_key("Passphrase: ")
     msg = config.get(section_name, PASSWORD_PROP)
     msg = msg[1:-1]  # Remove brackets
-    msg = decrypt_str(key, msg)
+    msg = decrypt_str(iv, key, msg)
+    if msg[0] != '_' or msg[-1] != '_':
+        error("Passphrase incorrect")
+        return USER_ERROR
+    plaintext_password = msg[1:-1]
+    config.set(section_name, PASSWORD_PROP, plaintext_password)
+    config.remove_option(section_name, PASSWORD_IV_PROP)
+    with open(filename, 'w') as f:
+        config.write(f)
+    return OK
 
 
 def encrypt_config(server, filename):
@@ -115,11 +128,10 @@ def encrypt_config(server, filename):
 
     key = get_key("Set passphrase: ")
 
-    iv = Random.new().read(IV_BLOCK_SIZE)
-    print("=== IV is {} of {}".format(iv, type(iv)))
+    iv = get_iv()
     encrypted_password = encrypt_str(iv, key, formatted_password)
     config.set(section_name, PASSWORD_PROP, _format_password(encrypted_password))
-    config.set(section_name, PASSWORD_IV_PROP, base64.b64encode(iv))
+    config.set(section_name, PASSWORD_IV_PROP, defaultstring(base64.b64encode(iv)))
     with open(filename, 'w') as f:
         config.write(f)
     return OK
@@ -127,7 +139,7 @@ def encrypt_config(server, filename):
 
 def get_key(message):
     passphrase = getpass.getpass(message)
-    dk = hashlib.pbkdf2_hmac('sha256', passphrase.encode('UTF-8'), b'salt', 100000)
+    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), b'salt', 100000)
     return dk
 
 
@@ -138,17 +150,56 @@ def read_config(filename):
     return config_parser
 
 
-def encrypt_str(iv, key, s):
+def encrypt_str(iv, key, plaintext):
     """ Takes strings in and is expected to give strings out.
-        All binary string conversion is internal only. """
+        All binary string conversion is internal only.
+
+        iv: 16 character standard string
+        key: bytes array
+        plaintext: standard string
+    """
+    if iv is None:
+        raise Exception("Missing IV")
+    if len(iv) != IV_BLOCK_SIZE:
+        raise Exception("Bad IV: {}".format(iv))
+    if type(key) != bytes:
+        raise Exception("Bad key: {}".format(key))
     codec = AES.new(key, AES.MODE_CFB, iv)
-    bindata = codec.encrypt(s.encode('utf-8'))
-    return base64.b64encode(bindata)
+    bindata = codec.encrypt(bytestring(plaintext))
+    return defaultstring(base64.b64encode(bindata))
 
 
 def decrypt_str(iv, key, s):
     """ Takes strings in and is expected to give strings out.
         All binary string conversion is internal only. """
     bindata = base64.b64decode(s)
-    codec = AES.new(key.encode('utf-8'), AES.MODE_CFB, iv)
-    return codec.decrypt(bindata).decode('utf-8')
+    codec = AES.new(bytestring(key), AES.MODE_CFB, iv)
+    return defaultstring(codec.decrypt(bindata))
+
+
+def bytestring(string):
+    """ Let both python 2 and 3 remain in their default string types. """
+    if running_python3():
+        if type(string) == bytes:
+            return string
+        return string.encode('utf-8')
+    else:
+        return string
+
+
+def defaultstring(string):
+    """ Let both python 2 and 3 remain in their default string types. """
+    if running_python3():
+        return string.decode('utf-8')
+    else:
+        return string
+
+
+def running_python3():
+    return sys.version_info[0] >= 3
+
+
+def get_iv():
+    """ Generate initial vector for encryption """
+    raise Exception("HEJ")
+    return Random.new().read(IV_BLOCK_SIZE)
