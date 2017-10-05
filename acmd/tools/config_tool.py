@@ -13,7 +13,6 @@ except:
     from Cryptodome.Cipher import AES
     from Cryptodome import Random
 
-from builtins import input
 from configparser import ConfigParser
 
 from acmd import OK, USER_ERROR, tool, error
@@ -92,7 +91,7 @@ def decrypt_config(server, filename):
     if not is_encrypted(password):
         error("Password for server {} is not encrypted".format(server.name))
         return USER_ERROR
-    key = get_key("Passphrase: ")
+    key = get_key(iv, "Passphrase: ")
     msg = config.get(section_name, PASSWORD_PROP)
     msg = msg[1:-1]  # Remove brackets
     msg = decrypt_str(iv, key, msg)
@@ -119,9 +118,11 @@ def encrypt_config(server, filename):
     # Put fixes on string to be able to recognize successful decryption
     formatted_password = "_{}_".format(plaintext_password)
 
-    key = get_key("Set passphrase: ")
-
     iv = get_iv()
+
+    # TODO: Not sure reusing IV for key generation is a good idea
+    key = get_key(iv, "Set passphrase: ")
+
     encrypted_password = encrypt_str(iv, key, formatted_password)
     config.set(section_name, PASSWORD_PROP, _format_password(encrypted_password))
     config.set(section_name, PASSWORD_IV_PROP, defaultstring(base64.b64encode(iv)))
@@ -130,9 +131,9 @@ def encrypt_config(server, filename):
     return OK
 
 
-def get_key(message):
+def get_key(salt, message):
     passphrase = getpass.getpass(message)
-    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), b'salt', 100000)
+    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), salt, 100000)
     return dk
 
 
@@ -194,5 +195,4 @@ def running_python3():
 
 def get_iv():
     """ Generate initial vector for encryption """
-    raise Exception("HEJ")
     return Random.new().read(IV_BLOCK_SIZE)
