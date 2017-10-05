@@ -1,27 +1,19 @@
 # coding: utf-8
-import base64
 import getpass
 import hashlib
 import optparse
 import os
-import sys
-
-try:
-    from Crypto import Random
-    from Crypto.Cipher import AES
-except:
-    from Cryptodome.Cipher import AES
-    from Cryptodome import Random
 
 from configparser import ConfigParser
 
 from acmd import OK, USER_ERROR, tool, error
+from acmd.compat import bytestring, stdstring
+from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt_str
+import acmd.util.crypto
+
 from .tool_utils import get_argument, get_action
 
-IV_BLOCK_SIZE = 16
 PASSWORD_PROP = "password"
-PASSWORD_IV_PROP = "password_iv"
-PYTHON_3 = 3
 
 parser = optparse.OptionParser("acmd config <rebuild|encrypt|decrypt> [options] <file>")
 
@@ -74,33 +66,29 @@ def rebuild_config(filename):
     return OK
 
 
-def _format_password(encrypted_password):
-    return "[{}]".format(encrypted_password)
-
-
 def is_encrypted(password):
-    return password.startswith('[') and password.endswith(']')
+    return password.startswith('{') and password.endswith('}')
 
 
 def decrypt_config(server, filename):
     config = read_config(filename)
     section_name = 'server {}'.format(server.name)
-    password = config.get(section_name, PASSWORD_PROP)
-    iv = base64.b64decode(config.get(section_name, PASSWORD_IV_PROP))
+    prop = config.get(section_name, PASSWORD_PROP)
 
-    if not is_encrypted(password):
+    if not is_encrypted(prop):
         error("Password for server {} is not encrypted".format(server.name))
         return USER_ERROR
+    encrypted_password, iv = parse_prop(prop)
+
     key = get_key(iv, "Passphrase: ")
-    msg = config.get(section_name, PASSWORD_PROP)
-    msg = msg[1:-1]  # Remove brackets
-    msg = decrypt_str(iv, key, msg)
-    if msg[0] != '_' or msg[-1] != '_':
+
+    msg = decrypt_str(iv, key, encrypted_password)
+    if msg[0] != '[' or msg[-1] != ']':
         error("Passphrase incorrect")
         return USER_ERROR
     plaintext_password = msg[1:-1]
     config.set(section_name, PASSWORD_PROP, plaintext_password)
-    config.remove_option(section_name, PASSWORD_IV_PROP)
+
     with open(filename, 'w') as f:
         config.write(f)
     return OK
@@ -109,23 +97,26 @@ def decrypt_config(server, filename):
 def encrypt_config(server, filename):
     config = read_config(filename)
     section_name = 'server {}'.format(server.name)
-    plaintext_password = config.get(section_name, PASSWORD_PROP)
+    plaintext_password = stdstring(config.get(section_name, PASSWORD_PROP))
+    assert type(plaintext_password) == str
 
     if is_encrypted(plaintext_password):
         error("Password for server {} is already encrypted".format(server.name))
         return USER_ERROR
 
     # Put fixes on string to be able to recognize successful decryption
-    formatted_password = "_{}_".format(plaintext_password)
-
-    iv = get_iv()
+    formatted_password = "[" + plaintext_password + "]"
+    iv_bytes = acmd.util.crypto.generate_iv()
+    assert type(iv_bytes) == bytes  # get_iv() is sometimes mocked and should be checked in tests
 
     # TODO: Not sure reusing IV for key generation is a good idea
-    key = get_key(iv, "Set passphrase: ")
+    key = get_key(iv_bytes, "Set passphrase: ")
 
-    encrypted_password = encrypt_str(iv, key, formatted_password)
-    config.set(section_name, PASSWORD_PROP, _format_password(encrypted_password))
-    config.set(section_name, PASSWORD_IV_PROP, defaultstring(base64.b64encode(iv)))
+    encrypted_password = encrypt_str(iv_bytes, key, formatted_password)
+
+    prop = encode_prop(encrypted_password, iv_bytes)
+
+    config.set(section_name, PASSWORD_PROP, prop)
     with open(filename, 'w') as f:
         config.write(f)
     return OK
@@ -133,7 +124,7 @@ def encrypt_config(server, filename):
 
 def get_key(salt, message):
     passphrase = getpass.getpass(message)
-    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), salt, 100000)
+    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), bytestring(salt), 100000)
     return dk
 
 
@@ -142,57 +133,3 @@ def read_config(filename):
     with open(filename, 'r') as f:
         config_parser.read_file(f)
     return config_parser
-
-
-def encrypt_str(iv, key, plaintext):
-    """ Takes strings in and is expected to give strings out.
-        All binary string conversion is internal only.
-
-        iv: 16 character standard string
-        key: bytes array
-        plaintext: standard string
-    """
-    if iv is None:
-        raise Exception("Missing IV")
-    if len(iv) != IV_BLOCK_SIZE:
-        raise Exception("Bad IV: {}".format(iv))
-    if type(key) != bytes:
-        raise Exception("Bad key: {}".format(key))
-    codec = AES.new(key, AES.MODE_CFB, iv)
-    bindata = codec.encrypt(bytestring(plaintext))
-    return defaultstring(base64.b64encode(bindata))
-
-
-def decrypt_str(iv, key, s):
-    """ Takes strings in and is expected to give strings out.
-        All binary string conversion is internal only. """
-    bindata = base64.b64decode(s)
-    codec = AES.new(bytestring(key), AES.MODE_CFB, iv)
-    return defaultstring(codec.decrypt(bindata))
-
-
-def bytestring(string):
-    """ Let both python 2 and 3 remain in their default string types. """
-    if running_python3():
-        if type(string) == bytes:
-            return string
-        return string.encode('utf-8')
-    else:
-        return string
-
-
-def defaultstring(string):
-    """ Let both python 2 and 3 remain in their default string types. """
-    if running_python3():
-        return string.decode('utf-8')
-    else:
-        return string
-
-
-def running_python3():
-    return sys.version_info[0] >= 3
-
-
-def get_iv():
-    """ Generate initial vector for encryption """
-    return Random.new().read(IV_BLOCK_SIZE)
