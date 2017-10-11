@@ -88,3 +88,8 @@ def read_config(filename):
     config.servers = parse_servers(parser)
     config.projects = parse_projects(parser)
     return config
+
+
+def is_encrypted(password):
+    """ Returns true if password string is encrypted. """
+    return password.startswith('{') and password.endswith('}')

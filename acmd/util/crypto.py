@@ -1,5 +1,7 @@
 # coding: utf-8
 import base64
+import hashlib
+import getpass
 
 from acmd.compat import AES, Random
 from acmd.compat import bytestring, stdstring
@@ -72,3 +74,14 @@ def random_bytes(nbr_bytes):
     ret = Random.new().read(nbr_bytes)
     assert type(ret) == bytes
     return ret
+
+
+def get_key(salt, message):
+    """ Promt user for a password and generate hash. """
+    passphrase = getpass.getpass(message)
+    return make_key(salt, passphrase)
+
+
+def make_key(salt, passphrase):
+    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), bytestring(salt), 100000)
+    return dk

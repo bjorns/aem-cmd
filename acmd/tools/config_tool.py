@@ -1,14 +1,13 @@
 # coding: utf-8
-import getpass
-import hashlib
 import optparse
 import os
 
 from configparser import ConfigParser
 
 from acmd import OK, USER_ERROR, tool, error
-from acmd.compat import bytestring, stdstring
-from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE
+from acmd.config import is_encrypted
+from acmd.compat import stdstring
+from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE, get_key
 
 import acmd.util.crypto
 
@@ -68,11 +67,6 @@ def format_config(filename):
     return OK
 
 
-def is_encrypted(password):
-    """ Returns true if password string is encrypted. """
-    return password.startswith('{') and password.endswith('}')
-
-
 def decrypt_config(server, filename):
     """ Decrypt password in config. """
     config = read_config(filename)
@@ -127,13 +121,6 @@ def encrypt_config(server, filename):
     with open(filename, 'w') as f:
         config.write(f)
     return OK
-
-
-def get_key(salt, message):
-    """ Promt user for a password and generate hash. """
-    passphrase = getpass.getpass(message)
-    dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), bytestring(salt), 100000)
-    return dk
 
 
 def read_config(filename):
