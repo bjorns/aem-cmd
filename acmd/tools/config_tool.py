@@ -15,12 +15,12 @@ from .tool_utils import get_argument, get_action
 
 PASSWORD_PROP = "password"
 
-parser = optparse.OptionParser("acmd config <rebuild|encrypt|decrypt> [options] <file>")
+parser = optparse.OptionParser("acmd config <format|encrypt|decrypt> [options] <file>")
 
 
 @tool('config')
-class AssetTool(object):
-    """ Manage AEM DAM assets """
+class ConfigTool(object):
+    """ Manage config file and passwords. """
 
     def __init__(self):
         pass
@@ -46,8 +46,8 @@ class AssetTool(object):
             error("Requested file {} lacks write access".format(filename))
             return USER_ERROR
 
-        if action == 'rebuild':
-            return rebuild_config(filename)
+        if action == 'format':
+            return format_config(filename)
         if action == 'encrypt':
             return encrypt_config(server, filename)
         if action == 'decrypt':
@@ -57,7 +57,8 @@ class AssetTool(object):
             return USER_ERROR
 
 
-def rebuild_config(filename):
+def format_config(filename):
+    """ Parse and then write the config back out again. """
     config = read_config(filename)
 
     with open(filename, 'w') as f:
@@ -67,10 +68,12 @@ def rebuild_config(filename):
 
 
 def is_encrypted(password):
+    """ Returns true if password string is encrypted. """
     return password.startswith('{') and password.endswith('}')
 
 
 def decrypt_config(server, filename):
+    """ Decrypt password in config. """
     config = read_config(filename)
     section_name = 'server {}'.format(server.name)
     prop = config.get(section_name, PASSWORD_PROP)
@@ -95,6 +98,7 @@ def decrypt_config(server, filename):
 
 
 def encrypt_config(server, filename):
+    """ Encrypt given server password. """
     config = read_config(filename)
     section_name = 'server {}'.format(server.name)
     plaintext_password = stdstring(config.get(section_name, PASSWORD_PROP))
@@ -109,7 +113,6 @@ def encrypt_config(server, filename):
     iv_bytes = acmd.util.crypto.generate_iv()
     assert type(iv_bytes) == bytes  # get_iv() is sometimes mocked and should be checked in tests
 
-    # TODO: Not sure reusing IV for key generation is a good idea
     key = get_key(iv_bytes, "Set passphrase: ")
 
     encrypted_password = encrypt_str(iv_bytes, key, formatted_password)
@@ -123,12 +126,14 @@ def encrypt_config(server, filename):
 
 
 def get_key(salt, message):
+    """ Promt user for a password and generate hash. """
     passphrase = getpass.getpass(message)
     dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), bytestring(salt), 100000)
     return dk
 
 
 def read_config(filename):
+    """ Read config file and return config object. """
     config_parser = ConfigParser()
     with open(filename, 'r') as f:
         config_parser.read_file(f)
