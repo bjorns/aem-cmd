@@ -5,6 +5,7 @@ from acmd.compat import AES, Random
 from acmd.compat import bytestring, stdstring
 
 IV_BLOCK_SIZE = 16
+SALT_BLOCK_SIZE = 16
 
 
 def parse_prop(prop):
@@ -15,18 +16,24 @@ def parse_prop(prop):
     payload = base64.b64decode(payload_encoded)
 
     iv_bytes = payload[0:IV_BLOCK_SIZE]
-    ciphertext_bytes = payload[IV_BLOCK_SIZE:]
+    key_salt = payload[IV_BLOCK_SIZE:IV_BLOCK_SIZE+SALT_BLOCK_SIZE]
+    ciphertext_bytes = payload[IV_BLOCK_SIZE+SALT_BLOCK_SIZE:]
 
-    assert type(ciphertext_bytes) == bytes
     assert type(iv_bytes) == bytes
-
-    return ciphertext_bytes, iv_bytes
-
-
-def encode_prop(ciphertext_bytes, iv_bytes):
+    assert type(key_salt) == bytes
     assert type(ciphertext_bytes) == bytes
+
+    return iv_bytes, key_salt, ciphertext_bytes,
+
+
+def encode_prop(iv_bytes, key_salt_bytes, ciphertext_bytes):
     assert type(iv_bytes) == bytes
-    tmp = iv_bytes + ciphertext_bytes
+    assert len(iv_bytes) == IV_BLOCK_SIZE
+    assert type(key_salt_bytes) == bytes
+    assert len(key_salt_bytes) == SALT_BLOCK_SIZE
+    assert type(ciphertext_bytes) == bytes
+
+    tmp = iv_bytes + key_salt_bytes + ciphertext_bytes
 
     payload = base64.b64encode(bytestring(tmp))
     return "{" + stdstring(payload) + "}"
@@ -60,10 +67,8 @@ def decrypt(iv, key, ciphertext_bytes):
     return stdstring(codec.decrypt(ciphertext_bytes))
 
 
-def generate_iv():
-    """ Generate initial vector for encryption
-        Returns string of base64
-     """
-    ret = Random.new().read(IV_BLOCK_SIZE)
+def random_bytes(nbr_bytes):
+    """ Generate initial vector for encryption. """
+    ret = Random.new().read(nbr_bytes)
     assert type(ret) == bytes
     return ret

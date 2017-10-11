@@ -8,7 +8,8 @@ from configparser import ConfigParser
 
 from acmd import OK, USER_ERROR, tool, error
 from acmd.compat import bytestring, stdstring
-from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt
+from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE
+
 import acmd.util.crypto
 
 from .tool_utils import get_argument, get_action
@@ -81,9 +82,9 @@ def decrypt_config(server, filename):
     if not is_encrypted(prop):
         error("Password for server {} is not encrypted".format(server.name))
         return USER_ERROR
-    ciphertext_bytes, iv_bytes = parse_prop(prop)
+    iv_bytes, key_salt, ciphertext_bytes, = parse_prop(prop)
 
-    key_bytes = get_key(iv_bytes, "Passphrase: ")
+    key_bytes = get_key(key_salt, "Passphrase: ")
     assert type(key_bytes) == bytes
 
     msg = decrypt(iv_bytes, key_bytes, ciphertext_bytes)
@@ -112,14 +113,15 @@ def encrypt_config(server, filename):
     # Put fixes on string to be able to recognize successful decryption
     formatted_password = "[" + plaintext_password + "]"
 
-    iv_bytes = acmd.util.crypto.generate_iv()
+    iv_bytes = acmd.util.crypto.random_bytes(IV_BLOCK_SIZE)
     assert type(iv_bytes) == bytes  # get_iv() is sometimes mocked and should be checked in tests
 
-    key_bytes = get_key(iv_bytes, "Set passphrase: ")
+    key_salt = acmd.util.crypto.random_bytes(SALT_BLOCK_SIZE)
+    key_bytes = get_key(key_salt, "Set passphrase: ")
 
     ciphertext_bytes = encrypt_str(iv_bytes, key_bytes, formatted_password)
 
-    prop = encode_prop(ciphertext_bytes, iv_bytes)
+    prop = encode_prop(iv_bytes, key_salt, ciphertext_bytes)
 
     config.set(section_name, PASSWORD_PROP, prop)
     with open(filename, 'w') as f:

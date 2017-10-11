@@ -25,7 +25,7 @@ default_server = local
 [server localhost]
 host = http://localhost:4502
 username = admin
-password = {MDEyMzQ1Njc4OWFiY2RlZoktuc+MoJs=}
+password = {MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWaJLbnPjKCb}
 
 """
 
@@ -57,10 +57,10 @@ def test_format_config():
 
 
 @patch('getpass.getpass')
-@patch('acmd.util.crypto.generate_iv')
-def test_encrypt_password(generate_iv, getpass):
+@patch('acmd.util.crypto.random_bytes')
+def test_encrypt_password(random_bytes, getpass):
     getpass.return_value = "foobarpass"
-    generate_iv.return_value = b'0123456789abcdef'
+    random_bytes.return_value = b'0123456789abcdef'
     tmp_filepath = create_config()
 
     tool = tool_repo.get_tool('config')
@@ -74,10 +74,10 @@ def test_encrypt_password(generate_iv, getpass):
 
 
 @patch('getpass.getpass')
-@patch('acmd.util.crypto.generate_iv')
-def test_encrypt_decrypt(generate_iv, getpass):
+@patch('acmd.util.crypto.random_bytes')
+def test_encrypt_decrypt(random_bytes, getpass):
     getpass.return_value = "somepassword"
-    generate_iv.return_value = b'fedcba0987654321'
+    random_bytes.return_value = b'fedcba0987654321'
     tmp_filepath = create_config()
 
     tool = tool_repo.get_tool('config')

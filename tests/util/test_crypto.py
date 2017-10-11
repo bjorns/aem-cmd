@@ -7,16 +7,18 @@ from acmd.util.crypto import parse_prop, encode_prop, IV_BLOCK_SIZE
 
 def test_prop_save():
     iv = b'1234123412341234'
+    salt = b'0123456789abcdef'
     eq_(IV_BLOCK_SIZE, len(iv))
     ciphertext = b"ciphertext"
 
-    prop = encode_prop(ciphertext, iv)
-    eq_('{MTIzNDEyMzQxMjM0MTIzNGNpcGhlcnRleHQ=}', prop)
+    prop = encode_prop(iv, salt, ciphertext)
+    eq_('{MTIzNDEyMzQxMjM0MTIzNDAxMjM0NTY3ODlhYmNkZWZjaXBoZXJ0ZXh0}', prop)
 
-    new_pass, new_iv = parse_prop(prop)
+    new_iv, new_salt, new_pass,  = parse_prop(prop)
 
     eq_(ciphertext, new_pass)
     eq_(iv, new_iv)
+    eq_(salt, new_salt)
 
 
 def test_encrypt_decrypt_str():
