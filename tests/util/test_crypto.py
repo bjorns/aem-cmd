@@ -1,19 +1,21 @@
 # coding: utf-8
 from nose.tools import eq_
 
-from acmd.util.crypto import parse_prop, encode_prop
-from acmd.util.crypto import encrypt_str, decrypt_str
+from acmd.util.crypto import encrypt_str, decrypt
+from acmd.util.crypto import parse_prop, encode_prop, IV_BLOCK_SIZE
+
 
 def test_prop_save():
-    iv = b'This is an iv'
-    password = "Password"
+    iv = b'1234123412341234'
+    eq_(IV_BLOCK_SIZE, len(iv))
+    ciphertext = b"ciphertext"
 
-    prop = encode_prop(password, iv)
-    eq_('{UGFzc3dvcmQKVkdocGN5QnBjeUJoYmlCcGRnPT0=}', prop)
+    prop = encode_prop(ciphertext, iv)
+    eq_('{MTIzNDEyMzQxMjM0MTIzNGNpcGhlcnRleHQ=}', prop)
 
     new_pass, new_iv = parse_prop(prop)
 
-    eq_(password, new_pass)
+    eq_(ciphertext, new_pass)
     eq_(iv, new_iv)
 
 
@@ -22,8 +24,8 @@ def test_encrypt_decrypt_str():
     msg = "Hello Wörld"
     key = b'Some kind of key'
 
-    data = encrypt_str(iv, key, msg)
+    ciphertext = encrypt_str(iv, key, msg)
 
-    eq_("SapMLwk/NqcHuy4y", data)
-    new_msg = decrypt_str(iv, key, data)
+    eq_(b'I\xaaL/\t?6\xa7\x07\xbb.2', ciphertext)
+    new_msg = decrypt(iv, key, ciphertext)
     eq_(msg, new_msg)

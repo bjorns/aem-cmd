@@ -11,24 +11,23 @@ def parse_prop(prop):
     """ Reads property and outputs tuple (encrypted_password, iv) """
     if not (prop.startswith('{') and prop.endswith('}')):
         raise Exception('Unexpected format of prop {}'.format(prop))
-    payload = prop[1:-1]
-    tmp = base64.b64decode(payload)
-    lines = tmp.split(b'\n')
-    encrypted_password = stdstring(lines[0])
-    iv_str = lines[1]
+    payload_encoded = prop[1:-1]
+    payload = base64.b64decode(payload_encoded)
 
-    iv_bytes = base64.b64decode(iv_str)
+    iv_bytes = payload[0:IV_BLOCK_SIZE]
+    ciphertext_bytes = payload[IV_BLOCK_SIZE:]
 
-    return encrypted_password, iv_bytes
-
-
-def encode_prop(encrypted_password, iv_bytes):
-    assert type(encrypted_password) == str
+    assert type(ciphertext_bytes) == bytes
     assert type(iv_bytes) == bytes
 
-    iv_str = stdstring(base64.b64encode(iv_bytes))
+    return ciphertext_bytes, iv_bytes
 
-    tmp = "{password}\n{iv}".format(password=encrypted_password, iv=iv_str)
+
+def encode_prop(ciphertext_bytes, iv_bytes):
+    assert type(ciphertext_bytes) == bytes
+    assert type(iv_bytes) == bytes
+    tmp = iv_bytes + ciphertext_bytes
+
     payload = base64.b64encode(bytestring(tmp))
     return "{" + stdstring(payload) + "}"
 
@@ -47,19 +46,18 @@ def encrypt_str(iv, key, plaintext):
 
     codec = AES.new(bytestring(key), AES.MODE_CFB, iv)
     bindata = codec.encrypt(bytestring(plaintext))
-    return stdstring(base64.b64encode(bindata))
+    return bindata
 
 
-def decrypt_str(iv, key, ciphertext):
+def decrypt(iv, key, ciphertext_bytes):
     """ Takes strings in and is expected to give strings out.
         All binary string conversion is internal only. """
     assert type(iv) == bytes
     assert type(key) == bytes
-    assert type(ciphertext) == str
+    assert type(ciphertext_bytes) == bytes
 
-    bindata = base64.b64decode(bytestring(ciphertext))
     codec = AES.new(bytestring(key), AES.MODE_CFB, bytestring(iv))
-    return stdstring(codec.decrypt(bindata))
+    return stdstring(codec.decrypt(ciphertext_bytes))
 
 
 def generate_iv():

@@ -25,7 +25,7 @@ default_server = local
 [server localhost]
 host = http://localhost:4502
 username = admin
-password = {aVMyNXo0eWdtdz09Ck1ERXlNelExTmpjNE9XRmlZMlJsWmc9PQ==}
+password = {MDEyMzQ1Njc4OWFiY2RlZoktuc+MoJs=}
 
 """
 
@@ -43,12 +43,12 @@ def load_config(filepath):
     return data
 
 
-def test_rebuild_config():
+def test_format_config():
     tmp_filepath = create_config()
 
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'rebuild', tmp_filepath])
+    ret = tool.execute(server, ['config', 'format', tmp_filepath])
 
     eq_(OK, ret)
     new_config = load_config(tmp_filepath)
