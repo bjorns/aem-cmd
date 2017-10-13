@@ -1,21 +1,22 @@
 # coding: utf-8
 import optparse
 import os
+import os.path
 
 from configparser import ConfigParser
 
-from acmd import OK, USER_ERROR, tool, error
-from acmd.config import is_encrypted
-from acmd.compat import stdstring
-from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE, get_key
-
+import acmd
 import acmd.util.crypto
-
+from acmd import OK, USER_ERROR, tool, error
+from acmd.compat import stdstring
+from acmd.config import is_encrypted
+from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE, get_key
 from .tool_utils import get_argument, get_action
 
-PASSWORD_PROP = "password"
+PASSWORD_PROP = 'password'
 
 parser = optparse.OptionParser("acmd config <format|encrypt|decrypt> [options] <file>")
+parser.add_option("-f", "--file", dest="rcfile", help="The config file to process")
 
 
 @tool('config')
@@ -26,11 +27,17 @@ class ConfigTool(object):
         pass
 
     @staticmethod
-    def execute(server, argv):
+    def execute(_, argv):
         options, args = parser.parse_args(argv)
 
         action = get_action(args)
-        filename = get_argument(args)
+        server_name = get_argument(args)
+
+        if server_name == '':
+            error("Missing server name argument")
+            return USER_ERROR
+
+        filename = options.rcfile or acmd.get_rcfilename()
 
         if filename == '':
             error("Missing filename argument")
@@ -49,9 +56,9 @@ class ConfigTool(object):
         if action == 'format':
             return format_config(filename)
         if action == 'encrypt':
-            return encrypt_config(server, filename)
+            return encrypt_config(server_name, filename)
         if action == 'decrypt':
-            return decrypt_config(server, filename)
+            return decrypt_config(server_name, filename)
         else:
             error("Unknown command '{}'".format(action))
             return USER_ERROR
@@ -67,14 +74,14 @@ def format_config(filename):
     return OK
 
 
-def decrypt_config(server, filename):
+def decrypt_config(server_name, filename):
     """ Decrypt password in config. """
     config = read_config(filename)
-    section_name = 'server {}'.format(server.name)
+    section_name = 'server {}'.format(server_name)
     prop = config.get(section_name, PASSWORD_PROP)
 
     if not is_encrypted(prop):
-        error("Password for server {} is not encrypted".format(server.name))
+        error("Password for server {} is not encrypted".format(server_name))
         return USER_ERROR
     iv_bytes, key_salt, ciphertext_bytes, = parse_prop(prop)
 
@@ -93,15 +100,20 @@ def decrypt_config(server, filename):
     return OK
 
 
-def encrypt_config(server, filename):
+def encrypt_config(server_name, filename):
     """ Encrypt given server password. """
     config = read_config(filename)
-    section_name = 'server {}'.format(server.name)
+    section_name = 'server {}'.format(server_name)
+
+    if not config.has_section(section_name):
+        error("No section {} in config {}".format(server_name, filename))
+        return USER_ERROR
+
     plaintext_password = stdstring(config.get(section_name, PASSWORD_PROP))
     assert type(plaintext_password) == str
 
     if is_encrypted(plaintext_password):
-        error("Password for server {} is already encrypted".format(server.name))
+        error("Password for server {} is already encrypted".format(server_name))
         return USER_ERROR
 
     # Put fixes on string to be able to recognize successful decryption

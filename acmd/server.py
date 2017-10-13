@@ -35,9 +35,8 @@ class Server(object):
             if formatted_password[0] != '[' or formatted_password[-1] != ']':
                 raise Exception("Incorrect passphrase")
             plaintext_password = formatted_password[1:-1]
-            return plaintext_password
-        else:
-            return self._password
+            self._password = plaintext_password
+        return self._password
 
     def __str__(self):
         """ Support debug printing the object """

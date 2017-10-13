@@ -65,7 +65,7 @@ def test_encrypt_password(random_bytes, getpass):
 
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'encrypt', tmp_filepath])
+    ret = tool.execute(server, ['config', 'encrypt', '-f', tmp_filepath, 'localhost'])
 
     eq_(OK, ret)
     new_config = load_config(tmp_filepath)
@@ -82,10 +82,10 @@ def test_encrypt_decrypt(random_bytes, getpass):
 
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'encrypt', tmp_filepath])
+    ret = tool.execute(server, ['config', 'encrypt', '-f', tmp_filepath, 'localhost'])
 
     eq_(OK, ret)
-    ret = tool.execute(server, ['config', 'decrypt', tmp_filepath])
+    ret = tool.execute(server, ['config', 'decrypt', '-f', tmp_filepath, 'localhost'])
     eq_(OK, ret)
     data = load_config(tmp_filepath)
     eq_(PLAINTEXT_CONFIG, data)
@@ -94,14 +94,14 @@ def test_encrypt_decrypt(random_bytes, getpass):
 
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
-def test_no_file_argument(stderr, stdout):
+def test_no_server_argument(stderr, stdout):
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
     ret = tool.execute(server, ['config', 'encrypt'])
 
     eq_(USER_ERROR, ret)
     eq_('', stdout.getvalue())
-    eq_('error: Missing filename argument\n', stderr.getvalue())
+    eq_('error: Missing server name argument\n', stderr.getvalue())
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -109,7 +109,7 @@ def test_no_file_argument(stderr, stdout):
 def test_file_does_not_exist(stderr, stdout):
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'encrypt', 'thisisnotafile'])
+    ret = tool.execute(server, ['config', 'encrypt', '-f', 'thisisnotafile', 'localhost'])
 
     eq_(USER_ERROR, ret)
     eq_('error: Requested file thisisnotafile does not exist\n', stderr.getvalue())

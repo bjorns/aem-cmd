@@ -429,6 +429,51 @@ in with the help command as custom:catalog
      ...
     custom:catalog
 
+### Encrypted passwords
+
+For many use cases it is not desireable to keep passwords in plaintext. For
+this purpose it is possible to encrypt the configuration file and use a separate
+passphrase on invocation.
+
+#### Invocation
+The following command will ask for a passphrase which can then be used on acmd
+invocation.
+
+    $ acmd config encrypt qa-server
+    Set passphrase:
+
+By default the tool encrypts the local ~/.acmd.rc file. A parameter is
+available to encrypt the password for a specific file.
+
+    $ acmd config encrypt --file=/home/jennie/.acmd.rc qa-server
+    Set passphrase:
+
+Once this is done you will be asked for your passphrase for each invocation
+against the server.
+
+    $ acmd ls /content/dam
+    Passphrase:
+    project
+    stuff
+    other
+
+If you look in your rcfile after this you will notice the password section has
+changed.
+
+    [server qa-server]
+    ...
+    username = admin
+    password = {OLVoV9rxctNlCYtZuyunciQK0yXS59oyI8mnY4TuYxHg++0lB+QJ}
+
+### Notes
+
+The brackes are the signals to acmd that the password is encrypted and so do
+not use passwords with brackets at both beginning and end.
+
+Another important note is that in the process of encrypting the password acmd
+will parse and rewrite the entire config file and will discard any comments
+left in the file. This is a known bug or if you will, expected behavior.
+
 ## Custom Tools
 
 Writing a custom tool is relatively easy. All of acmd is written in Python and
