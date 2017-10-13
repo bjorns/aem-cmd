@@ -18,6 +18,8 @@ PASSWORD_PROP = 'password'
 parser = optparse.OptionParser("acmd config <format|encrypt|decrypt> [options] <file>")
 parser.add_option("-f", "--file", dest="rcfile", help="The config file to process")
 
+VALID_COMMANDS = {'format', 'encrypt', 'decrypt'}
+
 
 @tool('config')
 class ConfigTool(object):
@@ -30,19 +32,15 @@ class ConfigTool(object):
     def execute(_, argv):
         options, args = parser.parse_args(argv)
 
-        action = get_action(args)
-        server_name = get_argument(args)
-
-        if server_name == '':
-            error("Missing server name argument")
+        command = get_action(args)
+        if command not in VALID_COMMANDS:
+            error("Unknown command '{}'".format(command))
             return USER_ERROR
 
         filename = options.rcfile or acmd.get_rcfilename()
-
         if filename == '':
             error("Missing filename argument")
             return USER_ERROR
-
         if not os.path.isfile(filename):
             error("Requested file {} does not exist".format(filename))
             return USER_ERROR
@@ -53,15 +51,20 @@ class ConfigTool(object):
             error("Requested file {} lacks write access".format(filename))
             return USER_ERROR
 
-        if action == 'format':
+        if command == 'format':
             return format_config(filename)
-        if action == 'encrypt':
+
+        server_name = get_argument(args)
+        if server_name == '':
+            error("Missing server name argument")
+            return USER_ERROR
+
+        if command == 'encrypt':
             return encrypt_config(server_name, filename)
-        if action == 'decrypt':
+        elif command == 'decrypt':
             return decrypt_config(server_name, filename)
         else:
-            error("Unknown command '{}'".format(action))
-            return USER_ERROR
+            raise Exception('Internal error: {}'.format(command))
 
 
 def format_config(filename):

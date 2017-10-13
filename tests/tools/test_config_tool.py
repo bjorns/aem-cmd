@@ -48,7 +48,7 @@ def test_format_config():
 
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'format', tmp_filepath])
+    ret = tool.execute(server, ['config', 'format', '-f', tmp_filepath])
 
     eq_(OK, ret)
     new_config = load_config(tmp_filepath)
@@ -95,9 +95,10 @@ def test_encrypt_decrypt(random_bytes, getpass):
 @patch('sys.stdout', new_callable=StringIO)
 @patch('sys.stderr', new_callable=StringIO)
 def test_no_server_argument(stderr, stdout):
+    _, tmp_filepath = tempfile.mkstemp(".rc")
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'encrypt'])
+    ret = tool.execute(server, ['config', 'encrypt', '-f', tmp_filepath])
 
     eq_(USER_ERROR, ret)
     eq_('', stdout.getvalue())
@@ -123,7 +124,7 @@ def test_command_does_not_exist(stderr, stdout):
 
     tool = tool_repo.get_tool('config')
     server = Server('localhost')
-    ret = tool.execute(server, ['config', 'somethingelse', tmp_filepath])
+    ret = tool.execute(server, ['config', 'somethingelse', '-f', tmp_filepath])
 
     eq_(USER_ERROR, ret)
     eq_("error: Unknown command 'somethingelse'\n", stderr.getvalue())
