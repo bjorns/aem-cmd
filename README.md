@@ -1,12 +1,20 @@
 # AEM Command Line Tools
 
-This is a toolset package for working with AEM and especially
-the Java Content Repository (JCR) via command line tools. It tries to utilize
-the unix philosophy by reading and writing plaintext in order
-to interoperate with common tools such as grep, cut, sed and awk.
-Mostly it depends on the Sling json apis for interfacing.
-
 [![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
+
+AEM command line tools are a toolset package for working with AEM and
+the Java Content Repository (JCR) from a shell. Aem-cmd presents a few novel
+ideas compared to other aem command line tools:
+
+* Unix friendly. By reading and writing plaintext aem-cmd interoperates easily
+with common tools such as grep, cut, sed and awk.
+* Concise. Hostnames and usernames are stored in
+config files and mere server aliases are used from the perspective of the user
+* Battle tested. Real world deployment is a priority. Aem-cmd takes care to
+support standard python deployments and does not assume the user has super user
+access to the deployment environment.
+* By developers for developers. Write your own tools in powerful python and
+re-use the configuration framework and api-libs of the aem-cmd system.
 
 ## Getting Started
 
@@ -34,6 +42,13 @@ any other python package.
     Options:
       -h, --help            show this help message and exit
       -s str, --server=str  server name
+
+#### User local install
+
+If you do not have sudo access and your user does not have write access to the
+default python pats you can make a user local installation with:
+
+    $ pip install --user aem-cmd
 
 #### Bash Completion
 
