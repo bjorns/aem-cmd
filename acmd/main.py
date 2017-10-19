@@ -36,7 +36,10 @@ def run(options, config, args, cmdargs):
         sys.stderr.write("error: tool '{cmd}' not found.\n".format(cmd=tool_name))
         return acmd.USER_ERROR
     else:
-        return _tool.execute(server, cmdargs)
+        status = _tool.execute(server, cmdargs)
+        if status is None:
+            raise Exception("Unexpected error, tool {} should return valid status code".format(tool_name))
+        return status
 
 
 def split_argv(argv):

@@ -31,10 +31,9 @@ class Server(object):
             passphrase = getpass.getpass("Passphrase: ")
             iv, salt, ciphertext = parse_prop(self._password)
             key = make_key(salt, passphrase)
-            formatted_password = decrypt(iv, key, ciphertext)
-            if formatted_password[0] != '[' or formatted_password[-1] != ']':
-                raise Exception("Incorrect passphrase")
-            plaintext_password = formatted_password[1:-1]
+            plaintext_password, err = decrypt(iv, key, ciphertext)
+            if err is not None:
+                raise Exception(err)
             self._password = plaintext_password
         return self._password
 

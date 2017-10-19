@@ -435,27 +435,23 @@ For many use cases it is not desireable to keep passwords in plaintext. For
 this purpose it is possible to encrypt the configuration file and use a separate
 passphrase on invocation.
 
+#### Set master passphrase
+To start set a master password. The master will be stored in the system
+keychain using the python [keyring](https://pypi.python.org/pypi/keyring#using-keyring-on-headless-linux-systems) library.
+
+    $ acmd config set-master
+    Set master passphrase:
+
 #### Invocation
 The following command will ask for a passphrase which can then be used on acmd
 invocation.
 
     $ acmd config encrypt qa-server
-    Set passphrase:
 
 By default the tool encrypts the local ~/.acmd.rc file. A parameter is
 available to encrypt the password for a specific file.
 
     $ acmd config encrypt --file=/home/jennie/.acmd.rc qa-server
-    Set passphrase:
-
-Once this is done you will be asked for your passphrase for each invocation
-against the server.
-
-    $ acmd ls /content/dam
-    Passphrase:
-    project
-    stuff
-    other
 
 If you look in your rcfile after this you will notice the password section has
 changed.
@@ -465,12 +461,25 @@ changed.
     username = admin
     password = {OLVoV9rxctNlCYtZuyunciQK0yXS59oyI8mnY4TuYxHg++0lB+QJ}
 
-### Notes
+Now as long as the master passphrase is set in the keychain you can continue to
+use aem-cmd as normal.
 
-The brackes are the signals to acmd that the password is encrypted and so do
+    $ acmd ls /content/dam
+    project
+    stuff
+    other
+
+
+#### Notes on encrypted passwords
+
+- If you are on a linux system you may have to install a secure backend
+to avoid storing the master password in plaintext. Refer to the [keyring
+documentation](https://pypi.python.org/pypi/keyring#using-keyring-on-headless-linux-systems) for more details.
+
+- The brackes '{' and '}' are the signals to acmd that the password is encrypted and so do
 not use passwords with brackets at both beginning and end.
 
-Another important note is that in the process of encrypting the password acmd
+- In the process of encrypting the password acmd
 will parse and rewrite the entire config file and will discard any comments
 left in the file. This is a known bug or if you will, expected behavior.
 

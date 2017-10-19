@@ -56,7 +56,7 @@ def test_format_config():
     os.remove(tmp_filepath)
 
 
-@patch('getpass.getpass')
+@patch('keyring.get_password')
 @patch('acmd.util.crypto.random_bytes')
 def test_encrypt_password(random_bytes, getpass):
     getpass.return_value = "foobarpass"

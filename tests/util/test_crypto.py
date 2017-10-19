@@ -28,6 +28,6 @@ def test_encrypt_decrypt_str():
 
     ciphertext = encrypt_str(iv, key, msg)
 
-    eq_(b'I\xaaL/\t?6\xa7\x07\xbb.2', ciphertext)
-    new_msg = decrypt(iv, key, ciphertext)
+    eq_(b'Z\xa7\xdce\xd9]\x9b\x02?\x12\xe0\x95\xf6\\', ciphertext)
+    new_msg, err = decrypt(iv, key, ciphertext)
     eq_(msg, new_msg)

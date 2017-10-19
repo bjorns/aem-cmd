@@ -9,3 +9,6 @@ coverage==3.7.1
 pycryptodome==3.4.7
 twine
 pylint
+keyring==10.4.0
+keyrings.alt
+

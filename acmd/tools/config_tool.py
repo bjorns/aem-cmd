@@ -13,12 +13,14 @@ from acmd.config import is_encrypted
 from acmd.util.crypto import parse_prop, encode_prop, encrypt_str, decrypt, IV_BLOCK_SIZE, SALT_BLOCK_SIZE, get_key
 from .tool_utils import get_argument, get_action
 
+KEYRING_SERVICE = 'aem-cmd'
+KEYRING_PROP = 'master-password'
 PASSWORD_PROP = 'password'
 
-parser = optparse.OptionParser("acmd config <format|encrypt|decrypt> [options] <file>")
+parser = optparse.OptionParser("acmd config <format|encrypt|decrypt|set-master> [options] <file>")
 parser.add_option("-f", "--file", dest="rcfile", help="The config file to process")
 
-VALID_COMMANDS = {'format', 'encrypt', 'decrypt'}
+VALID_COMMANDS = {'format', 'encrypt', 'decrypt', 'set-master'}
 
 
 @tool('config')
@@ -53,6 +55,8 @@ class ConfigTool(object):
 
         if command == 'format':
             return format_config(filename)
+        elif command == 'set-master':
+            return set_master_password()
 
         server_name = get_argument(args)
         if server_name == '':
@@ -91,13 +95,11 @@ def decrypt_config(server_name, filename):
     key_bytes = get_key(key_salt, "Passphrase: ")
     assert type(key_bytes) == bytes
 
-    msg = decrypt(iv_bytes, key_bytes, ciphertext_bytes)
-    if msg[0] != '[' or msg[-1] != ']':
-        error("Passphrase incorrect")
+    plaintext_password, err = decrypt(iv_bytes, key_bytes, ciphertext_bytes)
+    if err is not None:
+        error(err)
         return USER_ERROR
-    plaintext_password = msg[1:-1]
     config.set(section_name, PASSWORD_PROP, plaintext_password)
-
     with open(filename, 'w') as f:
         config.write(f)
     return OK
@@ -119,22 +121,24 @@ def encrypt_config(server_name, filename):
         error("Password for server {} is already encrypted".format(server_name))
         return USER_ERROR
 
-    # Put fixes on string to be able to recognize successful decryption
-    formatted_password = "[" + plaintext_password + "]"
-
     iv_bytes = acmd.util.crypto.random_bytes(IV_BLOCK_SIZE)
     assert type(iv_bytes) == bytes  # get_iv() is sometimes mocked and should be checked in tests
 
     key_salt = acmd.util.crypto.random_bytes(SALT_BLOCK_SIZE)
     key_bytes = get_key(key_salt, "Set passphrase: ")
 
-    ciphertext_bytes = encrypt_str(iv_bytes, key_bytes, formatted_password)
+    ciphertext_bytes = encrypt_str(iv_bytes, key_bytes, plaintext_password)
 
     prop = encode_prop(iv_bytes, key_salt, ciphertext_bytes)
 
     config.set(section_name, PASSWORD_PROP, prop)
     with open(filename, 'w') as f:
         config.write(f)
+    return OK
+
+
+def set_master_password():
+    acmd.util.crypto.set_master_password()
     return OK
 
 

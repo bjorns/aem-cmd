@@ -2,12 +2,16 @@
 import base64
 import hashlib
 import getpass
+import keyring
 
 from acmd.compat import AES, Random
 from acmd.compat import bytestring, stdstring
 
 IV_BLOCK_SIZE = 16
 SALT_BLOCK_SIZE = 16
+
+KEYRING_SERVICE = 'aem-cmd'
+KEYRING_PROP = 'master-password'
 
 
 def parse_prop(prop):
@@ -53,8 +57,11 @@ def encrypt_str(iv, key, plaintext):
     assert type(key) == bytes
     assert type(plaintext) == str
 
+    # Put fixes on string to be able to recognize successful decryption
+    formatted = "[" + plaintext + "]"
+
     codec = AES.new(bytestring(key), AES.MODE_CFB, iv)
-    bindata = codec.encrypt(bytestring(plaintext))
+    bindata = codec.encrypt(bytestring(formatted))
     return bindata
 
 
@@ -66,7 +73,11 @@ def decrypt(iv, key, ciphertext_bytes):
     assert type(ciphertext_bytes) == bytes
 
     codec = AES.new(bytestring(key), AES.MODE_CFB, bytestring(iv))
-    return stdstring(codec.decrypt(ciphertext_bytes))
+    msg = stdstring(codec.decrypt(ciphertext_bytes))
+
+    if msg[0] != '[' or msg[-1] != ']':
+        return None, "Passphrase incorrect"
+    return msg[1:-1], None
 
 
 def random_bytes(nbr_bytes):
@@ -78,10 +89,20 @@ def random_bytes(nbr_bytes):
 
 def get_key(salt, message):
     """ Promt user for a password and generate hash. """
-    passphrase = getpass.getpass(message)
+
+    passphrase = keyring.get_password(KEYRING_SERVICE, KEYRING_PROP)
+    if passphrase is None:
+        passphrase = getpass.getpass(message)
     return make_key(salt, passphrase)
 
 
 def make_key(salt, passphrase):
     dk = hashlib.pbkdf2_hmac('sha256', bytestring(passphrase), bytestring(salt), 100000)
     return dk
+
+
+def set_master_password():
+    """ Read a password from command and store in OS keyring """
+    password = getpass.getpass("Set master passphrase: ")
+    keyring.set_password(KEYRING_SERVICE, KEYRING_PROP, password)
+
