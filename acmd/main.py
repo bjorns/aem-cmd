@@ -13,12 +13,12 @@ USAGE = """acmd [options] <tool> <args>
 parser = optparse.OptionParser(USAGE)
 parser.add_option("-s", "--server", dest="server",
                   help="server name", metavar="<name>")
-parser.add_option("-v", "--verbose",
-                  action="store_const", const=True, dest="verbose",
-                  help="verbose logging useful for debugging")
-parser.add_option("-V", "--version",
+parser.add_option("-v", "--version",
                   action="store_const", const=True, dest="show_version",
                   help="Show package version")
+parser.add_option("--verbose",
+                  action="store_const", const=True, dest="verbose",
+                  help="verbose logging useful for debugging")
 
 
 def run(options, config, args, cmdargs):
@@ -58,11 +58,13 @@ def split_argv(argv):
     return argv, []
 
 
-def main(argv, rcfile=None):
-    sysargs, cmdargs = split_argv(argv)
+def _is_verbose(argv):
+    """ Doing this the low level way in order to init log as early as possible """
+    return '--verbose' in argv
 
-    (options, args) = parser.parse_args(sysargs)
-    acmd.init_log(options.verbose)
+
+def main(argv, rcfile=None):
+    acmd.init_log(_is_verbose(argv))
 
     if not rcfile:
         rcfile = acmd.get_rcfilename()
@@ -71,6 +73,10 @@ def main(argv, rcfile=None):
     config = acmd.read_config(rcfile)
     acmd.tools.init_default_tools(config)
     acmd.import_projects(config.projects)
+
+    sysargs, cmdargs = split_argv(argv)
+
+    (options, args) = parser.parse_args(sysargs)
 
     if options.show_version:
         sys.stdout.write("{}\n".format(acmd.__version__))
