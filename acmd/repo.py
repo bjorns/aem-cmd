@@ -112,14 +112,16 @@ def import_tools(path, package=None, prefix=None, config=None):
     tool_repo.config = config
 
     for pyfile in pyfiles:
-        if pyfile == '__init__.py' or pyfile[-3:] != '.py':
-            continue
 
+        if pyfile == '__init__.py' or pyfile[-3:] != '.py' or pyfile == 'setup.py':
+            log('ignoring {}'.format(pyfile))
+            continue
         module_name = pyfile[:-3]
         if package is not None:
             module_name = "{}.{}".format(package, module_name)
 
         importlib.import_module(module_name)
+        log('Imported {}'.format(module_name))
 
 
 def import_projects(projects):
