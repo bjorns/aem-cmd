@@ -82,7 +82,7 @@ def read_config(filename):
     """ Read the config file filename. Return a Config() object. """
     parser = ConfigParser()
     with open(filename) as f:
-        parser.readfp(f, "utf-8")
+        parser.read_file(f, "utf-8")
 
     config = Config()
     config.servers = parse_servers(parser)
