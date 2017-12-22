@@ -1,0 +1,14 @@
+FROM ubuntu:17.10
+
+RUN apt-get update
+RUN apt-get install -y python-pip
+
+RUN pip install aem-cmd
+
+RUN mkdir -p /usr/local/acmd
+WORKDIR /usr/local/acmd
+
+COPY verify-installation.sh .
+COPY expected_output .
+
+ENTRYPOINT "./verify-installation.sh"

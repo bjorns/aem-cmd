@@ -17,8 +17,12 @@ try:
     from Crypto import Random as _Random
     from Crypto.Cipher import AES as _AES
 except:
-    from Cryptodome.Cipher import AES as _AES
-    from Cryptodome import Random as _Random
+    try:
+        from Cryptodome.Cipher import AES as _AES
+        from Cryptodome import Random as _Random
+    except:
+        _AES = dict()
+        _Random = dict()
 
 # Export uniform interface
 Random = _Random

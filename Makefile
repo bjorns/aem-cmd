@@ -22,4 +22,9 @@ test3:
 
 test: test3 test2
 
-.PHONY: all clean dist test_release release lint test2 test3 test
+acceptance-test:
+	docker build -f acceptance-test/Dockerfile.centos7-local -t acmd-centos7-local .
+	docker run acmd-centos7-local
+	make -C acceptance-test all
+
+.PHONY: all clean dist test_release release lint test2 test3 test acceptance-test
