@@ -21,12 +21,20 @@ except:
         from Cryptodome.Cipher import AES as _AES
         from Cryptodome import Random as _Random
     except:
-        _AES = dict()
-        _Random = dict()
+        _AES = None
+        _Random = None
 
-# Export uniform interface
-Random = _Random
-AES = _AES
+
+class CryptoComaptLayer(object):
+    def __init__(self, random, aes):
+        self.Random = random
+        self.AES = aes
+
+    def is_supported(self):
+        return (self.Random is not None) and (self.AES is not None)
+
+
+crypto = CryptoComaptLayer(_Random, _AES)
 
 
 def bytestring(string):

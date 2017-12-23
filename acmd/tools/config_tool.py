@@ -83,6 +83,10 @@ def format_config(filename):
 
 def decrypt_config(server_name, filename):
     """ Decrypt password in config. """
+    if not acmd.util.crypto.is_supported():
+        error("Crypto functions are not supported on this system. Install pycrypto or pycryptodome")
+        return USER_ERROR
+
     config = read_config(filename)
     section_name = 'server {}'.format(server_name)
     prop = config.get(section_name, PASSWORD_PROP)
@@ -107,6 +111,10 @@ def decrypt_config(server_name, filename):
 
 def encrypt_config(server_name, filename):
     """ Encrypt given server password. """
+    if not acmd.util.crypto.is_supported():
+        error("Crypto functions are not supported on this system. Install pycrypto or pycryptodome")
+        return USER_ERROR
+
     config = read_config(filename)
     section_name = 'server {}'.format(server_name)
 
@@ -138,6 +146,9 @@ def encrypt_config(server_name, filename):
 
 
 def set_master_password():
+    if not acmd.util.crypto.is_supported():
+        error("Crypto functions are not supported on this system. Install pycrypto or pycryptodome")
+        return USER_ERROR
     acmd.util.crypto.set_master_password()
     return OK
 
