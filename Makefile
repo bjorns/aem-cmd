@@ -22,12 +22,9 @@ test3:
 
 test: test3 test2
 
-acceptance-test:
-	#make -C acceptance-test all
+include ./acceptance-test.mk
 
-centos7-local:
-	docker build -f acceptance-test/Dockerfile.$@ -t acmd-$@ .
-	docker run acmd-$@
+acceptance-test:
 
 
 .PHONY: all clean dist test_release release lint test2 test3 test acceptance-test
