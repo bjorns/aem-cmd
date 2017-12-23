@@ -6,7 +6,7 @@ import acmd.config
 import acmd.deploy
 import acmd.repo
 
-__version__ = '0.14.4'
+__version__ = '0.14.5'
 
 # Standard error codes that can be returned from any tool.
 OK = 0
