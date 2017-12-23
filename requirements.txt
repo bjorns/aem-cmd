@@ -10,3 +10,4 @@ twine
 pylint
 keyring==10.4.0
 keyrings.alt
+pycryptodome==3.4.7

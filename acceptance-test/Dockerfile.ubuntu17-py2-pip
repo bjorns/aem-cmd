@@ -3,12 +3,12 @@ FROM ubuntu:17.10
 RUN apt-get update
 RUN apt-get install -y python-pip
 
-RUN pip install aem-cmd
+RUN pip install --upgrade aem-cmd
 
-RUN mkdir -p /usr/local/acmd
-WORKDIR /usr/local/acmd
+RUN mkdir -p /usr/local/aem-cmd
+WORKDIR /usr/local/aem-cmd
 
-COPY verify-installation.sh .
-COPY expected_output .
+COPY acceptance-test/verify-installation.sh .
+COPY acceptance-test/expected ./expected
 
 ENTRYPOINT "./verify-installation.sh"
