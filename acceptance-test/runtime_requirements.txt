@@ -1,0 +1,6 @@
+future==0.16
+configparser==3.5.0
+requests==2.7.0
+requests_toolbelt
+keyring==10.4.0
+keyrings.alt

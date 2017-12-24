@@ -11,4 +11,4 @@ WORKDIR /usr/local/aem-cmd
 COPY acceptance-test/verify-installation.sh .
 COPY acceptance-test/expected ./expected
 
-ENTRYPOINT "./verify-installation.sh"
+ENTRYPOINT ["./verify-installation.sh", "-c"]

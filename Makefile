@@ -24,7 +24,5 @@ test: test3 test2
 
 include ./acceptance-test.mk
 
-acceptance-test:
-
 
 .PHONY: all clean dist test_release release lint test2 test3 test acceptance-test
