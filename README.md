@@ -50,6 +50,12 @@ default python pats you can make a user local installation with:
 
     $ pip install --user aem-cmd
 
+When running this installation directory becomes $(HOME)/.local/bin. Usually this path is
+then covered in PATH but it may be necessary to add it to your .bashrc. A quick install script is
+available for user installs at
+
+    $ curl https://raw.githubusercontent.com/bjorns/aem-cmd/master/get-acmd-user.sh | bash
+
 #### Bash Completion
 
 Acmd comes with a bash completion script but for technical reason it cannot
@@ -449,6 +455,16 @@ in with the help command as custom:catalog
 For many use cases it is not desireable to keep passwords in plaintext. For
 this purpose it is possible to encrypt the configuration file and use a separate
 passphrase on invocation.
+
+### Installation
+Crypto support requries the pycryptodome package which in turn requires some 
+native packages. Because of this it is not installed by default. Install with
+
+    $ pip install pycryptodome
+
+or if you are using Python 3
+ 
+    $ pip3 install pycryptodome
 
 #### Set master passphrase
 To start set a master password. The master will be stored in the system
