@@ -2,18 +2,17 @@
 
 [![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
 
-AEM command line tools are a toolset package for working with AEM and
+AEM command line tools is a toolset package for working with AEM and
 the Java Content Repository (JCR) from a shell. Aem-cmd presents a few novel
 ideas compared to other aem command line tools:
 
-* Unix friendly. By reading and writing plaintext aem-cmd interoperates easily
+* *Unix friendly* - By reading and writing plaintext aem-cmd interoperates easily
 with common tools such as grep, cut, sed and awk.
-* Concise. Hostnames and usernames are stored in
-config files and mere server aliases are used from the perspective of the user
-* Battle tested. Real world deployment is a priority. Aem-cmd takes care to
-support standard python deployments and does not assume the user has super user
-access to the deployment environment.
-* By developers for developers. Write your own tools in powerful python and
+* *Concise* - Hostnames and usernames are stored in
+config files and mere server aliases are used from the perspective of the user.
+* *Battle tested* - Aem-cmd takes care to support standard python deployments and
+does not assume the user has super user access to the deployment environment.
+* *By developers for developers* - Write your own tools in powerful python and
 re-use the configuration framework and api-libs of the aem-cmd system.
 
 ## Getting Started
@@ -30,8 +29,7 @@ Note: The install script requires sudo access.
 
 #### Manual install
 
-For manual install, acmd is available in PyPI. To install, simply call pip like
-any other python package.
+For manual install, acmd is available in PyPI.
 
     $ pip install aem-cmd
     ...
@@ -46,35 +44,36 @@ any other python package.
 #### User local install
 
 If you do not have sudo access and your user does not have write access to the
-default python pats you can make a user local installation with:
+default python paths you can make a user local installation with:
 
     $ pip install --user aem-cmd
 
-When running this installation directory becomes $(HOME)/.local/bin. Usually this path is
-then covered in PATH but it may be necessary to add it to your .bashrc. A quick install script is
-available for user installs at
+When running this installation directory becomes $(HOME)/.local/bin. Usually
+this path is then covered in PATH but it may be necessary to add it to your
+.bashrc. A quick install script is available for user installs at
 
     $ curl https://raw.githubusercontent.com/bjorns/aem-cmd/master/get-acmd-user.sh | bash
 
 #### Bash Completion
 
-Acmd comes with a bash completion script but for technical reason it cannot
+aem-cmd comes with a bash completion script but for technical reasons it cannot
 be installed by pip so to install it use the install_bash_completion command.
 
     $ sudo acmd install_bash_completion
     Password:
     Installed bash completion script in /etc/bash_completion.d
 
-Note 1: The bash completion works best in bash 4. Due to licensing issues macOS still
-comes with bash 3 by default but it is possible to upgrade. See
+Note 1: The bash completion works best in bash 4. Due to licensing issues macOS
+still comes with bash 3 by default but it is possible to upgrade. See
 [here](http://apple.stackexchange.com/questions/24632/is-it-safe-to-upgrade-bash-via-homebrew).
 
-Note 2: The quick install scripts automatically adds the bash completion.
+Note 2: The main quick install script automatically invokes the bash completion
+tool.
 
 
 ## Tools
 
-Acmd is built around tools. Each tool represents a resource in the system.
+aem-cmd is built around tools. Each tool represents a resource in the system.
 Packages, bundles and users each have separate tools for operating on them.
 Think of it in terms of REST services. Primarily you interact with a resource,
 not an action.
@@ -367,7 +366,7 @@ If a directory is given it will be recreated at /content/dam
 
 will create /content/dam/selfies and import all the contents
 
-The -d flag allows for importing into a specific directory. 
+The -d flag allows for importing into a specific directory.
 
     $ acmd asset import -d /content/dam/another_directory ~/Pictures/selfies
 
@@ -457,13 +456,13 @@ this purpose it is possible to encrypt the configuration file and use a separate
 passphrase on invocation.
 
 ### Installation
-Crypto support requries the pycryptodome package which in turn requires some 
+Crypto support requries the pycryptodome package which in turn requires some
 native packages. Because of this it is not installed by default. Install with
 
     $ pip install pycryptodome
 
 or if you are using Python 3
- 
+
     $ pip3 install pycryptodome
 
 #### Set master passphrase
