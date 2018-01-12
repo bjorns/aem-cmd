@@ -1,6 +1,7 @@
 # coding: utf-8
 """ Helper functions for parsing legacy services returning html content. """
 
+import re
 from xml.dom import minidom
 
 
@@ -19,6 +20,9 @@ def parse_value(src, node_name, attr):
         return it's text content. """
     attr_name, attr_val = split(attr)
 
+    # If the AEM link checker for some reason finds invalid links in the response, it will put img elements that are not
+    # properly XML terminated, so for this purpose we simply remove all IMG tags there are.
+    src = re.sub(r'<img.*?>', '', src)
     doc = minidom.parseString(src)
     for elem in doc.getElementsByTagName(node_name):
         if elem.attributes.get(attr_name) and \
