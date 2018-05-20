@@ -69,7 +69,8 @@ def list_users(server, options):
 def create_user(server, options, username):
     """ curl -u admin:admin -FcreateUser= -FauthorizableId=testuser -Frep:password=abc123
             http://localhost:4502/libs/granite/security/post/authorizables """
-    assert len(username) > 0
+    assert len(username) > 0, "You must specify a username"
+    assert options.password, "Please specify a password with the -p option"
     form_data = {
         'createUser': '',
         'authorizableId': username,
