@@ -4,7 +4,7 @@ import hashlib
 import getpass
 import keyring
 
-from acmd.compat import AES, Random
+from acmd.compat import crypto
 from acmd.compat import bytestring, stdstring
 
 IV_BLOCK_SIZE = 16
@@ -12,6 +12,10 @@ SALT_BLOCK_SIZE = 16
 
 KEYRING_SERVICE = 'aem-cmd'
 KEYRING_PROP = 'master-password'
+
+
+def is_supported():
+    return crypto.is_supported()
 
 
 def parse_prop(prop):
@@ -60,7 +64,7 @@ def encrypt_str(iv, key, plaintext):
     # Put fixes on string to be able to recognize successful decryption
     formatted = "[" + plaintext + "]"
 
-    codec = AES.new(bytestring(key), AES.MODE_CFB, iv)
+    codec = crypto.AES.new(bytestring(key), crypto.AES.MODE_CFB, iv)
     bindata = codec.encrypt(bytestring(formatted))
     return bindata
 
@@ -72,7 +76,7 @@ def decrypt(iv, key, ciphertext_bytes):
     assert type(key) == bytes
     assert type(ciphertext_bytes) == bytes
 
-    codec = AES.new(bytestring(key), AES.MODE_CFB, bytestring(iv))
+    codec = crypto.AES.new(bytestring(key), crypto.AES.MODE_CFB, bytestring(iv))
     msg = stdstring(codec.decrypt(ciphertext_bytes))
 
     if msg[0] != '[' or msg[-1] != ']':
@@ -82,7 +86,7 @@ def decrypt(iv, key, ciphertext_bytes):
 
 def random_bytes(nbr_bytes):
     """ Generate initial vector for encryption. """
-    ret = Random.new().read(nbr_bytes)
+    ret = crypto.Random.new().read(nbr_bytes)
     assert type(ret) == bytes
     return ret
 
@@ -105,4 +109,3 @@ def set_master_password():
     """ Read a password from command and store in OS keyring """
     password = getpass.getpass("Set master passphrase: ")
     keyring.set_password(KEYRING_SERVICE, KEYRING_PROP, password)
-
