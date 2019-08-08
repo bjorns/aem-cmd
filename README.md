@@ -1,3 +1,14 @@
+## Maintainer Wanted
+
+I do no longer work directly with AEM. Beacuse of this I am unable to 
+properly maintain the aem-cmd package.
+
+Now, naturally you can just fork the repo (as many have done). But to 
+make it a little formal: I'm looking for someone to take over ownership
+of the main repo and carry it into the later AEM6.X versions as it deserves.
+
+Please DM me if you are interested.
+
 # AEM Command Line Tools
 
 [![Circle CI](https://circleci.com/gh/bjorns/aem-cmd.svg?style=svg)](https://circleci.com/gh/bjorns/aem-cmd)
